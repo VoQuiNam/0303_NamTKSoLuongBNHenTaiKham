@@ -28,6 +28,16 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
         {
             var danhSach = _localDb.M0303Thongtinbnhenkhams.ToList();
             ViewBag.DanhSach = danhSach;
+            ViewBag.quyenVaiTro = new
+            {
+                Them = true,
+                Sua = true,
+                Xoa = true,
+                Xuat = true,
+                CaNhan = true,
+                Xem = true,
+            };
+
             return View("~/Views/V0303/V0303TKSoLuongBNHenTaiKham/V0303TKSoLuongBNHenTaiKhamPage.cshtml");
         }
 

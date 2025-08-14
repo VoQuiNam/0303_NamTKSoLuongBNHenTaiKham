@@ -14,8 +14,8 @@
     <link rel="stylesheet" href="~/dist/lib/bootstrap/dist/css/bootstrap.min.css" />
 
     <!-- Site styles -->
-    <link rel="stylesheet" href="~/dist/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/dist/Nam_ThongKeSoLuongBNHenTaiKham.styles.css" asp-append-version="true" />
+    @* <link rel="stylesheet" href="~/dist/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/dist/Nam_ThongKeSoLuongBNHenTaiKham.styles.css" asp-append-version="true" /> *@
 
 
     <!-- Optional: Favicon -->
@@ -27,6 +27,7 @@
     <!-- jQuery (nếu cần) -->
     <!-- jQuery (phải load trước Bootstrap Datepicker) -->
     <script src="~/dist/lib/Jquery/jquery.min.js"></script>
+    <script src="@Url.Content("~/dist/lib/Jquery/jquery.inputmask.js")"></script>
 
     <!-- Bootstrap Datepicker CSS -->
     <link href="~/dist/lib/bootstrap-datepicker-1.10.0/dist/css/bootstrap-datepicker.min.css" rel="stylesheet" />
@@ -82,11 +83,12 @@
         </nav>
     </header>
 
-    <div class="container">
+    <div class="container" style="max-width:98%;margin:auto;">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
+
 
     <!-- Scripts cho Bootstrap 5 -->
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
