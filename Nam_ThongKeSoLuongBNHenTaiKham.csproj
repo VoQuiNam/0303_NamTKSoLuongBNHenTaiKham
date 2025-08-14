@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="wwwroot\dist\lib\Font-Awesome-7.x\**" />
+    <Compile Remove="wwwroot\dist\lib\icons-1.11.1\**" />
+    <Compile Remove="wwwroot\dist\lib\jquery-3.6.0\**" />
+    <Content Remove="wwwroot\dist\lib\Font-Awesome-7.x\**" />
+    <Content Remove="wwwroot\dist\lib\icons-1.11.1\**" />
+    <Content Remove="wwwroot\dist\lib\jquery-3.6.0\**" />
+    <EmbeddedResource Remove="wwwroot\dist\lib\Font-Awesome-7.x\**" />
+    <EmbeddedResource Remove="wwwroot\dist\lib\icons-1.11.1\**" />
+    <EmbeddedResource Remove="wwwroot\dist\lib\jquery-3.6.0\**" />
+    <None Remove="wwwroot\dist\lib\Font-Awesome-7.x\**" />
+    <None Remove="wwwroot\dist\lib\icons-1.11.1\**" />
+    <None Remove="wwwroot\dist\lib\jquery-3.6.0\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\dist\lib\bootstrap-datepicker-1.10.0\.github\ISSUE_TEMPLATE.md" />
+    <None Include="wwwroot\dist\lib\bootstrap-datepicker-1.10.0\.github\PULL_REQUEST_TEMPLATE.md" />
+    <None Include="wwwroot\dist\lib\bootstrap-datepicker-1.10.0\.github\workflows\ci.yaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ClosedXML" Version="0.105.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.8" />
+    <PackageReference Include="QuestPDF" Version="2025.7.0" />
+  </ItemGroup>
+
+</Project>

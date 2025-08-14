@@ -1,0 +1,71 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\Github\\0303_TKSoLuongBNHenTaiKham\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{AAAA896D-C200-A6D7-AEF2-0AAAE2EB05FF}|Nam_ThongKeSoLuongBNHenTaiKham.csproj|d:\\github\\0303_tksoluongbnhentaikham\\wwwroot\\dist\\js\\d0303\\d0303tksoluongbnhentaikham.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{AAAA896D-C200-A6D7-AEF2-0AAAE2EB05FF}|Nam_ThongKeSoLuongBNHenTaiKham.csproj|solutionrelative:wwwroot\\dist\\js\\d0303\\d0303tksoluongbnhentaikham.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AAAA896D-C200-A6D7-AEF2-0AAAE2EB05FF}|Nam_ThongKeSoLuongBNHenTaiKham.csproj|d:\\github\\0303_tksoluongbnhentaikham\\views\\v0303\\v0303tksoluongbnhentaikham\\v0303tksoluongbnhentaikhampage.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{AAAA896D-C200-A6D7-AEF2-0AAAE2EB05FF}|Nam_ThongKeSoLuongBNHenTaiKham.csproj|solutionrelative:views\\v0303\\v0303tksoluongbnhentaikham\\v0303tksoluongbnhentaikhampage.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AAAA896D-C200-A6D7-AEF2-0AAAE2EB05FF}|Nam_ThongKeSoLuongBNHenTaiKham.csproj|d:\\github\\0303_tksoluongbnhentaikham\\wwwroot\\dist\\js\\bienchung.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{AAAA896D-C200-A6D7-AEF2-0AAAE2EB05FF}|Nam_ThongKeSoLuongBNHenTaiKham.csproj|solutionrelative:wwwroot\\dist\\js\\bienchung.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "BienChung.js",
+              "DocumentMoniker": "D:\\Github\\0303_TKSoLuongBNHenTaiKham\\wwwroot\\dist\\js\\BienChung.js",
+              "RelativeDocumentMoniker": "wwwroot\\dist\\js\\BienChung.js",
+              "ToolTip": "D:\\Github\\0303_TKSoLuongBNHenTaiKham\\wwwroot\\dist\\js\\BienChung.js",
+              "RelativeToolTip": "wwwroot\\dist\\js\\BienChung.js",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAAQAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2025-08-14T01:29:37.665Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "D0303TKSoLuongBNHenTaiKham.js",
+              "DocumentMoniker": "D:\\Github\\0303_TKSoLuongBNHenTaiKham\\wwwroot\\dist\\js\\D0303\\D0303TKSoLuongBNHenTaiKham.js",
+              "RelativeDocumentMoniker": "wwwroot\\dist\\js\\D0303\\D0303TKSoLuongBNHenTaiKham.js",
+              "ToolTip": "D:\\Github\\0303_TKSoLuongBNHenTaiKham\\wwwroot\\dist\\js\\D0303\\D0303TKSoLuongBNHenTaiKham.js",
+              "RelativeToolTip": "wwwroot\\dist\\js\\D0303\\D0303TKSoLuongBNHenTaiKham.js",
+              "ViewState": "AgIAAAABAAAAAAAAAAAqwEIBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2025-08-13T16:34:04.74Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "V0303TKSoLuongBNHenTaiKhamPage.cshtml",
+              "DocumentMoniker": "D:\\Github\\0303_TKSoLuongBNHenTaiKham\\Views\\V0303\\V0303TKSoLuongBNHenTaiKham\\V0303TKSoLuongBNHenTaiKhamPage.cshtml",
+              "RelativeDocumentMoniker": "Views\\V0303\\V0303TKSoLuongBNHenTaiKham\\V0303TKSoLuongBNHenTaiKhamPage.cshtml",
+              "ToolTip": "D:\\Github\\0303_TKSoLuongBNHenTaiKham\\Views\\V0303\\V0303TKSoLuongBNHenTaiKham\\V0303TKSoLuongBNHenTaiKhamPage.cshtml",
+              "RelativeToolTip": "Views\\V0303\\V0303TKSoLuongBNHenTaiKham\\V0303TKSoLuongBNHenTaiKhamPage.cshtml",
+              "ViewState": "AgIAAHgAAAAAAAAAAAAAAGMAAABCAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-08-13T16:31:28.986Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
