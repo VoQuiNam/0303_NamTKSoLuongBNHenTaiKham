@@ -157,7 +157,6 @@ function renderTable() {
                 <td class="text-start" style="max-width: 150px;">${item.bacSiHenKham}</td>
                 <td class="text-start">${item.nhacHen}</td>
                 <td style="max-width: 150px;">${item.ghiChu}</td>
-                <td class="text-center" style="width: 50px;">${item.idcn}</td>
             </tr>
         `;
         tbody.append(row);
@@ -244,6 +243,8 @@ function handleFilter() {
 
         setTimeout(function () {
             const idChiNhanh = window._idcn;
+
+            console.log(idChiNhanh);
 
             const tuNgayRaw = $('#tuNgayDesktop').val() || $('#tuNgayMobile').val();
             const denNgayRaw = $('#denNgayDesktop').val() || $('#denNgayMobile').val();

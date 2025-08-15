@@ -10,7 +10,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Models.M0303
         [StringLength(50)]
         public string MaYTe { get; set; }
 
-        public long? IDCN { get; set; }
+        public long IDCN { get; set; }
 
         [StringLength(100)]
         public string HoVaTen { get; set; }

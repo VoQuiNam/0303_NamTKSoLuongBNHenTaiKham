@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Nam_ThongKeSoLuongBNHenTaiKham.Context;
 using Nam_ThongKeSoLuongBNHenTaiKham.Models;
-using Nam_ThongKeSoLuongBNHenTaiKham.Models.M0303;
 using Nam_ThongKeSoLuongBNHenTaiKham.Service;
 using Nam_ThongKeSoLuongBNHenTaiKham.Service.SI0303;
 using QuestPDF.Infrastructure;
@@ -8,7 +8,6 @@ using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddScoped<I0303TKSoLuongBNHenKham, S0303TKSoLuongBNHenKham>();
@@ -24,11 +23,9 @@ QuestPDF.Settings.License = LicenseType.Community;
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -38,6 +35,12 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+
+app.MapGet("/", async context =>
+{
+    context.Response.Redirect("/bao_cao_thong_ke_so_luong_benh_nhan_hen_tai_kham");
+});
+ 
 
 app.MapControllerRoute(
     name: "default",

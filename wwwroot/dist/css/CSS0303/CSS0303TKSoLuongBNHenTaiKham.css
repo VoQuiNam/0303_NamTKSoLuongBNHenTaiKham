@@ -1,114 +1,17 @@
-﻿/*body {
-    margin: 0;
-    padding: 0;
-    font-family: sans-serif;
-    overflow-x: auto;
-}
-
-.table th {
-    vertical-align: middle !important;
-    text-align: center;
-}
-
-.table td {
-    vertical-align: middle !important;
-    text-align: center;
-}
-
-
-
-.table-area,
-.filter-panel,
-.custom-bordered-table {
-    font-size: 13px;
-}
-
-.table-responsive-sticky {
-    max-height: calc(100vh - 56px);
-    overflow-y: auto;
-    overflow-x: auto;
-}
-
-.custom-bordered-table th,
-.custom-bordered-table td {
-    white-space: normal;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    padding: 6px 8px;
-    border: 1px solid #dee2e6;
-}
-
-.custom-bordered-table {
-    border: 1px solid #dee2e6;
-    border-collapse: separate;
-    border-spacing: 0;
-}
-
-    .custom-bordered-table thead th {
-        position: sticky;
-        top: 0;
-        background-color: #f8f9fa;
-        z-index: 2;
-        box-shadow: inset 0 -1px 0 #dee2e6;
-    }
-
-.filter-panel {
-    width: 280px;
-    height: calc(100vh - 56px);
-    margin-top: 56px;
-    position: fixed;
-    top: 0;
-    left: 0;
-    background-color: #f8f9fa;
-    padding: 16px;
-    border-right: 1px solid #dee2e6;
-    z-index: 1000;
-}
-
-.table-area {
-    position: absolute;
-    top: 56px;
-    left: 280px;
-    right: 0;
-    bottom: 0;
-    padding: 16px;
-    overflow: auto;
-    overflow-y: hidden;
-}
-
-@media (max-width: 767.98px) {
-    .table-area {
-        position: static;
-        margin-top: 0;
-        margin-left: 0;
-        padding: 16px;
-    }
-}*/
-
-/*.datepicker {
-    z-index: 9999 !important;
-}*/
-
-/*.litepicker {
-    z-index: 9999 !important;
-}*/
-
-
-
-
+﻿
 .table-wrapper {
-    overflow-x: scroll; /* ép trình duyệt luôn hiển thị thanh cuộn ngang */
-    overflow-y: scroll; /* ép trình duyệt luôn hiển thị thanh cuộn dọc */
+    overflow-x: scroll;
+    overflow-y: scroll;
     height: 68vh;
-    scrollbar-width: thin; /* Firefox: hiển thị thanh cuộn mảnh */
-    -ms-overflow-style: scrollbar; /* IE và Edge cũ: hiển thị thanh cuộn */
+    scrollbar-width: thin;
+    -ms-overflow-style: scrollbar;
 }
 
 
     .table-wrapper::-webkit-scrollbar {
         display: block;
-        height: 12px; /* Chiều cao thanh cuộn ngang */
-        width: 12px; /* Chiều rộng thanh cuộn dọc */
+        height: 12px;
+        width: 12px;
     }
 
 
@@ -117,10 +20,10 @@
 }
 
 .table-wrapper table {
-    border-collapse: separate; /* từ collapse sang separate */
+    border-collapse: separate;
     border-spacing: 0;
     width: auto;
-    min-width: 1500px; /* hoặc 1500px nếu cần */
+    min-width: 1500px;
     table-layout: fixed;
 }
 
@@ -143,10 +46,10 @@
 .table-wrapper td {
     font-size: 1rem;
 }
-/* thêm hover cho td màu xanh nhạt*/
+
 
 .table-wrapper tr:hover td {
-    background-color: #e6f7ff; /* Màu xanh nhạt */
+    background-color: #e6f7ff; 
 }
 
 .table-wrapper th:first-child {
@@ -193,14 +96,13 @@ label {
             font-size: 0.8rem;
         }
 
-        /* Container cho hai nút xuất file */
+
         .container_goiKham.left .row.export-buttons {
             display: flex;
             font-size: 0.8rem;
-            gap: 8px; /* Khoảng cách giữa nút */
+            gap: 8px; 
         }
 
-            /* Mỗi nút chiếm 50% */
             .container_goiKham.left .row.export-buttons button {
                 flex: 1;
                 padding: 8px;
@@ -233,16 +135,16 @@ input {
     .input-group .form-control {
         font-size: 1rem;
         padding: 8px 12px;
-        height: 42px; /* Đặt cố định để khớp */
+        height: 42px;
     }
 
 .input-group-text {
     font-size: 1rem;
     padding: 0 12px;
     display: flex;
-    align-items: center; /* Căn giữa dọc icon */
+    align-items: center;
     justify-content: center;
-    height: 42px; /* Giống input */
+    height: 42px;
 }
 
     .input-group-text i {
@@ -252,7 +154,8 @@ input {
 #btnFilter {
     margin: 8px 0 6px 0 !important;
 }
-/* Phân trang */
+
+
 .pagination {
     margin: 0;
 }
@@ -279,13 +182,12 @@ input {
     color: #6c757d;
 }
 
-/* Dropdown chọn số bản ghi */
 #pageSizeSelect {
     width: auto;
     display: inline-block;
     margin-left: 10px;
 }
-/* Giữ phân trang cố định ở dưới */
+
 .phan_trang {
     display: flex;
     justify-content: end;
@@ -295,8 +197,7 @@ input {
     margin: 20px auto !important;
     font-size: 1rem;
     gap: 10px;
-    min-height: 50px; /* Chiều cao tối thiểu để không bị nhảy */
-}
+    min-height: 50px;
 
     .phan_trang label {
         margin-bottom: 0;
@@ -314,20 +215,13 @@ input {
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 9999;
-    /* Tăng kích thước spinner */
-    width: 100px; /* Chiều rộng */
-    height: 100px; /* Chiều cao */
+    width: 100px;
+    height: 100px;
 }
 
-    /* Nếu dùng Bootstrap spinner */
     #loadingSpinner .spinner-border {
-        width: 5rem; /* Tăng gấp 5 lần kích thước mặc định */
+        width: 5rem;
         height: 5rem;
-        border-width: 0.5em; /* Độ dày viền */
+        border-width: 0.5em; 
     }
 
-
-/*#selectNam {
-    min-width: 200px;
-    white-space: nowrap;
-}*/
