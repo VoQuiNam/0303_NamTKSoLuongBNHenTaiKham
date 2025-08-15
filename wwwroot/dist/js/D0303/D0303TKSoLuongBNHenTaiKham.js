@@ -121,7 +121,7 @@ function formatDateDisplay(dateString) {
 function updateTable(data) {
     fullData = data || [];
     currentPage = 1;
-    pageSize = parseInt($('#pageSizeSelector').val()) || 20;
+    pageSize = parseInt($('#pageSizeSelect').val()) || 20;
 
     renderTable();
     renderPagination();
@@ -165,80 +165,67 @@ function renderTable() {
 }
 
 
+
 function renderPagination() {
-    const container = $('#pagination');
-    container.empty();
+    const pagination = $('#pagination');
+    pagination.empty();
 
-    const totalPages = Math.ceil(fullData.length / pageSize);
-    if (totalPages <= 1) return;
+    const totalRecords = fullData.length;
+    const pages = Math.max(1, Math.ceil(totalRecords / pageSize));
 
-    // Nút Previous
-    const prevDisabled = currentPage === 1 ? 'disabled' : '';
-    const prevLi = $(`
-        <li class="page-item ${prevDisabled}">
-            <a class="page-link" href="#" data-page="${currentPage - 1}">&laquo;</a>
+    if (currentPage > pages) currentPage = pages;
+
+    $('#paginationContainer').text(`Trang ${currentPage}/${pages} – Tổng ${totalRecords} bản ghi`);
+
+    // Nút Trước
+    pagination.append(`
+        <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+            <a class="page-link" href="#" data-page="${Math.max(1, currentPage - 1)}">Trước</a>
         </li>
     `);
-    prevLi.on('click', function () {
-        if (currentPage > 1) {
-            currentPage--;
-            renderTable();
-            renderPagination();
-        }
-    });
-    container.append(prevLi);
 
-    // Các nút số trang
-    for (let i = 1; i <= totalPages; i++) {
-        const li = $(`
+    // Hiển thị 3 trang gần currentPage
+    const visibleCount = 3;
+    let startPage = Math.max(1, currentPage - 1);
+    let endPage = Math.min(pages, startPage + visibleCount - 1);
+
+    if (endPage - startPage + 1 < visibleCount) {
+        startPage = Math.max(1, endPage - visibleCount + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+        pagination.append(`
             <li class="page-item ${i === currentPage ? 'active' : ''}">
                 <a class="page-link" href="#" data-page="${i}">${i}</a>
             </li>
         `);
-        li.on('click', function () {
-            currentPage = i;
-            renderTable();
-
-            // 👉 Auto scroll ngang nếu là trang cuối
-            if (currentPage === totalPages) {
-                setTimeout(() => {
-                    const wrapper = document.querySelector('.table-wrapper');
-                    if (wrapper) {
-                        wrapper.scrollLeft = wrapper.scrollWidth;
-                    }
-                }, 0);
-            }
-
-            renderPagination();
-        });
-        container.append(li);
     }
 
-    // Nút Next
-    const nextDisabled = currentPage === totalPages ? 'disabled' : '';
-    const nextLi = $(`
-        <li class="page-item ${nextDisabled}">
-            <a class="page-link" href="#" data-page="${currentPage + 1}">&raquo;</a>
+    // Nút Sau
+    pagination.append(`
+        <li class="page-item ${currentPage === pages ? 'disabled' : ''}">
+            <a class="page-link" href="#" data-page="${Math.min(pages, currentPage + 1)}">Sau</a>
         </li>
     `);
-    nextLi.on('click', function () {
-        if (currentPage < totalPages) {
-            currentPage++;
+
+    // Gắn sự kiện click cho các nút
+    pagination.find('a.page-link').on('click', function (e) {
+        e.preventDefault();
+        const page = parseInt($(this).data('page'));
+        if (!isNaN(page) && page !== currentPage) {
+            currentPage = page;
             renderTable();
             renderPagination();
         }
     });
-    container.append(nextLi);
 }
 
 
 $(document).on('change', '#pageSizeSelect', function () {
-    pageSize = parseInt($(this).val());
+    pageSize = parseInt($(this).val()) || 10;
     currentPage = 1;
 
     if (fullData && fullData.length > 0) {
-        const totalPages = Math.ceil(fullData.length / pageSize);
-
         renderTable();
         renderPagination();
     } else {
@@ -246,6 +233,7 @@ $(document).on('change', '#pageSizeSelect', function () {
         alert("Vui lòng lọc dữ liệu trước khi thay đổi số dòng hiển thị.");
     }
 });
+
 
 
 
@@ -319,16 +307,15 @@ function handleFilter() {
 
 // === Xử lý nút xuất Excel ===
 function handleExportExcel() {
-    $('.btnExportExcel').off('click').on('click', function () {
-        const btn = $(this);
+    const btn = document.getElementById("btnExportExcelGoiKham");
 
-        // Lưu nội dung gốc nếu chưa có
-        if (!btn.data('originalText')) {
-            btn.data('originalText', btn.html().trim());
+    btn.addEventListener("click", function () {
+        if (!btn.dataset.originalHTML) {
+            btn.dataset.originalHTML = btn.innerHTML.trim();
         }
 
-        const tuNgayRaw = $('#tuNgayDesktop').val() || $('#tuNgayMobile').val();
-        const denNgayRaw = $('#denNgayDesktop').val() || $('#denNgayMobile').val();
+        const tuNgayRaw = document.getElementById("tuNgayDesktop").value || document.getElementById("tuNgayMobile").value;
+        const denNgayRaw = document.getElementById("denNgayDesktop").value || document.getElementById("denNgayMobile").value;
         const tuNgay = formatDateForServer(tuNgayRaw);
         const denNgay = formatDateForServer(denNgayRaw);
         const idChiNhanh = window._idcn;
@@ -339,29 +326,27 @@ function handleExportExcel() {
         }
 
         if (!validateDateRange(tuNgay, denNgay)) {
-            btn.html(btn.data('originalText'));
-            btn.prop('disabled', false);
+            btn.innerHTML = btn.dataset.originalHTML;
+            btn.disabled = false;
             return;
         }
 
-        // Hiển thị spinner và disable nút
-        btn.html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Đang xuất...');
-        btn.prop('disabled', true);
+        // ✅ Hiển thị spinner, giữ nguyên layout
+        btn.innerHTML = `
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        `;
+        btn.disabled = true;
 
-        // Tạo URL và chuyển hướng để tải file
         const url = `/export/excel?tuNgay=${tuNgay}&denNgay=${denNgay}&idcn=${idChiNhanh}`;
         window.location.href = url;
 
-        alert("✅ Xuất Excel thành công!");
-
-        // Khôi phục nút sau 1.5 giây
         setTimeout(() => {
-            btn.html(btn.data('originalText'));
-            btn.prop('disabled', false);
+            btn.innerHTML = btn.dataset.originalHTML;
+            btn.disabled = false;
+            alert("✅ Xuất Excel thành công!");
         }, 1500);
     });
 }
-
 
 
 
@@ -378,41 +363,32 @@ function handleExportPDF() {
 }
 
 function exportPDFHandler(btn, viewType) {
-    // Lưu nội dung gốc của nút nếu chưa có
-    if (!btn.dataset.originalText) {
-        btn.dataset.originalText = btn.innerHTML.trim();
+    if (!btn.dataset.originalHTML) {
+        btn.dataset.originalHTML = btn.innerHTML.trim();
     }
 
-    // Lấy giá trị ngày từ input
-    const tuNgay = document.getElementById(
-        viewType === "Mobile" ? "tuNgayMobile" : "tuNgayDesktop"
-    ).value;
+    const tuNgay = document.getElementById(viewType === "Mobile" ? "tuNgayMobile" : "tuNgayDesktop").value;
+    const denNgay = document.getElementById(viewType === "Mobile" ? "denNgayMobile" : "denNgayDesktop").value;
 
-    const denNgay = document.getElementById(
-        viewType === "Mobile" ? "denNgayMobile" : "denNgayDesktop"
-    ).value;
-
-    // Kiểm tra ngày
     if (!tuNgay || !denNgay) {
         alert("⚠️ Vui lòng chọn đầy đủ Từ ngày và Đến ngày trước khi xuất PDF.");
-        btn.innerHTML = btn.dataset.originalText;
+        btn.innerHTML = btn.dataset.originalHTML;
         btn.disabled = false;
         return;
     }
 
     if (!validateDateRange(tuNgay, denNgay)) {
-        btn.innerHTML = btn.dataset.originalText;
+        btn.innerHTML = btn.dataset.originalHTML;
         btn.disabled = false;
         return;
     }
 
-    // Hiển thị spinner khi đang xử lý
+    // ✅ Hiển thị spinner, không thay đổi nội dung
     btn.innerHTML = `
-        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Đang xuất...
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
     `;
     btn.disabled = true;
 
-    // Chuẩn bị dữ liệu gửi lên server
     const idChiNhanh = window._idcn;
     const formattedTuNgay = formatDateForServer(tuNgay);
     const formattedDenNgay = formatDateForServer(denNgay);
@@ -422,7 +398,6 @@ function exportPDFHandler(btn, viewType) {
     if (formattedDenNgay) url += `denNgay=${formattedDenNgay}&`;
     if (idChiNhanh) url += `idChiNhanh=${idChiNhanh}`;
 
-    // Gọi API xuất PDF
     fetch(url, {
         method: "GET",
         headers: { 'Accept': 'application/pdf' }
@@ -452,8 +427,7 @@ function exportPDFHandler(btn, viewType) {
             alert("❌ Lỗi khi xuất PDF: " + error.message);
         })
         .finally(() => {
-            // Khôi phục lại nút
-            btn.innerHTML = btn.dataset.originalText;
+            btn.innerHTML = btn.dataset.originalHTML;
             btn.disabled = false;
         });
 }
