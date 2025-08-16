@@ -260,6 +260,58 @@
                 const $dropdown = $('#' + id + 'Dropdown');
                 let currentHighlightIndex = -1;
 
+                    function validateYearInput(val) {
+            let year = parseInt(val, 10);
+
+            if (isNaN(year) || year < 2000 || year > currentYear) {
+                year = currentYear; 
+                $input.val(year);
+            }
+
+            return year;
+        }
+
+        $input.on('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const year = validateYearInput($input.val());
+                if (onSelect) onSelect(year);
+            }
+        });
+
+                        $input.on('keydown', function(e) {
+            if ([46, 8, 9, 27, 13, 110, 190].indexOf(e.keyCode) !== -1 ||
+                (e.keyCode === 65 && e.ctrlKey === true) || 
+                (e.keyCode === 67 && e.ctrlKey === true) || 
+                (e.keyCode === 86 && e.ctrlKey === true) || 
+                (e.keyCode === 88 && e.ctrlKey === true) || 
+                (e.keyCode >= 35 && e.keyCode <= 39)) { 
+                return;
+            }
+
+            if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                e.preventDefault();
+            }
+        });
+
+                $input.on('blur', function() {
+            let val = parseInt($input.val(), 10);
+
+            if (isNaN(val) || val < 0) {
+                val = defaultValue;
+                $input.val(val);
+                if (onSelect) onSelect(val);
+            }
+
+            if (!values.includes(val)) {
+                const closest = values.reduce((prev, curr) => {
+                    return (Math.abs(curr - val) < Math.abs(prev - val) ? curr : prev);
+                });
+                val = closest;
+                $input.val(val);
+                if (onSelect) onSelect(val);
+            }
+        });
                 function highlightCurrentItem() {
                     const items = $dropdown.find('.dropdown-item');
                     items.removeClass('active bg-primary text-white');
@@ -272,50 +324,79 @@
                     }
                 }
 
-            function renderList(filter = '') {
-                $dropdown.empty();
-                currentHighlightIndex = -1;
+                              function renderList(filter = '') {
+            $dropdown.empty();
+            currentHighlightIndex = -1;
 
-                const selectedVal = parseInt($input.val(), 10);
-                const fallbackVal = defaultValue;
-                const selectedOrFallback = Number.isFinite(selectedVal) ? selectedVal : fallbackVal;
+            const selectedVal = parseInt($input.val(), 10);
+            const fallbackVal = defaultValue;
+            let selectedOrFallback = Number.isFinite(selectedVal) ? selectedVal : fallbackVal;
 
-                let filteredValues = values.filter(v => !filter || v.toString().includes(filter));
-
-                if (!filteredValues.includes(selectedOrFallback)) {
-                    filteredValues.unshift(selectedOrFallback);
+            
+            if (label === 'Quý') {
+                
+                if (isNaN(selectedOrFallback) || selectedOrFallback < 1 || selectedOrFallback > 4) {
+                    selectedOrFallback = currentQuy;
+                    $input.val(currentQuy); 
                 }
-
-                if (filteredValues.length === 0) {
-                    $dropdown.append(`<div class="dropdown-item" style="padding:8px 16px; color:#999;"></div>`);
-                    return;
+            }
+            else if (label === 'Tháng') {
+           
+                if (isNaN(selectedOrFallback) || selectedOrFallback < 1 || selectedOrFallback > 12) {
+                    selectedOrFallback = currentMonth; 
+                    $input.val(currentMonth); 
                 }
+            }
+            else if (label === 'Năm') {
+                selectedOrFallback = Math.max(2000, Math.min(currentYear, selectedOrFallback));
+            }
 
-                filteredValues.forEach((val, index) => {
-                    const isSelected = val === selectedOrFallback;
-                    const item = $(`<a href="#" class="dropdown-item ${isSelected ? 'active bg-primary text-white' : ''}"
-                                    data-val="${val}" data-index="${index}"
-                                    style="padding:8px 16px; display:block; text-decoration:none; color:#333; cursor:pointer;">
-                                    ${val}</a>`);
-                    item.on('click', function (e) {
-                        e.preventDefault();
-                        selectItem(val);
-                    });
-                    item.on('mouseenter', function () {
-                        currentHighlightIndex = index;
-                        highlightCurrentItem();
-                    });
-                    $dropdown.append(item);
-                    if (isSelected) {
-                        currentHighlightIndex = index;
-                    }
+            let filteredValues = values.filter(v => {
+                const matchFilter = !filter || v.toString().includes(filter);
+
+                if (label === 'Năm') {
+                    return matchFilter && v >= 2000 && v <= currentYear;
+                } else if (label === 'Quý') {
+                    return matchFilter && v >= 1 && v <= 4;
+                } else if (label === 'Tháng') {
+                    return matchFilter && v >= 1 && v <= 12;
+                }
+                return matchFilter;
             });
 
-            const items = $dropdown.find('.dropdown-item');
-            if (currentHighlightIndex === -1 && items.length) {
-                currentHighlightIndex = 0;
+
+            if (!filteredValues.includes(selectedOrFallback)) {
+                if ((label === 'Năm' && selectedOrFallback >= 2000 && selectedOrFallback <= currentYear) ||
+                    (label === 'Quý' && selectedOrFallback >= 1 && selectedOrFallback <= 4) ||
+                    (label === 'Tháng' && selectedOrFallback >= 1 && selectedOrFallback <= 12)) {
+                    filteredValues.unshift(selectedOrFallback);
+                }
             }
-            highlightCurrentItem();
+
+
+            if (filteredValues.length === 0) {
+                $dropdown.append(`<div class="dropdown-item" style="padding:8px 16px; color:#999;">Không có kết quả</div>`);
+                return;
+            }
+
+            filteredValues.forEach((val, index) => {
+                const isSelected = val === selectedOrFallback;
+                const item = $(`<a href="#" class="dropdown-item ${isSelected ? 'active bg-primary text-white' : ''}"
+                                data-val="${val}" data-index="${index}"
+                                style="padding:8px 16px; display:block; text-decoration:none; color:#333; cursor:pointer;">
+                                ${val}</a>`);
+                item.on('click', function(e) {
+                    e.preventDefault();
+                    selectItem(val);
+                });
+                $dropdown.append(item);
+                if (isSelected) currentHighlightIndex = index;
+            });
+
+          
+            if (currentHighlightIndex >= 0) {
+                $dropdown.find('.dropdown-item').eq(currentHighlightIndex).addClass('active bg-primary text-white');
+            }
         }
 
                 function selectItem(val) {
@@ -393,8 +474,8 @@
 
             if (!isValid) {
                 const fallback = defaultValue;
-                $input.val(fallback); // cập nhật lại input
-                if (onSelect) onSelect(fallback); // cập nhật lại ngày
+                $input.val(fallback); 
+                if (onSelect) onSelect(fallback);
             }
         });
 
@@ -425,7 +506,7 @@
             let quy = parseInt($('#quyInput').val(), 10);
             if (quy > 4 || quy < 1 || isNaN(quy)) {
                 quy = currentQuy;
-                $('#quyInput').val(quy); // cập nhật lại input
+                $('#quyInput').val(quy);
             }
 
             const startMonth = (quy - 1) * 3 + 1;
@@ -438,7 +519,7 @@
             let month = parseInt($('#thangInput').val(), 10);
             if (month > 12 || month < 1 || isNaN(month)) {
                 month = currentMonth;
-                $('#thangInput').val(month); // cập nhật lại input
+                $('#thangInput').val(month); 
             }
 
             const { start, end } = getMonthDateRange(year, month);
