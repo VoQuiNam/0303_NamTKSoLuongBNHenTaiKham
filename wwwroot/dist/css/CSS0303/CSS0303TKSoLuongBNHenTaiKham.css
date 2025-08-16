@@ -2,7 +2,7 @@
 .table-wrapper {
     overflow-x: scroll;
     overflow-y: scroll;
-    height: 68vh;
+    height: 70vh;
     scrollbar-width: thin;
     -ms-overflow-style: scrollbar;
 }

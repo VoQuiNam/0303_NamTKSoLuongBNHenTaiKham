@@ -1,10 +1,28 @@
-﻿let fullData = []; // lưu toàn bộ dữ liệu sau khi lọc
+﻿let fullData = [];
 let currentPage = 1;
 let pageSize = 20;
 let doanhNghiepInfo = null;
 
+toastr.options = {
+    "closeButton": true,
+    "debug": false,
+    "newestOnTop": true,
+    "progressBar": true,
+    "positionClass": "toast-top-right",
+    "preventDuplicates": false,
+    "onclick": null,
+    "showDuration": "300",
+    "hideDuration": "1000",
+    "timeOut": "3000",
+    "extendedTimeOut": "1000",
+    "showEasing": "swing",
+    "hideEasing": "linear",
+    "showMethod": "fadeIn",
+    "hideMethod": "fadeOut"
+}
 
-// === Khởi tạo Datepicker ===
+
+
 function initDatePicker() {
     $('.date-input').datepicker({
         format: 'dd-mm-yyyy',
@@ -37,7 +55,6 @@ function initDatePicker() {
     $('.date-input').each(function () {
         const input = this;
 
-        // Tự động định dạng khi nhập
         input.addEventListener("input", function () {
             let value = input.value.replace(/\D/g, "");
             let formatted = "";
@@ -56,7 +73,7 @@ function initDatePicker() {
             }
         });
 
-        // Chọn khối khi click
+        
         input.addEventListener("click", function () {
             const pos = input.selectionStart;
             if (pos <= 2) input.setSelectionRange(0, 2);
@@ -64,7 +81,7 @@ function initDatePicker() {
             else input.setSelectionRange(6, 10);
         });
 
-        // Xử lý xóa dấu gạch
+
         input.addEventListener("keydown", function (e) {
             const pos = input.selectionStart;
             let val = input.value;
@@ -80,14 +97,14 @@ function initDatePicker() {
                 input.setSelectionRange(pos, pos);
             }
 
-            // Kiểm tra khi nhấn Enter
+
             if (e.key === "Enter") {
                 e.preventDefault();
                 validateDateInput($(input));
             }
         });
 
-        // Kiểm tra khi blur
+
         input.addEventListener("blur", function () {
             validateDateInput($(input));
         });
@@ -95,7 +112,7 @@ function initDatePicker() {
 }
 
 
-// === Định dạng ngày cho server ===
+
 function formatDateForServer(dateStr) {
     if (!dateStr || typeof dateStr !== 'string') return null;
     const parts = dateStr.split('-');
@@ -104,10 +121,10 @@ function formatDateForServer(dateStr) {
     return `${year}-${month}-${day}`;
 }
 
-// === Định dạng ngày hiển thị ===
+
 function formatDateDisplay(dateString) {
     const date = new Date(dateString);
-    if (isNaN(date)) return ''; // tránh lỗi nếu date không hợp lệ
+    if (isNaN(date)) return ''; 
 
     const day = String(date.getDate()).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -117,7 +134,7 @@ function formatDateDisplay(dateString) {
 }
 
 
-// === Cập nhật bảng dữ liệu ===
+
 function updateTable(data) {
     fullData = data || [];
     currentPage = 1;
@@ -136,7 +153,6 @@ function renderTable() {
         return;
     }
 
-    // Sắp xếp theo ngày hẹn khám tăng dần
     fullData.sort((a, b) => new Date(a.ngayHenKham) - new Date(b.ngayHenKham));
 
     const startIndex = (currentPage - 1) * pageSize;
@@ -147,7 +163,7 @@ function renderTable() {
             <tr>
                 <td class="text-center" style="width: 50px;">${startIndex + index + 1}</td>
                 <td class="text-center">${item.maYTe}</td>
-                <td class="text-start" style="max-width: 150px;">${item.hoVaTen}</td>
+                <td class="text-start" style="max-width: 180px;">${item.hoVaTen}</td>
                 <td class="text-center">${item.namSinh}</td>
                 <td class="text-start">${item.gioiTinh}</td>
                 <td class="text-start">${item.quocTich}</td>
@@ -156,7 +172,7 @@ function renderTable() {
                 <td class="text-center">${formatDateDisplay(item.ngayHenKham)}</td>
                 <td class="text-start" style="max-width: 150px;">${item.bacSiHenKham}</td>
                 <td class="text-start">${item.nhacHen}</td>
-                <td style="max-width: 150px;">${item.ghiChu}</td>
+                <td class="text-start" style="max-width: 150px;">${item.ghiChu}</td>
             </tr>
         `;
         tbody.append(row);
@@ -176,14 +192,12 @@ function renderPagination() {
 
     $('#paginationContainer').text(`Trang ${currentPage}/${pages} – Tổng ${totalRecords} bản ghi`);
 
-    // Nút Trước
     pagination.append(`
         <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
             <a class="page-link" href="#" data-page="${Math.max(1, currentPage - 1)}">Trước</a>
         </li>
     `);
 
-    // Hiển thị 3 trang gần currentPage
     const visibleCount = 3;
     let startPage = Math.max(1, currentPage - 1);
     let endPage = Math.min(pages, startPage + visibleCount - 1);
@@ -200,14 +214,12 @@ function renderPagination() {
         `);
     }
 
-    // Nút Sau
     pagination.append(`
         <li class="page-item ${currentPage === pages ? 'disabled' : ''}">
             <a class="page-link" href="#" data-page="${Math.min(pages, currentPage + 1)}">Sau</a>
         </li>
     `);
 
-    // Gắn sự kiện click cho các nút
     pagination.find('a.page-link').on('click', function (e) {
         e.preventDefault();
         const page = parseInt($(this).data('page'));
@@ -228,15 +240,13 @@ $(document).on('change', '#pageSizeSelect', function () {
         renderTable();
         renderPagination();
     } else {
-        console.log("⚠️ Chưa có dữ liệu để phân trang.");
-        alert("Vui lòng lọc dữ liệu trước khi thay đổi số dòng hiển thị.");
+        toastr.error("Vui lòng lọc dữ liệu trước khi thay đổi số dòng hiển thị.");
     }
 });
 
 
 
 
-// === Xử lý nút lọc ===
 function handleFilter() {
     $('.btnFilter').off('click').on('click', function (e) {
         e.preventDefault();
@@ -249,7 +259,7 @@ function handleFilter() {
             const denNgayRaw = $('#denNgayDesktop').val() || $('#denNgayMobile').val();
 
             if (!tuNgayRaw || !denNgayRaw) {
-                alert("⚠️ Vui lòng chọn đầy đủ Từ ngày và Đến ngày");
+                toastr.error("Vui lòng chọn đầy đủ Từ ngày và Đến ngày");
                 return;
             }
 
@@ -291,23 +301,21 @@ function handleFilter() {
                             $('#dienThoaiCSKCB').text("📞 " + doanhNghiepInfo.DienThoai);
                         }
 
-                        alert("✅ Lọc dữ liệu thành công!");
+                        toastr.success("Lọc dữ liệu thành công!");
                     } else {
-                        alert("❌ " + (response.error || "Lỗi khi lọc dữ liệu"));
+                        toastr.error("Lỗi: " + (response.error || "Lỗi khi lọc dữ liệu"));
                     }
                 },
                 error: function (xhr) {
-                    alert("❌ Lỗi kết nối: " + xhr.responseText);
+                    toastr.error("❌ Lỗi kết nối: " + xhr.responseText);
                 }
             });
-        }, 100); // Delay 100ms để input cập nhật xong
+        }, 100);
     });
 
 }
 
 
-
-// === Xử lý nút xuất Excel ===
 function handleExportExcel() {
     const btn = document.getElementById("btnExportExcelGoiKham");
 
@@ -323,7 +331,7 @@ function handleExportExcel() {
         const idChiNhanh = window._idcn;
 
         if (!tuNgayRaw || !denNgayRaw) {
-            alert("⚠️ Vui lòng chọn đầy đủ Từ ngày và Đến ngày trước khi xuất Excel.");
+            toastr.error("Vui lòng chọn đầy đủ Từ ngày và Đến ngày trước khi xuất Excel.");
             return;
         }
 
@@ -333,7 +341,6 @@ function handleExportExcel() {
             return;
         }
 
-        // ✅ Hiển thị spinner, giữ nguyên layout
         btn.innerHTML = `
             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
         `;
@@ -341,19 +348,16 @@ function handleExportExcel() {
 
         const url = `/bao_cao_thong_ke_so_luong_benh_nhan_hen_tai_kham/export/excel?tuNgay=${tuNgay}&denNgay=${denNgay}&idcn=${idChiNhanh}`;
         window.location.href = url;
-
+        toastr.success("Xuất Excel thành công!");
         setTimeout(() => {
             btn.innerHTML = btn.dataset.originalHTML;
             btn.disabled = false;
-            alert("✅ Xuất Excel thành công!");
         }, 1500);
     });
 }
 
 
 
-
-// === Xử lý nút xuất PDF ===
 function handleExportPDF() {
     $(".btnExportPDFMobile").off("click").on("click", function () {
         exportPDFHandler(this, "Mobile");
@@ -373,7 +377,7 @@ function exportPDFHandler(btn, viewType) {
     const denNgay = document.getElementById(viewType === "Mobile" ? "denNgayMobile" : "denNgayDesktop").value;
 
     if (!tuNgay || !denNgay) {
-        alert("⚠️ Vui lòng chọn đầy đủ Từ ngày và Đến ngày trước khi xuất PDF.");
+        toastr.error("Vui lòng chọn đầy đủ Từ ngày và Đến ngày trước khi xuất PDF.");
         btn.innerHTML = btn.dataset.originalHTML;
         btn.disabled = false;
         return;
@@ -385,7 +389,6 @@ function exportPDFHandler(btn, viewType) {
         return;
     }
 
-    // ✅ Hiển thị spinner, không thay đổi nội dung
     btn.innerHTML = `
         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
     `;
@@ -422,11 +425,15 @@ function exportPDFHandler(btn, viewType) {
             a.remove();
             window.URL.revokeObjectURL(url);
 
-            alert("✅ Xuất PDF thành công!");
+            toastr.success("✅ Xuất PDF thành công!");
+
+            if (blob.size < 1000) {
+                toastr.warning("⚠️ Không có dữ liệu trong khoảng thời gian đã chọn.");
+            }
         })
+
         .catch(error => {
-            console.error("Error:", error);
-            alert("❌ Lỗi khi xuất PDF: " + error.message);
+            toastr.error("Lỗi khi xuất PDF: " + error.message);
         })
         .finally(() => {
             btn.innerHTML = btn.dataset.originalHTML;
@@ -444,19 +451,12 @@ function validateDateRange(tuNgay, denNgay) {
     const denNgayDate = new Date(denNgay);
 
     if (tuNgayDate > denNgayDate) {
-        alert("❌ Lỗi: Từ ngày phải nhỏ hơn hoặc bằng Đến ngày");
+        toastr.error("Lỗi: Từ ngày phải nhỏ hơn hoặc bằng Đến ngày");
         return false;
     }
     return true;
 }
 
-
-//$(document).ready(function () {
-//    initDatePicker();
-//    handleFilter();
-//    handleExportExcel();
-//    handleExportPDF();
-//});
 document.addEventListener('DOMContentLoaded', function () {
     initDatePicker();
     handleFilter();
