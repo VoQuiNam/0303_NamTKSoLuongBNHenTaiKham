@@ -244,12 +244,12 @@ function handleFilter() {
         setTimeout(function () {
             const idChiNhanh = window._idcn;
 
-            console.log(idChiNhanh);
 
             const tuNgayRaw = $('#tuNgayDesktop').val() || $('#tuNgayMobile').val();
             const denNgayRaw = $('#denNgayDesktop').val() || $('#denNgayMobile').val();
 
             if (!tuNgayRaw || !denNgayRaw) {
+                console.log('voday');
                 alert("⚠️ Vui lòng chọn đầy đủ Từ ngày và Đến ngày");
                 return;
             }
@@ -261,6 +261,7 @@ function handleFilter() {
             const denNgayDate = new Date(denNgayRaw.split('-').reverse().join('-'));
 
             if (tuNgayDate > denNgayDate) {
+                console.log('voday');
                 $('#tuNgayDesktop').val(denNgayRaw);
                 $('#tuNgayDesktop').datepicker('update', denNgayRaw);
 
@@ -272,10 +273,13 @@ function handleFilter() {
             const tuNgay = formatDateForServer($('#tuNgayDesktop').val() || $('#tuNgayMobile').val());
             const denNgay = formatDateForServer($('#denNgayDesktop').val() || $('#denNgayMobile').val());
 
-            if (!validateDateRange(tuNgay, denNgay)) return;
+            if (!validateDateRange(tuNgay, denNgay)) {
+                return; }
+                
 
             $.ajax({
-                url: '/tk/FilterByDay',
+                
+                url: '/bao_cao_thong_ke_so_luong_benh_nhan_hen_tai_kham/tk/FilterByDay',
                 type: 'POST',
                 data: { tuNgay, denNgay, idChiNhanh },
                 success: function (response) {
@@ -338,7 +342,7 @@ function handleExportExcel() {
         `;
         btn.disabled = true;
 
-        const url = `/export/excel?tuNgay=${tuNgay}&denNgay=${denNgay}&idcn=${idChiNhanh}`;
+        const url = `/bao_cao_thong_ke_so_luong_benh_nhan_hen_tai_kham/export/excel?tuNgay=${tuNgay}&denNgay=${denNgay}&idcn=${idChiNhanh}`;
         window.location.href = url;
 
         setTimeout(() => {
@@ -394,7 +398,7 @@ function exportPDFHandler(btn, viewType) {
     const formattedTuNgay = formatDateForServer(tuNgay);
     const formattedDenNgay = formatDateForServer(denNgay);
 
-    let url = "/export/pdf?";
+    let url = "/bao_cao_thong_ke_so_luong_benh_nhan_hen_tai_kham/export/pdf?";
     if (formattedTuNgay) url += `tuNgay=${formattedTuNgay}&`;
     if (formattedDenNgay) url += `denNgay=${formattedDenNgay}&`;
     if (idChiNhanh) url += `idChiNhanh=${idChiNhanh}`;
@@ -450,9 +454,13 @@ function validateDateRange(tuNgay, denNgay) {
 }
 
 
-
-// === Khởi chạy tất cả khi DOM sẵn sàng ===
-$(document).ready(function () {
+//$(document).ready(function () {
+//    initDatePicker();
+//    handleFilter();
+//    handleExportExcel();
+//    handleExportPDF();
+//});
+document.addEventListener('DOMContentLoaded', function () {
     initDatePicker();
     handleFilter();
     handleExportExcel();

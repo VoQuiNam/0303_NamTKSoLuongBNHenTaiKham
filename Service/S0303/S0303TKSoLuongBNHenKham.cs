@@ -1,14 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using ClosedXML.Excel;
+using ClosedXML.Excel.Drawings;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Nam_ThongKeSoLuongBNHenTaiKham.Models.M0303;
-using Nam_ThongKeSoLuongBNHenTaiKham.Service.SI0303;
-using ClosedXML.Excel;
-using ClosedXML.Excel.Drawings;
+using Nam_ThongKeSoLuongBNHenTaiKham.Context;
 using Nam_ThongKeSoLuongBNHenTaiKham.Models;
+using Nam_ThongKeSoLuongBNHenTaiKham.Models.M0303;
+using Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments;
+using Nam_ThongKeSoLuongBNHenTaiKham.Service.SI0303;
 using QuestPDF.Fluent;
 using static Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303.C0303TKSoLuongBNHenTaiKhamController;
-using Nam_ThongKeSoLuongBNHenTaiKham.Context;
 
 namespace Nam_ThongKeSoLuongBNHenTaiKham.Service
 {
@@ -283,7 +284,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service
 
 
 
-                var document = new M0303XuatPDF(data, tuNgay, denNgay, logoPath, thongTinDoanhNghiep);
+                var document = new P0303TKSoLuongBNHenKham(data, tuNgay, denNgay, logoPath, thongTinDoanhNghiep);
 
 
 

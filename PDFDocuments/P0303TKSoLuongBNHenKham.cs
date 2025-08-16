@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
 {
-    public class P0303TKSoLuongBNHenKham
+    public class P0303TKSoLuongBNHenKham : IDocument
     {
         private readonly List<M0303TKSoLuongBNHenKham> _data;
         private readonly DateTime? _tuNgay;

@@ -12,10 +12,8 @@
 
     <link rel="stylesheet" href="~/dist/lib/bootstrap/dist/css/bootstrap.min.css" />
 
-    <script src="~/dist/lib/Jquery/jquery.min.js"></script>
-    <script src="@Url.Content("~/dist/lib/Jquery/jquery.inputmask.js")"></script>
-    <script src="~/dist/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="@Url.Content("~/dist/js/BienChung.js")"></script>
+    
+
 
 </head>
 
@@ -52,6 +50,12 @@
         </main>
     </div>
 
+    <script src="@Url.Content("~/dist/js/BienChung.js")"></script>
+    <script src="~/dist/lib/Jquery/jquery.min.js"></script>
+    <script src="@Url.Content("~/dist/lib/Jquery/jquery.inputmask.js")"></script>
+    <script src="~/dist/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
