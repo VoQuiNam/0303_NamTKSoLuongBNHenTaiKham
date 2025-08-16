@@ -132,7 +132,7 @@ function renderTable() {
     tbody.empty();
 
     if (!fullData || fullData.length === 0) {
-        tbody.append(`<tr><td colspan="13" class="text-center text-muted">Không có dữ liệu phù hợp.</td></tr>`);
+        tbody.append(`<tr><td colspan="12" class="text-center text-muted">Không có dữ liệu phù hợp.</td></tr>`);
         return;
     }
 
