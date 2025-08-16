@@ -249,7 +249,6 @@ function handleFilter() {
             const denNgayRaw = $('#denNgayDesktop').val() || $('#denNgayMobile').val();
 
             if (!tuNgayRaw || !denNgayRaw) {
-                console.log('voday');
                 alert("⚠️ Vui lòng chọn đầy đủ Từ ngày và Đến ngày");
                 return;
             }
@@ -261,7 +260,6 @@ function handleFilter() {
             const denNgayDate = new Date(denNgayRaw.split('-').reverse().join('-'));
 
             if (tuNgayDate > denNgayDate) {
-                console.log('voday');
                 $('#tuNgayDesktop').val(denNgayRaw);
                 $('#tuNgayDesktop').datepicker('update', denNgayRaw);
 
@@ -283,7 +281,6 @@ function handleFilter() {
                 type: 'POST',
                 data: { tuNgay, denNgay, idChiNhanh },
                 success: function (response) {
-                    console.log("Response từ server:", response);
                     if (response.success) {
                         updateTable(response.data);
 
