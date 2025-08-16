@@ -354,7 +354,7 @@ async function handleExportExcel() {
             const { hasData } = await checkResponse.json();
 
             if (!hasData) {
-                toastr.error("Không có dữ liệu trong khoảng ngày đã chọn!");
+                toastr.error("Lỗi khi xuất Excel: Không có dữ liệu để xuất Excel");
                 btn.innerHTML = btn.dataset.originalHTML;
                 btn.disabled = false;
                 return;
