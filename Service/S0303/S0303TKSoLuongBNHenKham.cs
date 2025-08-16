@@ -43,6 +43,10 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service
 
             var list = danhSach.ToList();
 
+            if (!list.Any())
+            {
+                return BadRequest("Không có dữ liệu trong khoảng ngày đã chọn");
+            }
             var thongTinDoanhNghiep = await _localDb.ThongTinDoanhNghieps
                 .AsNoTracking()
                 .Where(x => x.IDChiNhanh == idcn)

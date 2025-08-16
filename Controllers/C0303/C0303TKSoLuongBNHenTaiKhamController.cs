@@ -13,7 +13,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
     [Route("bao_cao_thong_ke_so_luong_benh_nhan_hen_tai_kham")]
     public class C0303TKSoLuongBNHenTaiKhamController : Controller
     {
-        //private string _maChucNang = "/bao_cao_thuc_hien_theo_doi_goi_kham_benh";
+        //private string _maChucNang = "/bao_cao_thong_ke_so_luong_benh_nhan_hen_tai_kham";
         //private IMemoryCachingServices _memoryCache;
 
 
@@ -31,7 +31,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
             //_memoryCache = memoryCache;
         }
 
-        public IActionResult V0303TKSoLuongBNHenTaiKhamPage()
+        public async Task<IActionResult> V0303TKSoLuongBNHenTaiKhamPage()
         {
             //var quyenVaiTro = await _memoryCache.getQuyenVaiTro(_maChucNang);
             //if (quyenVaiTro == null)
@@ -98,6 +98,21 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
             {
                 return StatusCode(500, $"Lỗi khi tạo Excel: {ex.Message}");
             }
+        }
+
+        [HttpGet("check-data")]
+        public IActionResult CheckData([FromQuery] DateTime? tuNgay, [FromQuery] DateTime? denNgay, [FromQuery] int? idcn)
+        {
+            var query = _localDb.M0303Thongtinbnhenkhams.AsQueryable()
+                .Where(x => x.NgayHenKham >= tuNgay && x.NgayHenKham <= denNgay);
+
+            if (idcn.HasValue && idcn.Value > 0)
+            {
+                query = query.Where(x => x.IDCN == idcn.Value);
+            }
+
+            bool hasData = query.Any();
+            return Ok(new { hasData });
         }
 
     }

@@ -316,10 +316,10 @@ function handleFilter() {
 }
 
 
-function handleExportExcel() {
+async function handleExportExcel() {
     const btn = document.getElementById("btnExportExcelGoiKham");
 
-    btn.addEventListener("click", function () {
+    btn.addEventListener("click", async function () {
         if (!btn.dataset.originalHTML) {
             btn.dataset.originalHTML = btn.innerHTML.trim();
         }
@@ -341,21 +341,60 @@ function handleExportExcel() {
             return;
         }
 
-        btn.innerHTML = `
-            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-        `;
+        btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>`;
         btn.disabled = true;
 
-        const url = `/bao_cao_thong_ke_so_luong_benh_nhan_hen_tai_kham/export/excel?tuNgay=${tuNgay}&denNgay=${denNgay}&idcn=${idChiNhanh}`;
-        window.location.href = url;
-        toastr.success("Xuất Excel thành công!");
-        setTimeout(() => {
+        try {
+            const checkResponse = await fetch(`/bao_cao_thong_ke_so_luong_benh_nhan_hen_tai_kham/check-data?tuNgay=${tuNgay}&denNgay=${denNgay}&idcn=${idChiNhanh}`);
+
+            if (!checkResponse.ok) {
+                throw new Error(await checkResponse.text());
+            }
+
+            const { hasData } = await checkResponse.json();
+
+            if (!hasData) {
+                toastr.error("Không có dữ liệu trong khoảng ngày đã chọn!");
+                btn.innerHTML = btn.dataset.originalHTML;
+                btn.disabled = false;
+                return;
+            }
+
+            const exportResponse = await fetch(`/bao_cao_thong_ke_so_luong_benh_nhan_hen_tai_kham/export/excel?tuNgay=${tuNgay}&denNgay=${denNgay}&idcn=${idChiNhanh}`);
+
+            if (!exportResponse.ok) {
+                throw new Error("Không thể tải file Excel");
+            }
+
+            const blob = await exportResponse.blob();
+
+            if (blob.size < 1000) {
+                toastr.warning("Không có dữ liệu trong khoảng thời gian đã chọn.");
+                return;
+            }
+
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "BaoCaoThongKe.xlsx"; 
+            document.body.appendChild(a);
+            a.click();
+
+            setTimeout(() => {
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }, 100);
+
+            toastr.success("Xuất Excel thành công!");
+
+        } catch (error) {
+            toastr.error("Lỗi khi xuất Excel: " + error.message);
+        } finally {
             btn.innerHTML = btn.dataset.originalHTML;
             btn.disabled = false;
-        }, 1500);
+        }
     });
 }
-
 
 
 function handleExportPDF() {
@@ -425,10 +464,10 @@ function exportPDFHandler(btn, viewType) {
             a.remove();
             window.URL.revokeObjectURL(url);
 
-            toastr.success("✅ Xuất PDF thành công!");
+            toastr.success("Xuất PDF thành công!");
 
             if (blob.size < 1000) {
-                toastr.warning("⚠️ Không có dữ liệu trong khoảng thời gian đã chọn.");
+                toastr.warning("Không có dữ liệu trong khoảng thời gian đã chọn.");
             }
         })
 
