@@ -319,7 +319,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                     int[] moneyColumns = { 6, 8, 10, 13, 15 };
                     foreach (var col in moneyColumns)
                     {
-                        ws.Cell(row, col).Style.NumberFormat.Format = "#,##0 \"VND\"";
+                        ws.Cell(row, col).Style.NumberFormat.Format = "#,##0";
                         ws.Cell(row, col).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
                         ws.Cell(row, col).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
                     }
@@ -349,14 +349,14 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                 ws.Range(row, 1, row, 12).Merge();
 
                 ws.Cell(row, 13).Value = tongBVUB;
-                ws.Cell(row, 13).Style.NumberFormat.Format = "#,##0 \"VND\"";
+                ws.Cell(row, 13).Style.NumberFormat.Format = "#,##0";
                 ws.Cell(row, 13).Style.Font.Bold = true;
                 ws.Cell(row, 13).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
 
                 ws.Cell(row, 14).Value = "";
 
                 ws.Cell(row, 15).Value = tongBIDV;
-                ws.Cell(row, 15).Style.NumberFormat.Format = "#,##0 \"VND\"";
+                ws.Cell(row, 15).Style.NumberFormat.Format = "#,##0";
                 ws.Cell(row, 15).Style.Font.Bold = true;
                 ws.Cell(row, 15).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
 

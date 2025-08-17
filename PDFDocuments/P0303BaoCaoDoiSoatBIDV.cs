@@ -157,7 +157,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                                 var text = value?.ToString() ?? "";
                                 if (isNumber && decimal.TryParse(text, out var number))
                                 {
-                                    text = number.ToString("#,##0") + " VND";
+                                    text = number.ToString("#,##0");
                                 }
 
                                 var cell = table.Cell().Border(1).BorderColor(Colors.Grey.Lighten1)
@@ -222,9 +222,9 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
 
                         
                             FooterCell("Tổng cộng:", true, true, 12);
-                            FooterCell(tongBVUB.ToString("#,##0") + " VND", true, true);
+                            FooterCell(tongBVUB.ToString("#,##0"), true, true);
                             FooterCell("", false); 
-                            FooterCell(tongBIDV.ToString("#,##0") + " VND", true, true);
+                            FooterCell(tongBIDV.ToString("#,##0"), true, true);
                             FooterCell("", false);
                         });
 

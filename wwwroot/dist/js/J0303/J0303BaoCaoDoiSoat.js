@@ -529,7 +529,7 @@ function formatSoTien(soTien) {
         maximumFractionDigits: 20
     });
 
-    return formatter.format(soTien) + ' VNĐ';
+    return formatter.format(soTien);
 }
 
 document.addEventListener('DOMContentLoaded', function () {
