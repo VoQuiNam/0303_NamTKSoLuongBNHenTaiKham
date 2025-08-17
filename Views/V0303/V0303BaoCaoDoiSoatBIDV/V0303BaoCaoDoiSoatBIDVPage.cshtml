@@ -1,15 +1,37 @@
-﻿@{
-    ViewData["NonSixOs"] = true;
-}
-
-
-@model List<Nam_ThongKeSoLuongBNHenTaiKham.Models.M0303.M0303TKSoLuongBNHenKham>
-<head> 
+﻿<head>
     <link href="~/dist/css/CSS0303/CSS0303TKSoLuongBNHenTaiKham.css" rel="stylesheet" />
     <link href="~/dist/lib/bootstrap-datepicker-1.10.0/dist/css/bootstrap-datepicker.min.css" rel="stylesheet" />
     <link href="~/dist/lib/toastr/toastr.min.css" rel="stylesheet" />
 </head>
+<style>
+    .table-wrapper thead tr:first-child th {
+        background-color: #f2f2f2;
+        font-size: 1.05rem;
+    }
 
+    .table-wrapper thead tr:nth-child(2) th {
+        background-color: #f2f2f2;
+        font-size: 0.95rem;
+    }
+
+    thead th {
+        position: sticky;
+        background: #fff;
+        z-index: 2;
+    }
+
+    thead tr:first-child th {
+        top: 0;
+        z-index: 3;
+    }
+
+    thead tr:nth-child(2) th {
+        top: 38px;
+    }
+
+
+
+</style>
 
 <div class="card p-1">
     <div class="container_goiKham">
@@ -18,7 +40,7 @@
                 <div style="width: 100%; padding:0;">
                     <label class="form-label">Giai đoạn</label>
                     <select id="selectGiaiDoan" class="form-select">
-                       
+
                         <option value="Nam">Năm</option>
                         <option value="Quy">Quý</option>
                         <option value="Thang">Tháng</option>
@@ -28,7 +50,7 @@
             </div>
 
             <div id="selectContainer"
-                class="d-flex justify-content-between align-items-center ">
+                 class="d-flex justify-content-between align-items-center ">
             </div>
 
             <div class="row" style="padding:0;">
@@ -69,7 +91,7 @@
                     <span class="text-danger"></span>
                 </div>
                 <label style="padding:0;">
-                    <button class="btnFilter btn btn-outline-primary mb-3" @(ViewBag.quyenvaitro.Xem ? "" : "disabled")>
+                    <button class="btnFilterBidv btn btn-outline-primary mb-3" @(ViewBag.quyenvaitro.Xem ? "" : "disabled")>
                         <i class="bi bi-funnel"></i> Lọc danh sách
                     </button>
                 </label>
@@ -94,34 +116,42 @@
 
             <div class="table-wrapper">
                 <table style="width:100%; margin: 0; table-layout: fixed; min-width: 1800px;" cellpadding="8">
-
                     <thead>
                         <tr>
-                            <th class="text-center" style="width:3%;">STT</th>
-                            <th class="text-center" style="width:6%;">Mã y tế</th>
-                            <th class="text-center" style="width:17%;">Họ và tên</th>
-                            <th class="text-center" style="width:6%;">Năm sinh</th>
-                            <th class="text-center" style="width:6%;">Giới tính</th>
-                            <th class="text-center" style="width:6%;">Quốc tịch</th>
-                            <th class="text-center" style="width:10%;">Cccd/Passport</th>
-                            <th class="text-center" style="width:8%;">SĐT</th>
-                            <th class="text-center" style="width:8%;">Ngày hẹn khám</th>
-                            <th class="text-center" style="width:12%;">Bác sĩ hẹn khám</th>
-                            <th class="text-center" style="width:9%;">Nhắc hẹn</th>
-                            <th class="text-center" style="width:9%;">Ghi chú</th>
+                            <th rowspan="2" style="width: 7%;">STT</th>
+                            <th rowspan="2" style="width:9%;">Mã y tế</th>
+                            <th rowspan="2" style="width: 11%;">Mã đợt</th>
+                            <th rowspan="2" style="width:26%;">Họ tên bệnh nhân</th>
+                            <th rowspan="2" style="width: 15%;">SĐT</th>
+                            <th rowspan="2" style="width:16%;">Số tiền trên BL</th>
+                            <th rowspan="2" style="width: 9%;">Số BL</th>
+                            <th rowspan="2" style="width:16%;">Số tiền trên HĐ</th>
+                            <th rowspan="2" style="width: 9%;">Số HĐ</th>
+                            <th rowspan="2" style="width:16%;">Tổng số tiền</th>
+                            <th rowspan="2" style="width: 23%;">Ngày giao dịch</th>
+                            <th rowspan="2" style="width:18%;">Người thanh toán</th>
+
+                            <th colspan="2" style="width:42%;">BVUB</th>
+                            <th colspan="2" style="width:42%;">BIDV</th>
+                        </tr>
+                        <tr>
+                            <th style="width:16%;">Số tiền</th>
+                            <th style="width:13%;">Trạng thái</th>
+                            <th style="width:16%;">Số tiền</th>
+                            <th style="width:13%;">Trạng thái</th>
                         </tr>
                     </thead>
+
                     <tbody id="tableBody">
-                       
+
                     </tbody>
-
                 </table>
-
             </div>
+
             <div class="phan_trang">
                 <div class="d-flex">
                     <label name="pageSizeSelect" class="form-label" style="font-size:1rem !important;">Số bản ghi mỗi trang:</label>
-                    <select id="pageSizeSelect"  style="font-size:1rem !important;" class="form-select">
+                    <select id="pageSizeSelect" style="font-size:1rem !important;" class="form-select">
                         <option value="10">10</option>
                         <option value="20">20</option>
                         <option value="50">50</option>
@@ -147,8 +177,8 @@
     <script src="~/dist/lib/toastr/toastr.min.js" asp-append-version="true" defer></script>
     <script src="~/dist/lib/bootstrap-datepicker-1.10.0/dist/js/bootstrap-datepicker.min.js" asp-append-version="true" defer></script>
     <script src="~/dist/lib/bootstrap-datepicker-1.10.0/dist/locales/bootstrap-datepicker.vi.min.js" asp-append-version="true" defer></script>
-    <script src="~/dist/js/J0303/J0303TKSoLuongBNHenTaiKham.js" asp-append-version="true" defer></script>
-   
+    <script src="~/dist/js/J0303/J0303BaoCaoDoiSoat.js" asp-append-version="true" defer></script>
+
 
     <script>
         $(document).ready(function() {
@@ -209,7 +239,7 @@
             const currentMonth = new Date().getMonth() + 1;
             const currentQuy = Math.ceil(currentMonth / 3);
 
-  
+
             function createDropdownInput(id, label, values, defaultValue, onSelect, length = 10) {
                 const html = `
                     <div data-dropdown-wrapper style="width: 45%; position: relative;">

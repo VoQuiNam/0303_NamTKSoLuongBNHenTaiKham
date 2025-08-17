@@ -14,10 +14,15 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Context
 
         public DbSet<M0303ThongTinDoanhNghiep> ThongTinDoanhNghieps { get; set; }
 
+        public DbSet<M0303BaoCaoDoiSoatBIDV> M0303BaoCaoDoiSoatBIDVs { get; set; }
+        public DbSet<M0303BaoCaoDoiSoatBIDVSTO> M0303BaoCaoDoiSoatBIDVSTOs { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<M0303TKSoLuongBNHenKham>().HasNoKey();
+            modelBuilder.Entity<M0303BaoCaoDoiSoatBIDV>().HasNoKey();
             modelBuilder.Entity<M0303TKSoLuongBNHenKhamSTO>().HasNoKey();
+            modelBuilder.Entity<M0303BaoCaoDoiSoatBIDVSTO>().HasNoKey();
         }
 
         public bool TestConnection()

@@ -201,20 +201,21 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service
 
                 int footerRow = row + 2;
 
-                ws.Range($"K{footerRow}:L{footerRow}").Merge().Value = $"Ngày {DateTime.Now:dd} tháng {DateTime.Now:MM} năm {DateTime.Now:yyyy}";
-                ws.Range($"K{footerRow}:L{footerRow}").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                ws.Range($"K{footerRow}:L{footerRow}").Style.Font.Italic = true;
-                ws.Range($"K{footerRow}:L{footerRow}").Style.Font.FontSize = 10;
-
-
                 string[] nguoiKy = { "THỦ TRƯỞNG ĐƠN VỊ", "THỦ QUỸ", "KẾ TOÁN", "NGƯỜI LẬP BẢNG" };
                 string[] cotKyStart = { "B", "E", "H", "K" };
 
                 for (int i = 0; i < nguoiKy.Length; i++)
                 {
                     string colStart = cotKyStart[i];
-                    string colEnd = ((char)(colStart[0] + (i == 3 ? 1 : 2))).ToString();
+                    string colEnd = ((char)(colStart[0] + (i == 3 ? 2 : 2))).ToString();
 
+                    if (i == 3)
+                    {
+                        ws.Range($"{colStart}{footerRow}:{colEnd}{footerRow}").Merge().Value = $"Ngày {DateTime.Now:dd} tháng {DateTime.Now:MM} năm {DateTime.Now:yyyy}";
+                        ws.Range($"{colStart}{footerRow}:{colEnd}{footerRow}").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                        ws.Range($"{colStart}{footerRow}:{colEnd}{footerRow}").Style.Font.Italic = true;
+                        ws.Range($"{colStart}{footerRow}:{colEnd}{footerRow}").Style.Font.FontSize = 10;
+                    }
 
                     ws.Range($"{colStart}{footerRow + 1}:{colEnd}{footerRow + 1}").Merge().Value = nguoiKy[i];
                     ws.Range($"{colStart}{footerRow + 1}:{colEnd}{footerRow + 1}").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;

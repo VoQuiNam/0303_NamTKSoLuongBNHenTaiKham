@@ -225,3 +225,9 @@ input {
         border-width: 0.5em; 
     }
 
+
+th, td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

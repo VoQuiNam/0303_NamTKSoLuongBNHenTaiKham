@@ -25,7 +25,7 @@
     <header>
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Nam_TKSoLuongBNHenTaiKham" asp-action="Nam_TKSoLuongBNHenTaiKhamPage">Thống kê số lượng bệnh nhân tái khám</a>
+                <a class="navbar-brand" asp-area="" asp-controller="C0303TKSoLuongBNHenTaiKham" asp-action="V0303TKSoLuongBNHenTaiKhamPage">Thống kê số lượng bệnh nhân tái khám</a>
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                         data-bs-target="#navbarNav" aria-controls="navbarNav"
@@ -37,6 +37,10 @@
                         <li class="nav-item">
                             <a class="nav-link @(currentController == "D0303Nam_TKSoLuongBNHenTaiKham" ? "active" : "")"
                                asp-controller="C0303TKSoLuongBNHenTaiKham" asp-action="V0303TKSoLuongBNHenTaiKhamPage">Thống kê số lượng bệnh nhân hẹn tái khám</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(currentController == "D0303Nam_TKSoLuongBNHenTaiKham" ? "active" : "")"
+                               asp-controller="C0303BaoCaoDoiSoatBIDV" asp-action="V0303BaoCaoDoiSoatBIDVPage">Báo cáo đối soát BIDV</a>
                         </li>
                     </ul>
                 </div>

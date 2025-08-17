@@ -22,7 +22,6 @@ toastr.options = {
 }
 
 
-
 function initDatePicker() {
     $('.date-input').datepicker({
         format: 'dd-mm-yyyy',
@@ -73,7 +72,7 @@ function initDatePicker() {
             }
         });
 
-        
+
         input.addEventListener("click", function () {
             const pos = input.selectionStart;
             if (pos <= 2) input.setSelectionRange(0, 2);
@@ -124,16 +123,18 @@ function formatDateForServer(dateStr) {
 
 function formatDateDisplay(dateString) {
     const date = new Date(dateString);
-    if (isNaN(date)) return ''; 
+    if (isNaN(date)) return '';
 
     const day = String(date.getDate()).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
 
-    return `${day}-${month}-${year}`;
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+
+    return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
 }
-
-
 
 function updateTable(data) {
     fullData = data || [];
@@ -149,36 +150,58 @@ function renderTable() {
     tbody.empty();
 
     if (!fullData || fullData.length === 0) {
-        tbody.append(`<tr><td colspan="12" class="text-center text-muted">Không có dữ liệu phù hợp.</td></tr>`);
+        tbody.append(`<tr><td colspan="16" class="text-center text-muted">Không có dữ liệu phù hợp.</td></tr>`);
         return;
     }
 
-    fullData.sort((a, b) => new Date(a.ngayHenKham) - new Date(b.ngayHenKham));
+    fullData.sort((a, b) => new Date(a.ngayGioGiaoDich) - new Date(b.ngayGioGiaoDich));
 
     const startIndex = (currentPage - 1) * pageSize;
     const pageData = fullData.slice(startIndex, startIndex + pageSize);
 
+    let tongBVUBAll = 0;
+    let tongBIDVAll = 0;
+    fullData.forEach(item => {
+        tongBVUBAll += item.bvuB_SoTien || 0;
+        tongBIDVAll += item.bidV_SoTien || 0;
+    });
+
+   
     pageData.forEach((item, index) => {
         const row = `
             <tr>
-                <td class="text-center" style="width: 50px;">${startIndex + index + 1}</td>
-                <td class="text-center">${item.maYTe}</td>
-                <td class="text-start" style="max-width: 180px;">${item.hoVaTen}</td>
-                <td class="text-center">${item.namSinh}</td>
-                <td class="text-start">${item.gioiTinh}</td>
-                <td class="text-start">${item.quocTich}</td>
-                <td class="text-center" style="max-width: 140px;">${item.cccD_PASSPORT}</td>
-                <td class="text-center" style="max-width: 120px;">${item.sdt}</td>
-                <td class="text-center">${formatDateDisplay(item.ngayHenKham)}</td>
-                <td class="text-start" style="max-width: 150px;">${item.bacSiHenKham}</td>
-                <td class="text-start">${item.nhacHen}</td>
-                <td class="text-start" style="max-width: 150px;">${item.ghiChu}</td>
+                <td class="text-center">${startIndex + index + 1}</td>
+                <td class="text-center">${item.maYTe || ''}</td>
+                <td class="text-center">${item.maDot || ''}</td>
+                <td class="text-start">${item.hoTenBenhNhan || ''}</td>
+                <td class="text-center">${item.soDienThoai || ''}</td>
+                <td class="text-end">${formatSoTien(item.soTienTrenBL)}</td>
+                <td class="text-center">${item.soBL || ''}</td>
+                <td class="text-end">${formatSoTien(item.soTienTrenHD)}</td>
+                <td class="text-center">${item.soHD || ''}</td>
+                <td class="text-end">${formatSoTien(item.tongSoTien)}</td>
+                <td class="text-center">${formatDateDisplay(item.ngayGioGiaoDich) || ''}</td>
+                <td class="text-start">${item.userThanhToan || ''}</td>
+                <td class="text-end">${formatSoTien(item.bvuB_SoTien)}</td>
+                <td class="text-center">${item.bvuB_TrangThai || 'Chưa có'}</td>
+                <td class="text-end">${formatSoTien(item.bidV_SoTien)}</td>
+                <td class="text-center">${item.bidV_TrangThai || 'Chưa có'}</td>
             </tr>
         `;
         tbody.append(row);
     });
-}
 
+    const totalRow = `
+        <tr class="fw-bold">
+            <td colspan="12" class="text-end fw-bold">Tổng cộng (tất cả trang):</td>
+            <td class="text-end fw-bold">${formatSoTien(tongBVUBAll)}</td>
+            <td></td>
+            <td class="text-end fw-bold">${formatSoTien(tongBIDVAll)}</td>
+            <td></td>
+        </tr>
+    `;
+    tbody.append(totalRow);
+}
 
 
 function renderPagination() {
@@ -245,10 +268,8 @@ $(document).on('change', '#pageSizeSelect', function () {
 });
 
 
-
-
 function handleFilter() {
-    $('.btnFilter').off('click').on('click', function (e) {
+    $('.btnFilterBidv').off('click').on('click', function (e) {
         e.preventDefault();
 
         setTimeout(function () {
@@ -263,7 +284,7 @@ function handleFilter() {
                 return;
             }
 
-           
+
 
 
             const tuNgayDate = new Date(tuNgayRaw.split('-').reverse().join('-'));
@@ -282,12 +303,13 @@ function handleFilter() {
             const denNgay = formatDateForServer($('#denNgayDesktop').val() || $('#denNgayMobile').val());
 
             if (!validateDateRange(tuNgay, denNgay)) {
-                return; }
-                
+                return;
+            }
+
 
             $.ajax({
-                
-                url: '/bao_cao_thong_ke_so_luong_benh_nhan_hen_tai_kham/tk/FilterByDay',
+
+                url: '/bao_cao_doi_soat_bidv/tk/FilterByDay',
                 type: 'POST',
                 data: { tuNgay, denNgay, idChiNhanh },
                 success: function (response) {
@@ -315,6 +337,19 @@ function handleFilter() {
 
 }
 
+
+function validateDateRange(tuNgay, denNgay) {
+    if (!tuNgay || !denNgay) return false;
+
+    const tuNgayDate = new Date(tuNgay);
+    const denNgayDate = new Date(denNgay);
+
+    if (tuNgayDate > denNgayDate) {
+        toastr.error("Lỗi: Từ ngày phải nhỏ hơn hoặc bằng Đến ngày");
+        return false;
+    }
+    return true;
+}
 
 async function handleExportExcel() {
     const btn = document.getElementById("btnExportExcelGoiKham");
@@ -360,7 +395,7 @@ async function handleExportExcel() {
                 return;
             }
 
-            const exportResponse = await fetch(`/bao_cao_thong_ke_so_luong_benh_nhan_hen_tai_kham/export/excel?tuNgay=${tuNgay}&denNgay=${denNgay}&idcn=${idChiNhanh}`);
+            const exportResponse = await fetch(`/bao_cao_doi_soat_bidv/export/excel?tuNgay=${tuNgay}&denNgay=${denNgay}&idcn=${idChiNhanh}`);
 
             if (!exportResponse.ok) {
                 throw new Error("Không thể tải file Excel");
@@ -376,7 +411,7 @@ async function handleExportExcel() {
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
-            a.download = "BaoCaoThongKe.xlsx"; 
+            a.download = "BaoCaoDoiSoatBidv.xlsx";
             document.body.appendChild(a);
             a.click();
 
@@ -437,7 +472,7 @@ function exportPDFHandler(btn, viewType) {
     const formattedTuNgay = formatDateForServer(tuNgay);
     const formattedDenNgay = formatDateForServer(denNgay);
 
-    let url = "/bao_cao_thong_ke_so_luong_benh_nhan_hen_tai_kham/export/pdf?";
+    let url = "/bao_cao_doi_soat_bidv/export/pdf?";
     if (formattedTuNgay) url += `tuNgay=${formattedTuNgay}&`;
     if (formattedDenNgay) url += `denNgay=${formattedDenNgay}&`;
     if (idChiNhanh) url += `idChiNhanh=${idChiNhanh}`;
@@ -458,7 +493,7 @@ function exportPDFHandler(btn, viewType) {
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
-            a.download = "DanhSachHenKham.pdf";
+            a.download = "BaoCaoDoiSoatBidv.pdf";
             document.body.appendChild(a);
             a.click();
             a.remove();
@@ -480,20 +515,21 @@ function exportPDFHandler(btn, viewType) {
         });
 }
 
+function formatSoTien(soTien) {
+    if (soTien == null || soTien === '') return 'Không rõ';
 
-
-
-function validateDateRange(tuNgay, denNgay) {
-    if (!tuNgay || !denNgay) return false;
-    
-    const tuNgayDate = new Date(tuNgay);
-    const denNgayDate = new Date(denNgay);
-
-    if (tuNgayDate > denNgayDate) {
-        toastr.error("Lỗi: Từ ngày phải nhỏ hơn hoặc bằng Đến ngày");
-        return false;
+    if (typeof soTien === 'string') {
+        soTien = parseHocPhiToNumber(soTien);
+        if (soTien === null) {
+            return '<span class="text-danger">Sai định dạng</span>';
+        }
     }
-    return true;
+    const formatter = new Intl.NumberFormat('vi-VN', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 20
+    });
+
+    return formatter.format(soTien) + ' VNĐ';
 }
 
 document.addEventListener('DOMContentLoaded', function () {
