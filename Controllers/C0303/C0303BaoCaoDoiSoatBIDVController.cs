@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Nam_ThongKeSoLuongBNHenTaiKham.Context;
+using Nam_ThongKeSoLuongBNHenTaiKham.Models.M0303;
 using Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303.SI0303;
 using Nam_ThongKeSoLuongBNHenTaiKham.Service.SI0303;
 
@@ -11,11 +11,11 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
         //private string _maChucNang = "/bao_cao_doi_soat_bidv";
         //private IMemoryCachingServices _memoryCache;
 
-        private readonly M0303AppDbContext _localDb;
+        private readonly Context0303 _localDb;
         private readonly IWebHostEnvironment _env;
         private readonly I0303BaoCaoDoiSoatBIDV _service;
 
-        public C0303BaoCaoDoiSoatBIDVController(M0303AppDbContext localDb, IWebHostEnvironment env
+        public C0303BaoCaoDoiSoatBIDVController(Context0303 localDb, IWebHostEnvironment env
             , I0303BaoCaoDoiSoatBIDV service /*, IMemoryCachingServices memoryCache*/)
         {
             _localDb = localDb;

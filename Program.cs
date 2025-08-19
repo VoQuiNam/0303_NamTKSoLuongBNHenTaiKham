@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Nam_ThongKeSoLuongBNHenTaiKham.Context;
 using Nam_ThongKeSoLuongBNHenTaiKham.Models;
+using Nam_ThongKeSoLuongBNHenTaiKham.Models.M0303;
 using Nam_ThongKeSoLuongBNHenTaiKham.Service;
 using Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303;
 using Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303.SI0303;
@@ -14,10 +14,10 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddScoped<I0303TKSoLuongBNHenKham, S0303TKSoLuongBNHenKham>();
 builder.Services.AddScoped<I0303BaoCaoDoiSoatBIDV, S0303BaoCaoDoiSoatBIDV>();
+builder.Services.AddScoped<IC0303BaoCaoBacSiDocKQ, S0303BaoCaoBacSiDocKQ>();
 
-
-builder.Services.AddDbContext<M0303AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<Context0303>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Connection")));
 
 
 

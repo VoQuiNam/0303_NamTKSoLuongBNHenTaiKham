@@ -3,8 +3,8 @@ using ClosedXML.Excel.Drawings;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Nam_ThongKeSoLuongBNHenTaiKham.Context;
 using Nam_ThongKeSoLuongBNHenTaiKham.Models;
+using Nam_ThongKeSoLuongBNHenTaiKham.Models.M0303;
 using Nam_ThongKeSoLuongBNHenTaiKham.Service.SI0303;
 using QuestPDF.Fluent;
 
@@ -17,11 +17,11 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
         //private IMemoryCachingServices _memoryCache;
 
 
-        private readonly M0303AppDbContext _localDb;
+        private readonly Context0303 _localDb;
         private readonly IWebHostEnvironment _env;
         private readonly I0303TKSoLuongBNHenKham _service;
 
-        public C0303TKSoLuongBNHenTaiKhamController(M0303AppDbContext localDb, IWebHostEnvironment env
+        public C0303TKSoLuongBNHenTaiKhamController(Context0303 localDb, IWebHostEnvironment env
             , I0303TKSoLuongBNHenKham service /*, IMemoryCachingServices memoryCache*/)
         {
             _localDb = localDb;

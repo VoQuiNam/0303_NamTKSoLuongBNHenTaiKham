@@ -3,7 +3,6 @@ using ClosedXML.Excel.Drawings;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Nam_ThongKeSoLuongBNHenTaiKham.Context;
 using Nam_ThongKeSoLuongBNHenTaiKham.Models;
 using Nam_ThongKeSoLuongBNHenTaiKham.Models.M0303;
 using Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments;
@@ -15,10 +14,10 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service
 {
     public class S0303TKSoLuongBNHenKham : ControllerBase,I0303TKSoLuongBNHenKham
     {
-        private readonly M0303AppDbContext _localDb;
+        private readonly Context0303 _localDb;
         private readonly IWebHostEnvironment _env;
 
-        public S0303TKSoLuongBNHenKham(M0303AppDbContext localDb, IWebHostEnvironment env)
+        public S0303TKSoLuongBNHenKham(Context0303 localDb, IWebHostEnvironment env)
         {
             _localDb = localDb;
             _env = env;

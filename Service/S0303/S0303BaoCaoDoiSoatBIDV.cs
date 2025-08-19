@@ -3,7 +3,6 @@ using ClosedXML.Excel.Drawings;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Nam_ThongKeSoLuongBNHenTaiKham.Context;
 using Nam_ThongKeSoLuongBNHenTaiKham.Models.M0303;
 using Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments;
 using Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303.SI0303;
@@ -14,10 +13,10 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
     public class S0303BaoCaoDoiSoatBIDV : ControllerBase,I0303BaoCaoDoiSoatBIDV
     {
 
-        private readonly M0303AppDbContext _localDb;
+        private readonly Context0303 _localDb;
         private readonly IWebHostEnvironment _env;
 
-        public S0303BaoCaoDoiSoatBIDV(M0303AppDbContext localDb, IWebHostEnvironment env)
+        public S0303BaoCaoDoiSoatBIDV(Context0303 localDb, IWebHostEnvironment env)
         {
             _localDb = localDb;
             _env = env;
