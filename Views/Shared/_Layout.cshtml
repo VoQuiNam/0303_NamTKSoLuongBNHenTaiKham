@@ -17,10 +17,6 @@
 
 </head>
 
-
-
-
-
 <body>
     <header>
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -41,6 +37,10 @@
                         <li class="nav-item">
                             <a class="nav-link @(currentController == "D0303Nam_TKSoLuongBNHenTaiKham" ? "active" : "")"
                                asp-controller="C0303BaoCaoDoiSoatBIDV" asp-action="V0303BaoCaoDoiSoatBIDVPage">Báo cáo đối soát BIDV</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(currentController == "D0303Nam_TKSoLuongBNHenTaiKham" ? "active" : "")"
+                               asp-controller="C0303BaoCaoBacSiDocKQ" asp-action="V0303BaoCaoBacSiDocKQPage">Báo cáo bác sĩ đọc kết quả</a>
                         </li>
                     </ul>
                 </div>
@@ -63,3 +63,20 @@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let currentPath = window.location.pathname.toLowerCase();
+        let navLinks = document.querySelectorAll(".navbar-nav .nav-link");
+
+        navLinks.forEach(link => {
+            let linkPath = link.getAttribute("href").toLowerCase();
+            if (currentPath.includes(linkPath)) {
+                link.classList.add("active");
+            } else {
+                link.classList.remove("active");
+            }
+        });
+    });
+</script>

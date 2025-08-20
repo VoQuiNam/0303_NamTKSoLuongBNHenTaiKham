@@ -532,6 +532,8 @@ function formatSoTien(soTien) {
     return formatter.format(soTien);
 }
 
+
+
 document.addEventListener('DOMContentLoaded', function () {
     initDatePicker();
     renderTable();

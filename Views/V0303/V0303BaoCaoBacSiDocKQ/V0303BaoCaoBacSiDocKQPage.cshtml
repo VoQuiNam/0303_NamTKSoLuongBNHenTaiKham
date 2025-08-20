@@ -1,7 +1,4 @@
-﻿@{
-    ViewData["NonSixOs"] = true;
-}
-
+﻿
 
 <head>
     <link href="~/dist/css/CSS0303/CSS0303TKSoLuongBNHenTaiKham.css" rel="stylesheet" />
@@ -9,34 +6,55 @@
     <link href="~/dist/lib/toastr/toastr.min.css" rel="stylesheet" />
 </head>
 <style>
-    .table-wrapper thead tr:first-child th {
-        background-color: #f2f2f2;
-        font-size: 1.05rem;
+    .truncate-text {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: calc(100% - 40px);
+        display: block; /* ✅ đổi từ inline-block sang block để ::after hoạt động */
+        position: relative; /* ✅ cần cho tooltip */
     }
 
-    .table-wrapper thead tr:nth-child(2) th {
-        background-color: #f2f2f2;
-        font-size: 0.95rem;
+    .has-tooltip {
+        position: relative;
+        display: block; /* ✅ đảm bảo ::after hoạt động */
     }
 
-    thead th {
-        position: sticky;
-        background: #fff;
-        z-index: 2;
+        .has-tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 5px 10px;
+            background-color: #333;
+            color: #fff;
+            border-radius: 4px;
+            font-size: 14px;
+            white-space: nowrap;
+            z-index: 1000;
+            pointer-events: none;
+            margin-bottom: 5px;
+            opacity: 1;
+        }
+
+
+    mark {
+        background-color: #ffeb3b; /* hoặc màu bạn thích */
+        padding: 0;
+        margin: 0;
+        font-weight: inherit;
+        font-size: inherit;
+        letter-spacing: normal;
+        word-spacing: normal;
     }
 
-    thead tr:first-child th {
-        top: 0;
-        z-index: 3;
+    .list-group-item.active .text-muted {
+        color: #fff !important;
     }
-
-    thead tr:nth-child(2) th {
-        top: 38px;
-    }
-
-
 
 </style>
+
 
 <div class="card p-1">
     <div class="container_goiKham">
@@ -45,7 +63,6 @@
                 <div style="width: 100%; padding:0;">
                     <label class="form-label">Giai đoạn</label>
                     <select id="selectGiaiDoan" class="form-select">
-
                         <option value="Nam">Năm</option>
                         <option value="Quy">Quý</option>
                         <option value="Thang">Tháng</option>
@@ -77,6 +94,7 @@
                     </div>
                     <span class="text-danger"></span>
                 </div>
+
                 <div style="width: 100%; margin-bottom:8px;padding:0;">
                     <label class="form-label">Đến ngày</label>
                     <div class="input-group">
@@ -96,23 +114,56 @@
                     <span class="text-danger"></span>
                 </div>
 
+                <!-- Dropdown Khoa -->
+                <div style="width: 100%; margin-bottom:8px;padding:0;">
+                        <label class="form-label">Khoa</label>
+                        <div class="position-relative">
+                            <input type="text" id="searchKhoa" class="form-control" autocomplete="off">
+                            <input type="hidden" id="selectedKhoaId" name="KhoaId">
+                            <div id="dropdownKhoa"
+                             class="dropdown-menu show"
+                             style="display: none; position: absolute; width: 100%; z-index: 1055;
+            max-height: 200px; overflow-y: auto; overflow-x: hidden; font-size: 1rem;
+            background: white; border: 1px solid #ccc;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
+                            </div>
+                        </div>
+                </div>
+
+                <!-- Dropdown Phòng buồng -->
+                <div style="width: 100%; margin-bottom:8px;padding:0;">
+                        <label class="form-label">Phòng buồng</label>
+                        <div class="position-relative">
+                            <input type="text" id="searchPhong" class="form-control" autocomplete="off">
+                            <input type="hidden" id="selectedPhongId" name="PhongId">
+                            <div id="dropdownPhong"
+                                 class="list-group position-absolute w-100"
+                             style="display: none; position: absolute; width: 100%; z-index: 1055;
+            max-height: 200px; overflow-y: auto; overflow-x: hidden; font-size: 1rem;
+            background: white; border: 1px solid #ccc;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
+                            </div>
+                        </div>
+                </div>
+
 
                 <label style="padding:0;">
-                    <button class="btnFilterBidv btn btn-outline-primary mb-3" @(ViewBag.quyenvaitro.Xem ? "" : "disabled")>
+                    <button class="btnFilterBacSi btn btn-outline-primary mb-3">
                         <i class="bi bi-funnel"></i> Lọc danh sách
                     </button>
                 </label>
             </div>
+
             <div class="row export-buttons">
-                <button id="btnExportPDFGoiKham" class="btnExportPDFDesktop btn btn-outline-danger mb-3" @(ViewBag.quyenvaitro.Xuat ? "" : "disabled")>
+                <button id="btnExportPDFGoiKham" class="btnExportPDFDesktop btn btn-outline-danger mb-3">
                     Xuất PDF
                 </button>
-                <button id="btnExportExcelGoiKham" class="btnExportExcel btn btn-outline-success mb-3" @(ViewBag.quyenvaitro.Xuat ? "" : "disabled")>
+                <button id="btnExportExcelGoiKham" class="btnExportExcel btn btn-outline-success mb-3">
                     Xuất Excel
                 </button>
             </div>
-
         </div>
+
         <div class="container_goiKham right">
             <div id="loadingSpinner" class="text-center" style="display: none; margin: 20px 0;">
                 <div class="spinner-border text-primary" role="status">
@@ -122,35 +173,47 @@
             </div>
 
             <div class="table-wrapper">
-                <table style="width:100%; margin: 0; table-layout: fixed; min-width: 1800px;" cellpadding="8">
-                    <thead>
+                <table style="width:100%; margin: 0; table-layout: fixed; min-width: 1200px;" cellpadding="8">
+                    <thead class="table-secondary">
                         <tr>
-                            <th rowspan="2" style="width: 7%;">STT</th>
-                            <th rowspan="2" style="width:9%;">Mã y tế</th>
-                            <th rowspan="2" style="width: 11%;">Mã đợt</th>
-                            <th rowspan="2" style="width:26%;">Họ tên bệnh nhân</th>
-                            <th rowspan="2" style="width: 15%;">SĐT</th>
-                            <th rowspan="2" style="width:16%;">Số tiền trên BL</th>
-                            <th rowspan="2" style="width: 9%;">Số BL</th>
-                            <th rowspan="2" style="width:16%;">Số tiền trên HĐ</th>
-                            <th rowspan="2" style="width: 9%;">Số HĐ</th>
-                            <th rowspan="2" style="width:16%;">Tổng số tiền</th>
-                            <th rowspan="2" style="width: 23%;">Ngày giao dịch</th>
-                            <th rowspan="2" style="width:18%;">Người thanh toán</th>
-
-                            <th colspan="2" style="width:42%;">BVUB</th>
-                            <th colspan="2" style="width:42%;">BIDV</th>
-                        </tr>
-                        <tr>
-                            <th style="width:16%;">Số tiền</th>
-                            <th style="width:13%;">Trạng thái</th>
-                            <th style="width:16%;">Số tiền</th>
-                            <th style="width:13%;">Trạng thái</th>
+                            <th class="text-center" style="width:30%;">STT</th>
+                            <th class="text-center" style="width:30%;">Bác sĩ chỉ định</th>
+                            <th class="text-center" style="width:10%;">Thu phí</th>
+                            <th class="text-center" style="width:10%;">BHYT</th>
+                            <th class="text-center" style="width:10%;">Nợ</th>
+                            <th class="text-center" style="width:10%;">Miễn giảm</th>
+                            <th class="text-center" style="width:10%;">Tổng số ca</th>
                         </tr>
                     </thead>
-
                     <tbody id="tableBody">
+                        @* <tr class="fw-bold">
+                            <td colspan="6" class="text-start">01. HỒI SỨC CẤP CỨU VÀ CHỐNG ĐỘC</td>
+                            <td>17</td>
+                        </tr>
 
+                        <tr class="fw-bold">
+                            <td colspan="6" class="text-start">KHOA GIẢM NHẸ</td>
+                            <td>2</td>
+                        </tr>
+
+                        <tr>
+                            <td>1</td>
+                            <td class="text-start">Nguyễn Thị Mỹ Ngân</td>
+                            <td>0</td>
+                            <td>1</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>1</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td class="text-start">Vũ Thái Hồng Khang</td>
+                            <td>0</td>
+                            <td>1</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>1</td>
+                        </tr> *@
                     </tbody>
                 </table>
             </div>
@@ -184,7 +247,7 @@
     <script src="~/dist/lib/toastr/toastr.min.js" asp-append-version="true" defer></script>
     <script src="~/dist/lib/bootstrap-datepicker-1.10.0/dist/js/bootstrap-datepicker.min.js" asp-append-version="true" defer></script>
     <script src="~/dist/lib/bootstrap-datepicker-1.10.0/dist/locales/bootstrap-datepicker.vi.min.js" asp-append-version="true" defer></script>
-    <script src="~/dist/js/J0303/J0303BaoCaoDoiSoat.js" asp-append-version="true" defer></script>
+    <script src="~/dist/js/J0303/J0303BaoCaoBacSiDocKQ.js" asp-append-version="true" defer></script>
 
 
     <script>
