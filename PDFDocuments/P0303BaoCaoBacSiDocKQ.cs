@@ -69,7 +69,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                 page.Margin(15);
                 page.DefaultTextStyle(x => x.FontFamily("Times New Roman").FontSize(10));
 
-                // HEADER (giữ nguyên)
+                // HEADER
                 page.Header().ShowOnce().Column(headerCol =>
                 {
                     headerCol.Item().Row(row =>
@@ -99,7 +99,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                     headerCol.Item().PaddingVertical(5).LineHorizontal(1).LineColor(Colors.Grey.Medium);
                 });
 
-                // CONTENT: TABLE - ĐÃ SỬA BORDER
+                // CONTENT: TABLE
                 page.Content().Column(contentCol =>
                 {
                     contentCol.Item().Table(table =>
@@ -116,7 +116,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                             columns.ConstantColumn(60);   // Tổng số ca
                         });
 
-                        // Header - SỬA BORDER NHẠT HƠN
+                        // Header
                         table.Header(header =>
                         {
                             header.Cell().Element(CellStyle).Text("STT").Bold();
@@ -128,47 +128,45 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                             header.Cell().Element(CellStyle).Text("Tổng số ca").Bold();
 
                             static IContainer CellStyle(IContainer c) =>
-                                c.Border(1).BorderColor(Colors.Grey.Lighten2).Padding(3).AlignCenter(); // GIẢM ĐỘ DÀY BORDER
+                                c.Border(1).BorderColor(Colors.Grey.Lighten2).Padding(3).AlignCenter();
                         });
 
                         int stt = 1;
                         var khoaGroups = reportData.GroupBy(x => x.IdKhoa).OrderBy(x => x.Key);
-                        int sttKhoa = 1; // STT riêng cho khoa
+                        int sttKhoa = 1;
 
                         foreach (var khoa in khoaGroups)
                         {
                             int tongCaKhoa = khoa.Sum(x => (x.ThuPhi ?? 0) + (x.BHYT ?? 0) + (x.No ?? 0) + (x.MienGiam ?? 0));
 
-                            // Dòng tổng Khoa - SỬA BORDER NHẸ
+                            // Dòng tổng Khoa
                             table.Cell().ColumnSpan(2)
                                 .Element(c => c.BorderBottom(1).BorderLeft(1).BorderTop(1).BorderColor(Colors.Grey.Lighten2)
                                                .Padding(3).AlignLeft().Text($"{sttKhoa:00}. {khoa.First().TenKhoa}").Bold());
-                            // Các cột số liệu để trống - SỬA BORDER
                             table.Cell().Element(c => c.BorderBottom(1).BorderTop(1).BorderColor(Colors.Grey.Lighten2).Padding(3));
                             table.Cell().Element(c => c.BorderBottom(1).BorderTop(1).BorderColor(Colors.Grey.Lighten2).Padding(3));
                             table.Cell().Element(c => c.BorderBottom(1).BorderTop(1).BorderColor(Colors.Grey.Lighten2).Padding(3));
                             table.Cell().Element(c => c.BorderBottom(1).BorderTop(1).BorderColor(Colors.Grey.Lighten2).Padding(3));
                             table.Cell().Element(c => c.BorderBottom(1).BorderRight(1).BorderLeft(1).BorderTop(1)
-                                               .BorderColor(Colors.Grey.Lighten2).Padding(3).AlignRight().Text(tongCaKhoa.ToString()).Bold());
+                                               .BorderColor(Colors.Grey.Lighten2).Padding(3).AlignCenter().Text(tongCaKhoa.ToString()).Bold());
 
                             var phongGroups = khoa.GroupBy(x => x.IdPhong).OrderBy(x => x.Key);
                             foreach (var phong in phongGroups)
                             {
                                 int tongCaPhong = phong.Sum(x => (x.ThuPhi ?? 0) + (x.BHYT ?? 0) + (x.No ?? 0) + (x.MienGiam ?? 0));
 
-                                // Dòng tổng Phòng - SỬA BORDER
+                                // Dòng tổng Phòng
                                 table.Cell().ColumnSpan(2)
                                     .Element(c => c.BorderBottom(1).BorderLeft(1).BorderColor(Colors.Grey.Lighten2)
                                                    .Padding(3).AlignLeft().Text($"{phong.First().TenPhong}").Bold());
-                                // Các cột số liệu để trống - SỬA BORDER
                                 table.Cell().Element(c => c.BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(3));
                                 table.Cell().Element(c => c.BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(3));
                                 table.Cell().Element(c => c.BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(3));
                                 table.Cell().Element(c => c.BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(3));
                                 table.Cell().Element(c => c.BorderBottom(1).BorderRight(1).BorderLeft(1)
-                                                   .BorderColor(Colors.Grey.Lighten2).Padding(3).AlignRight().Text(tongCaPhong.ToString()).Bold());
+                                                   .BorderColor(Colors.Grey.Lighten2).Padding(3).AlignCenter().Text(tongCaPhong.ToString()).Bold());
 
-                                // Chi tiết từng bác sĩ - SỬA BORDER NHẸ
+                                // Chi tiết từng bác sĩ
                                 var bacSiGroups = phong.GroupBy(x => x.BacSiChiDinh);
                                 foreach (var bacSiGroup in bacSiGroups)
                                 {
@@ -181,11 +179,11 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
 
                                     table.Cell().Element(c => c.Border(1).BorderColor(Colors.Grey.Lighten2).Padding(3).AlignCenter().Text(stt.ToString()));
                                     table.Cell().Element(c => c.Border(1).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(bacSiData.BacSiChiDinh ?? ""));
-                                    table.Cell().Element(c => c.Border(1).BorderColor(Colors.Grey.Lighten2).Padding(3).AlignRight().Text(tongThuPhi.ToString()));
-                                    table.Cell().Element(c => c.Border(1).BorderColor(Colors.Grey.Lighten2).Padding(3).AlignRight().Text(tongBHYT.ToString()));
-                                    table.Cell().Element(c => c.Border(1).BorderColor(Colors.Grey.Lighten2).Padding(3).AlignRight().Text(tongNo.ToString()));
-                                    table.Cell().Element(c => c.Border(1).BorderColor(Colors.Grey.Lighten2).Padding(3).AlignRight().Text(tongMienGiam.ToString()));
-                                    table.Cell().Element(c => c.Border(1).BorderColor(Colors.Grey.Lighten2).Padding(3).AlignRight().Text(tongBacSi.ToString()));
+                                    table.Cell().Element(c => c.Border(1).BorderColor(Colors.Grey.Lighten2).Padding(3).AlignCenter().Text(tongThuPhi.ToString()));
+                                    table.Cell().Element(c => c.Border(1).BorderColor(Colors.Grey.Lighten2).Padding(3).AlignCenter().Text(tongBHYT.ToString()));
+                                    table.Cell().Element(c => c.Border(1).BorderColor(Colors.Grey.Lighten2).Padding(3).AlignCenter().Text(tongNo.ToString()));
+                                    table.Cell().Element(c => c.Border(1).BorderColor(Colors.Grey.Lighten2).Padding(3).AlignCenter().Text(tongMienGiam.ToString()));
+                                    table.Cell().Element(c => c.Border(1).BorderColor(Colors.Grey.Lighten2).Padding(3).AlignCenter().Text(tongBacSi.ToString()));
 
                                     stt++;
                                 }
@@ -195,7 +193,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                         }
                     });
 
-                    // THÊM PHẦN NGƯỜI LẬP BẢNG Ở ĐÂY - CĂN PHẢI CỦA BẢNG
+                    // Người lập bảng
                     contentCol.Item().PaddingTop(20).AlignRight().Width(200).Column(nguoiLapCol =>
                     {
                         nguoiLapCol.Item().AlignCenter().Text($"Ngày {DateTime.Now:dd} tháng {DateTime.Now:MM} năm {DateTime.Now:yyyy}").Italic().FontSize(10);
@@ -204,7 +202,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                     });
                 });
 
-                // FOOTER - CHỈ GIỮ LẠI SỐ TRANG
+                // FOOTER - chỉ số trang
                 page.Footer().AlignRight().Text(x =>
                 {
                     x.Span("Trang ").FontSize(9);
@@ -214,6 +212,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                 });
             });
         }
+
 
 
     }

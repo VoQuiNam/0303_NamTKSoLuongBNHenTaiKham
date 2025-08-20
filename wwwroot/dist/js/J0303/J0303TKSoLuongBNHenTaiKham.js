@@ -236,6 +236,7 @@ $(document).on('change', '#pageSizeSelect', function () {
     pageSize = parseInt($(this).val()) || 10;
     currentPage = 1;
 
+
     if (fullData && fullData.length > 0) {
         renderTable();
         renderPagination();

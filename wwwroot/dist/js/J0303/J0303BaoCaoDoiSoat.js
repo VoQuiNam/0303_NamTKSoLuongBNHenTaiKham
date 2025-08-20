@@ -21,7 +21,6 @@ toastr.options = {
     "hideMethod": "fadeOut"
 }
 
-
 function initDatePicker() {
     $('.date-input').datepicker({
         format: 'dd-mm-yyyy',

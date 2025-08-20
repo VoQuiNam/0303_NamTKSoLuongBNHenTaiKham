@@ -3,8 +3,8 @@ let listKhoa = [];   // Khoa
 let fullData = [];
 let currentPage = 1;
 let pageSize = 20;
-let flattenedData = [];
 let phongIndex = 1; // 🔢 Đánh số thứ tự cho nhóm Phòng
+let khoaStt = 1; // biến toàn cục, chỉ tăng khi render nhiều trang
 
 function initSearchDropdown({ inputId, dropdownId, hiddenFieldId, data, onSelect }) {
     const $input = $(`#${inputId}`);
@@ -108,6 +108,22 @@ function initSearchDropdown({ inputId, dropdownId, hiddenFieldId, data, onSelect
     return { renderDropdown };
 }
 
+function flattenData(khoaGroups) {
+    const flatList = [];
+    Object.values(khoaGroups).forEach(khoa => {
+        Object.values(khoa.phongGroups).forEach(phong => {
+            phong.list.forEach(item => {
+                flatList.push({
+                    khoa,
+                    phong,
+                    item
+                });
+            });
+        });
+    });
+    return flatList;
+}
+
 function renderTable() {
     const tbody = $('#tableBody');
     tbody.empty();
@@ -117,7 +133,7 @@ function renderTable() {
         return;
     }
 
-    // Gom nhóm theo Khoa
+    // BƯỚC 1: Gom nhóm Khoa → Phòng → Bác sĩ
     const khoaGroups = {};
     fullData.forEach(item => {
         if (!khoaGroups[item.idKhoa]) {
@@ -137,70 +153,149 @@ function renderTable() {
             };
         }
         const phong = khoa.phongGroups[item.idPhong];
-
-        // Push bác sĩ vào list
         phong.list.push(item);
 
-        // Cộng dồn cho phòng
-        phong.tong.thuPhi += item.thuPhi || 0;
-        phong.tong.bhyt += item.bhyt || 0;
-        phong.tong.no += item.no || 0;
-        phong.tong.mienGiam += item.mienGiam || 0;
-
-        // Cộng dồn cho khoa
-        khoa.tong.thuPhi += item.thuPhi || 0;
-        khoa.tong.bhyt += item.bhyt || 0;
-        khoa.tong.no += item.no || 0;
-        khoa.tong.mienGiam += item.mienGiam || 0;
+        // cộng dồn tổng
+        ['thuPhi', 'bhyt', 'no', 'mienGiam'].forEach(key => {
+            phong.tong[key] += item[key] || 0;
+            khoa.tong[key] += item[key] || 0;
+        });
     });
 
-    let stt = 1;
-    let khoaIndex = 1;
-
-    // Render bảng
+    // BƯỚC 2: Làm phẳng thành list bác sĩ
+    const flatList = [];
     Object.values(khoaGroups).forEach(khoa => {
-        const tongKhoa = khoa.tong.thuPhi + khoa.tong.bhyt + khoa.tong.no + khoa.tong.mienGiam;
-
-        // 👉 Level 1: Khoa (vàng)
-        tbody.append(`
-            <tr class="fw-bold"">
-                <td colspan="6" class="text-start">${khoaIndex}. ${khoa.tenKhoa}</td>
-                <td>${tongKhoa}</td>
-            </tr>
-        `);
-        khoaIndex++;
-
-        // Level 2: Phòng trong khoa (cam)
         Object.values(khoa.phongGroups).forEach(phong => {
-            const tongPhong = phong.tong.thuPhi + phong.tong.bhyt + phong.tong.no + phong.tong.mienGiam;
-
-            tbody.append(`
-                <tr class="fw-bold">
-                    <td colspan="6" class="ps-4 text-start">${phong.tenPhong}</td>
-                    <td>${tongPhong}</td>
-                </tr>
-            `);
-
-            // Level 3: Bác sĩ chi tiết (trắng)
             phong.list.forEach(item => {
-                const tongBacSi = (item.thuPhi || 0) + (item.bhyt || 0) + (item.no || 0) + (item.mienGiam || 0);
-
-                const row = `
-                    <tr>
-                        <td>${stt++}</td>
-                        <td class="text-start">${item.bacSiChiDinh || ''}</td>
-                        <td>${item.thuPhi || 0}</td>
-                        <td>${item.bhyt || 0}</td>
-                        <td>${item.no || 0}</td>
-                        <td>${item.mienGiam || 0}</td>
-                        <td>${tongBacSi}</td>
-                    </tr>
-                `;
-                tbody.append(row);
+                flatList.push({ khoa, phong, item });
             });
         });
     });
+
+    // BƯỚC 3: Render
+    let khoaStt = 1;
+    let lastKhoa = null;
+    let lastPhong = null;
+    let stt = 1; // STT bác sĩ
+
+    flatList.forEach(({ khoa, phong, item }) => {
+        // Dòng Khoa
+        if (lastKhoa !== khoa) {
+            const khoaTong = Object.values(khoa.tong).reduce((a, b) => a + b, 0);
+            tbody.append(`
+                <tr class="fw-bold bg-light">
+                    <td>${khoaStt++}</td> <!-- STT Khoa -->
+                    <td colspan="5" class="text-start">${khoa.tenKhoa}</td>
+                    <td>${khoaTong}</td>
+                </tr>
+            `);
+            lastKhoa = khoa;
+            lastPhong = null;
+        }
+
+        // Dòng Phòng
+        if (lastPhong !== phong) {
+            const phongTong = Object.values(phong.tong).reduce((a, b) => a + b, 0);
+            tbody.append(`
+                <tr class="fw-bold">
+                    <td></td> <!-- STT trống -->
+                    <td colspan="5" class="ps-4 text-start">${phong.tenPhong}</td>
+                    <td>${phongTong}</td>
+                </tr>
+            `);
+            lastPhong = phong;
+        }
+
+        // Dòng Bác sĩ
+        const tongBacSi = (item.thuPhi || 0) + (item.bhyt || 0) + (item.no || 0) + (item.mienGiam || 0);
+        tbody.append(`
+            <tr>
+                <td>${stt++}</td> <!-- STT bác sĩ -->
+                <td class="ps-5 text-start">${item.bacSiChiDinh || ''}</td>
+                <td>${item.thuPhi || 0}</td>
+                <td>${item.bhyt || 0}</td>
+                <td>${item.no || 0}</td>
+                <td>${item.mienGiam || 0}</td>
+                <td>${tongBacSi}</td>
+            </tr>
+        `);
+    });
 }
+
+
+function updateTable(data) {
+    fullData = data || [];
+    currentPage = 1;
+    pageSize = parseInt($('#pageSizeSelect').val()) || 20;
+
+    renderTable();
+    renderPagination();
+}
+
+function renderPagination() {
+    const pagination = $('#pagination');
+    pagination.empty();
+
+    const totalRecords = fullData.length;
+    const pages = Math.max(1, Math.ceil(totalRecords / pageSize));
+
+    if (currentPage > pages) currentPage = pages;
+
+    $('#paginationContainer').text(`Trang ${currentPage}/${pages} – Tổng ${totalRecords} bản ghi`);
+
+    pagination.append(`
+        <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+            <a class="page-link" href="#" data-page="${Math.max(1, currentPage - 1)}">Trước</a>
+        </li>
+    `);
+
+    const visibleCount = 3;
+    let startPage = Math.max(1, currentPage - 1);
+    let endPage = Math.min(pages, startPage + visibleCount - 1);
+
+    if (endPage - startPage + 1 < visibleCount) {
+        startPage = Math.max(1, endPage - visibleCount + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+        pagination.append(`
+            <li class="page-item ${i === currentPage ? 'active' : ''}">
+                <a class="page-link" href="#" data-page="${i}">${i}</a>
+            </li>
+        `);
+    }
+
+    pagination.append(`
+        <li class="page-item ${currentPage === pages ? 'disabled' : ''}">
+            <a class="page-link" href="#" data-page="${Math.min(pages, currentPage + 1)}">Sau</a>
+        </li>
+    `);
+
+    pagination.find('a.page-link').on('click', function (e) {
+        e.preventDefault();
+        const page = parseInt($(this).data('page'));
+        if (!isNaN(page) && page !== currentPage) {
+            currentPage = page;
+            renderTable();
+            renderPagination();
+        }
+    });
+}
+
+
+$(document).on('change', '#pageSizeSelect', function () {
+    pageSize = parseInt($(this).val()) || 10;
+    currentPage = 1;
+    khoaStt = 1;
+    if (fullData && fullData.length > 0) {
+        renderTable();
+        renderPagination();
+    } else {
+        toastr.error("Vui lòng lọc dữ liệu trước khi thay đổi số dòng hiển thị.");
+    }
+});
+
+
 
 function handleFilter() {
     $('.btnFilterBacSi').off('click').on('click', function (e) {
@@ -266,7 +361,11 @@ function handleFilter() {
 
                             console.log("📊 Dữ liệu fullData:", fullData);
 
+                            currentPage = 1;
+                            pageSize = parseInt($('#pageSizeSelect').val()) || 10;
+                            khoaStt = 1; // 👉 reset khi filter
                             renderTable(); // render lại bảng theo dữ liệu lọc
+                            renderPagination();
                             toastr.success("Lọc dữ liệu thành công!");
                         } else {
                             toastr.error("Lỗi: " + (response.error || "Lỗi khi lọc dữ liệu"));
@@ -391,23 +490,11 @@ function initDatePicker() {
 
 function formatDateForServer(dateStr) {
     if (!dateStr || typeof dateStr !== 'string') return null;
-
-    let parts = dateStr.includes('/') ? dateStr.split('/') : dateStr.split('-');
+    const parts = dateStr.split('-');
     if (parts.length !== 3) return null;
-
-    let day, month, year;
-
-    if (dateStr.includes('/')) {
-        // dd/mm/yyyy
-        [day, month, year] = parts;
-    } else {
-        // dd-mm-yyyy
-        [day, month, year] = parts;
-    }
-
+    const [day, month, year] = parts;
     return `${year}-${month}-${day}`;
 }
-
 
 
 function formatDateDisplay(dateString) {
@@ -616,10 +703,23 @@ function exportPDFHandler(btn, viewType) {
         });
 }
 
+// Nếu xóa text trong searchKhoa thì clear hidden luôn
+$('#searchKhoa').on('input', function () {
+    if (!$(this).val().trim()) {
+        $('#selectedKhoaId').val('');
+    }
+});
 
-$(document).ready(function () {
-    // Load Khoa
-    $.getJSON("/dist/data/json/DM_Khoa.json", function (data) {
+// Nếu xóa text trong searchPhong thì clear hidden luôn
+$('#searchPhong').on('input', function () {
+    if (!$(this).val().trim()) {
+        $('#selectedPhongId').val('');
+    }
+});
+
+
+document.addEventListener('DOMContentLoaded', function () {
+      $.getJSON("/dist/data/json/DM_Khoa.json", function (data) {
         listKhoa = data.map(n => {
             let alias = n.viettat && n.viettat.trim() !== ""
                 ? n.viettat.toUpperCase()
@@ -675,10 +775,12 @@ $(document).ready(function () {
                 }
             });
 
-            renderTable();
-            handleFilter();
-            handleExportPDF();
-            handleExportExcel();
+       
         });
     });
+    initDatePicker();
+    renderTable();
+    handleFilter();
+    handleExportExcel();
+    handleExportPDF();
 });
