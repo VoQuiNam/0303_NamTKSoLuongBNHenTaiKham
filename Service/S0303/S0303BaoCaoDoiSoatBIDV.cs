@@ -74,26 +74,10 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
 
         public async Task<ActionResult> ExportExcel(DateTime? tuNgay, DateTime? denNgay, int? idcn)
         {
-            var danhSach = _localDb.M0303BaoCaoDoiSoatBIDVs.AsQueryable();
-
-            if (tuNgay.HasValue && denNgay.HasValue)
-            {
-                danhSach = danhSach.Where(x => x.NgayGioGiaoDich.HasValue &&
-                                               x.NgayGioGiaoDich.Value.Date >= tuNgay.Value.Date &&
-                                               x.NgayGioGiaoDich.Value.Date <= denNgay.Value.Date);
-            }
-
-            if (idcn.HasValue && idcn.Value > 0)
-            {
-                danhSach = danhSach.Where(x => x.IDCN == idcn.Value);
-            }
-
-            var list = await danhSach.ToListAsync();
+            var list = await GetBNHenKhamAsync(tuNgay, denNgay, idcn);
 
             if (!list.Any())
-            {
                 return BadRequest("Không có dữ liệu trong khoảng ngày đã chọn");
-            }
 
             var thongTinDoanhNghiep = await _localDb.ThongTinDoanhNghieps
                 .AsNoTracking()
@@ -123,21 +107,15 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                 var logoPath = Path.Combine(_env.WebRootPath, "dist", "img", "logo.png");
                 if (System.IO.File.Exists(logoPath))
                 {
-                    
                     ws.Range("A1:B4").Merge();
-
-                    
-                    ws.Column(1).Width = 25; 
+                    ws.Column(1).Width = 25;
                     ws.Column(2).Width = 25;
 
-                    
                     var img = ws.AddPicture(logoPath)
-                        .MoveTo(ws.Cell("A1"), -10, 10)
-                        .WithPlacement(XLPicturePlacement.FreeFloating)
-                        .Scale(0.3);
+                                .MoveTo(ws.Cell("A1"), -10, 10)
+                                .WithPlacement(XLPicturePlacement.FreeFloating)
+                                .Scale(0.3);
                 }
-
-
 
                 string tenCoQuan = thongTinDoanhNghiep.TenCoQuanChuyenMon;
                 string tenCSKCB = thongTinDoanhNghiep.TenCSKCB;
@@ -172,7 +150,6 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                 ws.Range("C4:O4").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
                 ws.Row(4).Height = 20;
 
-                
                 ws.Range("A6:P6").Merge().Value = "BẢNG BÁO CÁO ĐỐI SOÁT BIDV";
                 ws.Range("A6:P6").Style.Font.Bold = true;
                 ws.Range("A6:P6").Style.Font.FontSize = 24;
@@ -191,61 +168,37 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                 ws.Range("A7:P7").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                 ws.Row(7).Height = 20;
 
-                
                 string[] mainHeaders = {
-              "STT", "Mã y tế", "Mã đợt", "Họ tên bệnh nhân", "Số điện thoại",
-    "Số tiền trên BL", "Số BL", "Số tiền trên HD", "Số HD", "Tổng số tiền",
-    "Ngày giờ giao dịch", "User thanh toán"
+            "STT", "Mã y tế", "Mã đợt", "Họ tên bệnh nhân", "Số điện thoại",
+            "Số tiền trên BL", "Số BL", "Số tiền trên HD", "Số HD", "Tổng số tiền",
+            "Ngày giờ giao dịch", "User thanh toán"
         };
 
-               
-                double[] columnWidths = {
-    7, 9, 11, 26, 15, 16, 9, 16, 9, 16, 23, 18,
-    16, 13, 16, 13
-};
+                double[] columnWidths = { 7, 9, 11, 26, 15, 16, 9, 16, 9, 16, 23, 18, 16, 13, 16, 13 };
+                for (int i = 0; i < columnWidths.Length; i++) ws.Column(i + 1).Width = columnWidths[i];
 
-                for (int i = 0; i < columnWidths.Length; i++)
-                {
-                    ws.Column(i + 1).Width = columnWidths[i];
-                }
-
-                
                 var headerRow1 = ws.Row(9);
                 headerRow1.Height = 25;
 
-                
                 for (int col = 1; col <= 12; col++)
                 {
                     var range = ws.Range(9, col, 10, col).Merge();
                     var cell = ws.Cell(9, col);
                     cell.Value = mainHeaders[col - 1];
-
-                    
                     range.Style.Font.Bold = true;
                     range.Style.Font.FontColor = XLColor.White;
                     range.Style.Fill.BackgroundColor = XLColor.Gray;
                     range.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                     range.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-
-                 
                     range.Style.Border.LeftBorder = XLBorderStyleValues.Thin;
                     range.Style.Border.RightBorder = XLBorderStyleValues.Thin;
                     range.Style.Border.TopBorder = XLBorderStyleValues.Thin;
                     range.Style.Border.BottomBorder = XLBorderStyleValues.Thin;
                 }
 
-                
-
-                for (int i = 0; i < mainHeaders.Length; i++)
-                {
-                    ws.Cell(9, i + 1).Value = mainHeaders[i];
-                }
-
-                
                 ws.Range(9, 13, 9, 14).Merge().Value = "BVUB";
                 ws.Range(9, 15, 9, 16).Merge().Value = "BIDV";
 
-               
                 for (int col = 13; col <= 16; col += 2)
                 {
                     var range = ws.Range(9, col, 9, col + 1);
@@ -254,18 +207,14 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                     range.Style.Fill.BackgroundColor = XLColor.Gray;
                     range.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                     range.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-
-                    
                     range.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
                     range.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
                 }
 
-                
                 var headerRow2 = ws.Row(10);
                 headerRow2.Height = 25;
 
                 string[] subHeaders = { "Số tiền", "Trạng thái", "Số tiền", "Trạng thái" };
-
                 for (int i = 0; i < subHeaders.Length; i++)
                 {
                     var col = 13 + i;
@@ -277,15 +226,12 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                     cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                     cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
                     cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
-
-                    
                     cell.Style.Border.LeftBorder = XLBorderStyleValues.Thin;
                     cell.Style.Border.RightBorder = XLBorderStyleValues.Thin;
                     cell.Style.Border.TopBorder = XLBorderStyleValues.Thin;
                     cell.Style.Border.BottomBorder = XLBorderStyleValues.Thin;
                 }
 
-                
                 int row = 11;
                 int stt = 1;
                 decimal tongBVUB = 0;
@@ -310,11 +256,9 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                     ws.Cell(row, 15).Value = item.BIDV_SoTien;
                     ws.Cell(row, 16).Value = item.BIDV_TrangThai;
 
-                    
                     if (item.BVUB_SoTien.HasValue) tongBVUB += item.BVUB_SoTien.Value;
                     if (item.BIDV_SoTien.HasValue) tongBIDV += item.BIDV_SoTien.Value;
 
-                    
                     int[] moneyColumns = { 6, 8, 10, 13, 15 };
                     foreach (var col in moneyColumns)
                     {
@@ -323,7 +267,6 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                         ws.Cell(row, col).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
                     }
 
-                    
                     int[] centerCols = { 1, 2, 3, 5, 7, 9, 11, 12, 14, 16 };
                     foreach (int col in centerCols)
                     {
@@ -331,7 +274,6 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                         ws.Cell(row, col).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
                     }
 
-                    
                     for (int col = 1; col <= 16; col++)
                     {
                         ws.Cell(row, col).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
@@ -341,7 +283,6 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                     row++;
                 }
 
-               
                 ws.Cell(row, 1).Value = "Tổng cộng:";
                 ws.Cell(row, 1).Style.Font.Bold = true;
                 ws.Cell(row, 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
@@ -361,22 +302,19 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
 
                 ws.Cell(row, 16).Value = "";
 
-               
                 for (int col = 1; col <= 16; col++)
                 {
                     ws.Cell(row, col).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
                 }
 
-               
                 int footerRow = row + 2;
-
                 string[] nguoiKy = { "THỦ TRƯỞNG ĐƠN VỊ", "THỦ QUỸ", "KẾ TOÁN", "NGƯỜI LẬP BẢNG" };
                 string[] cotKyStart = { "B", "E", "H", "K" };
 
                 for (int i = 0; i < nguoiKy.Length; i++)
                 {
                     string colStart = cotKyStart[i];
-                    string colEnd = ((char)(colStart[0] + (i == 3 ? 2 : 2))).ToString();
+                    string colEnd = ((char)(colStart[0] + 2)).ToString();
 
                     if (i == 3)
                     {
@@ -398,51 +336,46 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                     ws.Range($"{colStart}{footerRow + 2}:{colEnd}{footerRow + 2}").Style.Font.Italic = true;
                 }
 
-                
                 using (var stream = new MemoryStream())
                 {
                     workbook.SaveAs(stream);
                     stream.Position = 0;
                     return File(stream.ToArray(),
-                              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                              $"BaoCaoDoiSoatBIDV_{DateTime.Now:yyyyMMddHHmmss}.xlsx");
+                                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                                $"BaoCaoDoiSoatBIDV_{DateTime.Now:yyyyMMddHHmmss}.xlsx");
                 }
             }
+        }
+
+
+        public async Task<List<M0303BaoCaoDoiSoatBIDVSTO>> GetBNHenKhamAsync(DateTime? tuNgay, DateTime? denNgay, int? idChiNhanh)
+        {
+            string tuNgayStr = tuNgay?.ToString("dd/MM/yyyy") ?? DateTime.Now.ToString("dd/MM/yyyy");
+            string denNgayStr = denNgay?.ToString("dd/MM/yyyy") ?? DateTime.Now.ToString("dd/MM/yyyy");
+            int idCN = idChiNhanh ?? 0;
+
+            return await _localDb.M0303BaoCaoDoiSoatBIDVSTOs
+                .FromSqlInterpolated($"EXEC S0303_BaoCaoDoiSoatBIDV @TuNgay = {tuNgayStr}, @DenNgay = {denNgayStr}, @IDCN = {idCN}")
+                .ToListAsync();
         }
 
         public async Task<IActionResult> ExportToPDF(DateTime? tuNgay, DateTime? denNgay, int? idChiNhanh)
         {
             try
             {
-                var query = _localDb.M0303BaoCaoDoiSoatBIDVs.AsQueryable();
+               
+
+                var data = await GetBNHenKhamAsync(tuNgay, denNgay, idChiNhanh);
+                
+
+                if (!data.Any())
+                    return new BadRequestObjectResult("Không có dữ liệu để xuất PDF");
+
                 var logoPath = Path.Combine(_env.WebRootPath, "dist", "img", "logo.png");
-
-
-                if (tuNgay.HasValue)
-                {
-                    query = query.Where(x => x.NgayGioGiaoDich >= tuNgay.Value);
-                }
-
-                if (denNgay.HasValue)
-                {
-                    query = query.Where(x => x.NgayGioGiaoDich <= denNgay.Value);
-                }
-
-                if (idChiNhanh.HasValue && idChiNhanh > 0)
-                {
-                    query = query.Where(x => x.IDCN == idChiNhanh.Value);
-                }
-
-                var data = await query.AsNoTracking().ToListAsync();
-
-                if (data == null || !data.Any())
-                {
-                    return BadRequest("Không có dữ liệu để xuất PDF");
-                }
 
                 var thongTinDoanhNghiep = await _localDb.ThongTinDoanhNghieps
                     .AsNoTracking()
-                    .Where(x => x.IDChiNhanh == idChiNhanh)
+                    .Where(x => idChiNhanh.HasValue && x.IDChiNhanh == idChiNhanh.Value)
                     .Select(x => new M0303ThongTinDoanhNghiep
                     {
                         TenCSKCB = x.TenCSKCB ?? "",
@@ -452,24 +385,23 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                         Website = x.Website ?? "",
                         MaCSKCB = x.MaCSKCB ?? ""
                     })
-
                     .FirstOrDefaultAsync();
 
-
-
                 var document = new P0303BaoCaoDoiSoatBIDV(data, tuNgay, denNgay, logoPath, thongTinDoanhNghiep);
-
-
-
                 var stream = new MemoryStream();
                 document.GeneratePdf(stream);
                 stream.Position = 0;
 
-                return File(stream, "application/pdf", $"DanhSachHenKham_{DateTime.Now:yyyyMMddHHmmss}.pdf");
+                
+                return new FileStreamResult(stream, "application/pdf")
+                {
+                    FileDownloadName = $"DanhSachHenKham_{DateTime.Now:yyyyMMddHHmmss}.pdf"
+                };
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Lỗi khi tạo PDF: {ex.Message}");
+                Console.WriteLine("[ERROR] " + ex);
+                return new ObjectResult($"Lỗi khi tạo PDF: {ex.Message}") { StatusCode = 500 };
             }
         }
     }

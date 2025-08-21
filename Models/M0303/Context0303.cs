@@ -7,7 +7,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Models.M0303
     {
         public Context0303(DbContextOptions<Context0303> options) : base(options) { }
 
-        public DbSet<M0303TKSoLuongBNHenKham> M0303Thongtinbnhenkhams { get; set; }
+        //public DbSet<M0303TKSoLuongBNHenKham> M0303Thongtinbnhenkhams { get; set; }
 
         public DbSet<M0303TKSoLuongBNHenKhamSTO> M0303TKSoLuongBNHenKhamSTOs { get; set; }
 

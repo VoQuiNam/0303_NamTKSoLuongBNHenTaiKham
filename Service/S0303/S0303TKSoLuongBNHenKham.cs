@@ -23,29 +23,13 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service
             _env = env;
         }
 
-
         public async Task<ActionResult> ExportExcel(DateTime? tuNgay, DateTime? denNgay, int? idcn)
         {
-            var danhSach = _localDb.M0303Thongtinbnhenkhams.AsQueryable();
-
-            if (tuNgay.HasValue && denNgay.HasValue)
-            {
-                danhSach = danhSach.Where(x => x.NgayHenKham.HasValue &&
-                                               x.NgayHenKham.Value.Date >= tuNgay.Value.Date &&
-                                               x.NgayHenKham.Value.Date <= denNgay.Value.Date);
-            }
-
-            if (idcn.HasValue && idcn.Value > 0)
-            {
-                danhSach = danhSach.Where(x => x.IDCN == idcn.Value);
-            }
-
-            var list = danhSach.ToList();
+            var list = await GetBNHenKhamAsync(tuNgay, denNgay, idcn);
 
             if (!list.Any())
-            {
                 return BadRequest("Không có dữ liệu trong khoảng ngày đã chọn");
-            }
+
             var thongTinDoanhNghiep = await _localDb.ThongTinDoanhNghieps
                 .AsNoTracking()
                 .Where(x => x.IDChiNhanh == idcn)
@@ -95,7 +79,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service
                 ws.Range("C1:O1").Style.Font.FontName = "Times New Roman";
                 ws.Range("C1:O1").Style.Font.FontSize = 10;
                 ws.Range("C1:O1").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
-                ws.Row(1).Height = 25; 
+                ws.Row(1).Height = 25;
 
                 if (hienTenCSKCB)
                 {
@@ -138,11 +122,10 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service
                 ws.Row(7).Height = 20;
 
                 string[] headers = {
-                    "STT", "Mã y tế", "Họ và tên", "Năm sinh", "Giới tính",
-                    "Quốc tịch", "CCCD/Passport", "SĐT", "Ngày hẹn", "Bác sĩ",
-                    "Nhắc hẹn", "Ghi chú"
-                };
-
+        "STT", "Mã y tế", "Họ và tên", "Năm sinh", "Giới tính",
+        "Quốc tịch", "CCCD/Passport", "SĐT", "Ngày hẹn", "Bác sĩ",
+        "Nhắc hẹn", "Ghi chú"
+    };
 
                 for (int i = 0; i < headers.Length; i++)
                 {
@@ -174,7 +157,6 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service
                     ws.Cell(row, 11).Value = item.NhacHen;
                     ws.Cell(row, 12).Value = item.GhiChu;
 
-
                     int[] centerCols = { 1, 2, 4, 7, 8, 9 };
                     foreach (int col in centerCols)
                     {
@@ -196,38 +178,19 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service
                 ws.Columns().AdjustToContents();
                 ws.Rows().Height = 20;
                 ws.Style.Font.FontSize = 11;
-                ws.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
 
                 int footerRow = row + 2;
-
                 string[] nguoiKy = { "THỦ TRƯỞNG ĐƠN VỊ", "THỦ QUỸ", "KẾ TOÁN", "NGƯỜI LẬP BẢNG" };
                 string[] cotKyStart = { "B", "E", "H", "K" };
 
                 for (int i = 0; i < nguoiKy.Length; i++)
                 {
                     string colStart = cotKyStart[i];
-                    string colEnd = ((char)(colStart[0] + (i == 3 ? 2 : 2))).ToString();
-
-                    if (i == 3)
-                    {
-                        ws.Range($"{colStart}{footerRow}:{colEnd}{footerRow}").Merge().Value = $"Ngày {DateTime.Now:dd} tháng {DateTime.Now:MM} năm {DateTime.Now:yyyy}";
-                        ws.Range($"{colStart}{footerRow}:{colEnd}{footerRow}").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                        ws.Range($"{colStart}{footerRow}:{colEnd}{footerRow}").Style.Font.Italic = true;
-                        ws.Range($"{colStart}{footerRow}:{colEnd}{footerRow}").Style.Font.FontSize = 10;
-                    }
-
+                    string colEnd = ((char)(colStart[0] + 2)).ToString();
                     ws.Range($"{colStart}{footerRow + 1}:{colEnd}{footerRow + 1}").Merge().Value = nguoiKy[i];
                     ws.Range($"{colStart}{footerRow + 1}:{colEnd}{footerRow + 1}").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                     ws.Range($"{colStart}{footerRow + 1}:{colEnd}{footerRow + 1}").Style.Font.Bold = true;
-                    ws.Range($"{colStart}{footerRow + 1}:{colEnd}{footerRow + 1}").Style.Font.FontSize = 10;
-
-                    string ghiChu = i == 0 ? "(Ký, họ tên, đóng dấu)" : "(Ký, họ tên)";
-                    ws.Range($"{colStart}{footerRow + 2}:{colEnd}{footerRow + 2}").Merge().Value = ghiChu;
-                    ws.Range($"{colStart}{footerRow + 2}:{colEnd}{footerRow + 2}").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                    ws.Range($"{colStart}{footerRow + 2}:{colEnd}{footerRow + 2}").Style.Font.FontSize = 10;
-                    ws.Range($"{colStart}{footerRow + 2}:{colEnd}{footerRow + 2}").Style.Font.Italic = true;
                 }
-
 
                 using (var stream = new MemoryStream())
                 {
@@ -240,40 +203,37 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service
             }
         }
 
+
+       
+
+        public async Task<List<M0303TKSoLuongBNHenKhamSTO>> GetBNHenKhamAsync(DateTime? tuNgay, DateTime? denNgay, int? idChiNhanh)
+        {
+            string tuNgayStr = tuNgay?.ToString("dd/MM/yyyy") ?? DateTime.Now.ToString("dd/MM/yyyy");
+            string denNgayStr = denNgay?.ToString("dd/MM/yyyy") ?? DateTime.Now.ToString("dd/MM/yyyy");
+            int idCN = idChiNhanh ?? 0;
+
+            return await _localDb.M0303TKSoLuongBNHenKhamSTOs
+                .FromSqlInterpolated($"EXEC S0303_TKSoLuongBNHenTaiKham @TuNgay = {tuNgayStr}, @DenNgay = {denNgayStr}, @IDCN = {idCN}")
+                .ToListAsync();
+        }
+
+
         public async Task<IActionResult> ExportToPDF(DateTime? tuNgay, DateTime? denNgay, int? idChiNhanh)
         {
             try
             {
-                var query = _localDb.M0303Thongtinbnhenkhams.AsQueryable();
+
+                var data = await GetBNHenKhamAsync(tuNgay, denNgay, idChiNhanh);
+
+
+                if (!data.Any())
+                    return new BadRequestObjectResult("Không có dữ liệu để xuất PDF");
+
                 var logoPath = Path.Combine(_env.WebRootPath, "dist", "img", "logo.png");
-                Console.WriteLine("Logo path: " + logoPath);
-
-
-                if (tuNgay.HasValue)
-                {
-                    query = query.Where(x => x.NgayHenKham >= tuNgay.Value);
-                }
-
-                if (denNgay.HasValue)
-                {
-                    query = query.Where(x => x.NgayHenKham <= denNgay.Value);
-                }
-
-                if (idChiNhanh.HasValue && idChiNhanh > 0)
-                {
-                    query = query.Where(x => x.IDCN == idChiNhanh.Value);
-                }
-
-                var data = await query.AsNoTracking().ToListAsync();
-
-                if (data == null || !data.Any())
-                {
-                    return BadRequest("Không có dữ liệu để xuất PDF");
-                }
 
                 var thongTinDoanhNghiep = await _localDb.ThongTinDoanhNghieps
                     .AsNoTracking()
-                    .Where(x => x.IDChiNhanh == idChiNhanh)
+                    .Where(x => idChiNhanh.HasValue && x.IDChiNhanh == idChiNhanh.Value)
                     .Select(x => new M0303ThongTinDoanhNghiep
                     {
                         TenCSKCB = x.TenCSKCB ?? "",
@@ -283,26 +243,28 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service
                         Website = x.Website ?? "",
                         MaCSKCB = x.MaCSKCB ?? ""
                     })
-
                     .FirstOrDefaultAsync();
 
-
-
+                
                 var document = new P0303TKSoLuongBNHenKham(data, tuNgay, denNgay, logoPath, thongTinDoanhNghiep);
-
-
-
                 var stream = new MemoryStream();
                 document.GeneratePdf(stream);
                 stream.Position = 0;
 
-                return File(stream, "application/pdf", $"DanhSachHenKham_{DateTime.Now:yyyyMMddHHmmss}.pdf");
+
+                return new FileStreamResult(stream, "application/pdf")
+                {
+                    FileDownloadName = $"DanhSachHenKham_{DateTime.Now:yyyyMMddHHmmss}.pdf"
+                };
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Lỗi khi tạo PDF: {ex.Message}");
+                Console.WriteLine("[ERROR] " + ex);
+                return new ObjectResult($"Lỗi khi tạo PDF: {ex.Message}") { StatusCode = 500 };
             }
         }
+
+
 
         public async Task<object> FilterByDayAsync(string tuNgay, string denNgay, int idChiNhanh)
         {
@@ -329,18 +291,21 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service
 
 
                 var thongTinDoanhNghiep = await _localDb.ThongTinDoanhNghieps
-                    .AsNoTracking()
-                    .Where(x => x.IDChiNhanh == idChiNhanh)
-                    .Select(x => new
-                    {
-                        TenCSKCB = x.TenCSKCB ?? "",
-                        DiaChi = x.DiaChi ?? "",
-                        DienThoai = x.DienThoai ?? "",
-                        Email = x.Email ?? "",
-                        Website = x.Website ?? "",
-                        MaCSKCB = x.MaCSKCB ?? ""
-                    })
-                    .FirstOrDefaultAsync();
+     .AsNoTracking()
+     .Where(x => x.IDChiNhanh == idChiNhanh)
+     .Select(x => new
+     {
+         TenCSKCB = x.TenCSKCB ?? "",
+         DiaChi = x.DiaChi ?? "",
+         DienThoai = x.DienThoai ?? "",
+         Email = x.Email ?? "",
+         Website = x.Website ?? "",
+         MaCSKCB = x.MaCSKCB ?? ""
+     })
+     .FirstOrDefaultAsync();
+
+               
+
 
                 return new
                 {

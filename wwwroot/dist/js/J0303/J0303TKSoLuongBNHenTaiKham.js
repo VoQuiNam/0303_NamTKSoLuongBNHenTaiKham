@@ -284,7 +284,9 @@ function handleFilter() {
 
             if (!validateDateRange(tuNgay, denNgay)) {
                 return; }
-                
+
+           
+
 
             $.ajax({
                 
@@ -346,28 +348,15 @@ async function handleExportExcel() {
         btn.disabled = true;
 
         try {
-            const checkResponse = await fetch(`/bao_cao_thong_ke_so_luong_benh_nhan_hen_tai_kham/check-data?tuNgay=${tuNgay}&denNgay=${denNgay}&idcn=${idChiNhanh}`);
+            
+            const response = await fetch(`/bao_cao_thong_ke_so_luong_benh_nhan_hen_tai_kham/check-and-export?tuNgay=${tuNgay}&denNgay=${denNgay}&idcn=${idChiNhanh}`);
 
-            if (!checkResponse.ok) {
-                throw new Error(await checkResponse.text());
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(errorText);
             }
 
-            const { hasData } = await checkResponse.json();
-
-            if (!hasData) {
-                toastr.error("Lỗi khi xuất Excel: Không có dữ liệu để xuất Excel");
-                btn.innerHTML = btn.dataset.originalHTML;
-                btn.disabled = false;
-                return;
-            }
-
-            const exportResponse = await fetch(`/bao_cao_thong_ke_so_luong_benh_nhan_hen_tai_kham/export/excel?tuNgay=${tuNgay}&denNgay=${denNgay}&idcn=${idChiNhanh}`);
-
-            if (!exportResponse.ok) {
-                throw new Error("Không thể tải file Excel");
-            }
-
-            const blob = await exportResponse.blob();
+            const blob = await response.blob();
 
             if (blob.size < 1000) {
                 toastr.warning("Không có dữ liệu trong khoảng thời gian đã chọn.");
@@ -377,7 +366,7 @@ async function handleExportExcel() {
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
-            a.download = "BaoCaoThongKe.xlsx"; 
+            a.download = "BaoCaoThongKe.xlsx";
             document.body.appendChild(a);
             a.click();
 

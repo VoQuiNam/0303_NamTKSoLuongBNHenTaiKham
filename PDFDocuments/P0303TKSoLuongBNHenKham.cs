@@ -8,20 +8,25 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
 {
     public class P0303TKSoLuongBNHenKham : IDocument
     {
-        private readonly List<M0303TKSoLuongBNHenKham> _data;
+        private readonly List<M0303TKSoLuongBNHenKhamSTO> _data;
         private readonly DateTime? _tuNgay;
         private readonly DateTime? _denNgay;
         private readonly string _logoPath;
         private readonly M0303ThongTinDoanhNghiep _thongTinDoanhNghiep;
 
 
-        public P0303TKSoLuongBNHenKham(List<M0303TKSoLuongBNHenKham> data, DateTime? tuNgay, DateTime? denNgay, string logoPath, dynamic thongTinDoanhNghiep)
+        public P0303TKSoLuongBNHenKham(List<M0303TKSoLuongBNHenKhamSTO> data, DateTime? tuNgay, DateTime? denNgay, string logoPath, M0303ThongTinDoanhNghiep thongTinDoanhNghiep)
         {
-            _data = data;
+            _data = data ?? new List<M0303TKSoLuongBNHenKhamSTO>();
             _tuNgay = tuNgay;
             _denNgay = denNgay;
             _logoPath = logoPath;
-            _thongTinDoanhNghiep = thongTinDoanhNghiep;
+            _thongTinDoanhNghiep = thongTinDoanhNghiep ?? new M0303ThongTinDoanhNghiep
+            {
+                TenCSKCB = "Tên đơn vị",
+                DiaChi = "",
+                DienThoai = ""
+            };
         }
 
 

@@ -19,6 +19,7 @@ builder.Services.AddScoped<IC0303BaoCaoBacSiDocKQ, S0303BaoCaoBacSiDocKQ>();
 builder.Services.AddDbContext<Context0303>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Connection")));
 
+builder.Services.AddHttpContextAccessor();
 
 
 builder.Services.AddControllersWithViews();

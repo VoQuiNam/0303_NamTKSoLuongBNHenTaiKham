@@ -21,11 +21,8 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
         private readonly IWebHostEnvironment _env;
         private readonly I0303TKSoLuongBNHenKham _service;
 
-        public C0303TKSoLuongBNHenTaiKhamController(Context0303 localDb, IWebHostEnvironment env
-            , I0303TKSoLuongBNHenKham service /*, IMemoryCachingServices memoryCache*/)
+        public C0303TKSoLuongBNHenTaiKhamController(I0303TKSoLuongBNHenKham service /*, IMemoryCachingServices memoryCache*/)
         {
-            _localDb = localDb;
-            _env = env;
             _service = service;
 
             //_memoryCache = memoryCache;
@@ -40,10 +37,6 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
             //}
             //ViewBag.quyenVaiTro = quyenVaiTro;
             //ViewData["Title"] = CommonServices.toEmptyData(quyenVaiTro);
-
-
-            var danhSach = _localDb.M0303Thongtinbnhenkhams.ToList();
-            ViewBag.DanhSach = danhSach;
             ViewBag.quyenVaiTro = new
             {
                 Them = true,
@@ -72,6 +65,8 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
             }
         }
 
+     
+
 
         [HttpGet("export/pdf")]
         public async Task<IActionResult> ExportToPDF([FromQuery] DateTime? tuNgay, [FromQuery] DateTime? denNgay, [FromQuery] int? idChiNhanh)
@@ -86,11 +81,18 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
             }
         }
 
-        [HttpGet("export/excel")]
-        public async Task<IActionResult> ExportExcel([FromQuery] DateTime? tuNgay, [FromQuery] DateTime? denNgay, [FromQuery] int? idcn)
+        [HttpGet("check-and-export")]
+        public async Task<IActionResult> CheckAndExport([FromQuery] DateTime? tuNgay, [FromQuery] DateTime? denNgay, [FromQuery] int? idcn)
         {
             try
             {
+           
+                var list = await _service.GetBNHenKhamAsync(tuNgay, denNgay, idcn);
+
+                if (!list.Any())
+                    return BadRequest(new { hasData = false, message = "Không có dữ liệu trong khoảng ngày đã chọn" });
+
+               
                 var result = await _service.ExportExcel(tuNgay, denNgay, idcn);
                 return result;
             }
@@ -100,20 +102,6 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
             }
         }
 
-        [HttpGet("check-data")]
-        public IActionResult CheckData([FromQuery] DateTime? tuNgay, [FromQuery] DateTime? denNgay, [FromQuery] int? idcn)
-        {
-            var query = _localDb.M0303Thongtinbnhenkhams.AsQueryable()
-                .Where(x => x.NgayHenKham >= tuNgay && x.NgayHenKham <= denNgay);
-
-            if (idcn.HasValue && idcn.Value > 0)
-            {
-                query = query.Where(x => x.IDCN == idcn.Value);
-            }
-
-            bool hasData = query.Any();
-            return Ok(new { hasData });
-        }
 
     }
 }

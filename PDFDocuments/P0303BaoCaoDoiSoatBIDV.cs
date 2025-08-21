@@ -8,14 +8,14 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
 {
     public class P0303BaoCaoDoiSoatBIDV : IDocument
     {
-        private readonly List<M0303BaoCaoDoiSoatBIDV> _data;
+        private readonly List<M0303BaoCaoDoiSoatBIDVSTO> _data;
         private readonly DateTime? _tuNgay;
         private readonly DateTime? _denNgay;
         private readonly string _logoPath;
         private readonly M0303ThongTinDoanhNghiep _thongTinDoanhNghiep;
 
 
-        public P0303BaoCaoDoiSoatBIDV(List<M0303BaoCaoDoiSoatBIDV> data, DateTime? tuNgay, DateTime? denNgay, string logoPath, dynamic thongTinDoanhNghiep)
+        public P0303BaoCaoDoiSoatBIDV(List<M0303BaoCaoDoiSoatBIDVSTO> data, DateTime? tuNgay, DateTime? denNgay, string logoPath, dynamic thongTinDoanhNghiep)
         {
             _data = data;
             _tuNgay = tuNgay;

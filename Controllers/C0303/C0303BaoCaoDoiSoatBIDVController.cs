@@ -35,9 +35,6 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
             //ViewBag.quyenVaiTro = quyenVaiTro;
             //ViewData["Title"] = CommonServices.toEmptyData(quyenVaiTro);
 
-
-            var danhSach = _localDb.M0303BaoCaoDoiSoatBIDVs.ToList();
-            ViewBag.DanhSach = danhSach;
             ViewBag.quyenVaiTro = new
             {
                 Them = true,
@@ -78,11 +75,18 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
             }
         }
 
-        [HttpGet("export/excel")]
-        public async Task<IActionResult> ExportExcel([FromQuery] DateTime? tuNgay, [FromQuery] DateTime? denNgay, [FromQuery] int? idcn)
+        [HttpGet("check-and-export")]
+        public async Task<IActionResult> CheckAndExport([FromQuery] DateTime? tuNgay, [FromQuery] DateTime? denNgay, [FromQuery] int? idcn)
         {
             try
             {
+              
+                var list = await _service.GetBNHenKhamAsync(tuNgay, denNgay, idcn);
+
+                if (!list.Any())
+                    return BadRequest(new { hasData = false, message = "Không có dữ liệu trong khoảng ngày đã chọn" });
+
+            
                 var result = await _service.ExportExcel(tuNgay, denNgay, idcn);
                 return result;
             }
@@ -90,21 +94,6 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
             {
                 return StatusCode(500, $"Lỗi khi tạo Excel: {ex.Message}");
             }
-        }
-
-        [HttpGet("check-data")]
-        public IActionResult CheckData([FromQuery] DateTime? tuNgay, [FromQuery] DateTime? denNgay, [FromQuery] int? idcn)
-        {
-            var query = _localDb.M0303BaoCaoDoiSoatBIDVs.AsQueryable()
-                .Where(x => x.NgayGioGiaoDich >= tuNgay && x.NgayGioGiaoDich <= denNgay);
-
-            if (idcn.HasValue && idcn.Value > 0)
-            {
-                query = query.Where(x => x.IDCN == idcn.Value);
-            }
-
-            bool hasData = query.Any();
-            return Ok(new { hasData });
         }
     }
 }
