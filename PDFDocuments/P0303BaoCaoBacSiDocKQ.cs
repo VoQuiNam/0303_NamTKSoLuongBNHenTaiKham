@@ -9,7 +9,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
     public class P0303BaoCaoBacSiDocKQ:IDocument
     {
 
-        private readonly List<M0303BaoCaoBacSiDocKQ> _data;
+        private readonly List<M0303BaoCaoBacSiDocKQSTO> _data;
         private readonly DateTime? _tuNgay;
         private readonly DateTime? _denNgay;
         private readonly long? _idKhoa;
@@ -17,11 +17,10 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
         private readonly string _logoPath;
         private readonly M0303ThongTinDoanhNghiep _thongTinDoanhNghiep;
 
-        // Thêm list Khoa/Phong private
         private List<M0303Khoa> _khoaList;
         private List<M0303Phong> _phongList;
 
-        public P0303BaoCaoBacSiDocKQ(List<M0303BaoCaoBacSiDocKQ> data, DateTime? tuNgay, DateTime? denNgay, long IdPhong, long IdKhoa, string logoPath, dynamic thongTinDoanhNghiep)
+        public P0303BaoCaoBacSiDocKQ(List<M0303BaoCaoBacSiDocKQSTO> data, DateTime? tuNgay, DateTime? denNgay, long IdPhong, long IdKhoa, string logoPath, dynamic thongTinDoanhNghiep)
         {
             _data = data;
             _tuNgay = tuNgay;
@@ -31,7 +30,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
             _logoPath = logoPath;
             _thongTinDoanhNghiep = thongTinDoanhNghiep;
 
-            // --- Bước 2: Load JSON vào _khoaList và _phongList ---
+  
             string khoaJson = System.IO.File.ReadAllText(Path.Combine("wwwroot", "dist/data/json/DM_Khoa.json"));
             _khoaList = JsonConvert.DeserializeObject<List<M0303Khoa>>(khoaJson);
 
@@ -46,7 +45,6 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
             var tuNgayStr = _tuNgay?.ToString("dd-MM-yyyy") ?? "__";
             var denNgayStr = _denNgay?.ToString("dd-MM-yyyy") ?? "__";
 
-            // Map tên Khoa/Phong vào dữ liệu
             var khoaDict = _khoaList.ToDictionary(k => k.id, k => k.ten);
             var phongDict = _phongList.ToDictionary(p => p.id, p => p.ten);
 
@@ -69,7 +67,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                 page.Margin(15);
                 page.DefaultTextStyle(x => x.FontFamily("Times New Roman").FontSize(10));
 
-                // HEADER
+
                 page.Header().ShowOnce().Column(headerCol =>
                 {
                     headerCol.Item().Row(row =>
@@ -99,24 +97,23 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                     headerCol.Item().PaddingVertical(5).LineHorizontal(1).LineColor(Colors.Grey.Medium);
                 });
 
-                // CONTENT: TABLE
                 page.Content().Column(contentCol =>
                 {
                     contentCol.Item().Table(table =>
                     {
-                        // Columns
+                 
                         table.ColumnsDefinition(columns =>
                         {
-                            columns.ConstantColumn(30);  // STT
-                            columns.RelativeColumn(3);    // Bác sĩ
-                            columns.ConstantColumn(60);   // Thu phí
-                            columns.ConstantColumn(60);   // BHYT
-                            columns.ConstantColumn(60);   // Nợ
-                            columns.ConstantColumn(60);   // Miễn giảm
-                            columns.ConstantColumn(60);   // Tổng số ca
+                            columns.ConstantColumn(30);  
+                            columns.RelativeColumn(3);   
+                            columns.ConstantColumn(60);   
+                            columns.ConstantColumn(60);   
+                            columns.ConstantColumn(60);  
+                            columns.ConstantColumn(60);   
+                            columns.ConstantColumn(60);  
                         });
 
-                        // Header
+                       
                         table.Header(header =>
                         {
                             header.Cell().Element(CellStyle).Text("STT").Bold();
@@ -139,7 +136,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                         {
                             int tongCaKhoa = khoa.Sum(x => (x.ThuPhi ?? 0) + (x.BHYT ?? 0) + (x.No ?? 0) + (x.MienGiam ?? 0));
 
-                            // Dòng tổng Khoa
+                            
                             table.Cell().ColumnSpan(2)
                                 .Element(c => c.BorderBottom(1).BorderLeft(1).BorderTop(1).BorderColor(Colors.Grey.Lighten2)
                                                .Padding(3).AlignLeft().Text($"{sttKhoa:00}. {khoa.First().TenKhoa}").Bold());
@@ -155,7 +152,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                             {
                                 int tongCaPhong = phong.Sum(x => (x.ThuPhi ?? 0) + (x.BHYT ?? 0) + (x.No ?? 0) + (x.MienGiam ?? 0));
 
-                                // Dòng tổng Phòng
+                                
                                 table.Cell().ColumnSpan(2)
                                     .Element(c => c.BorderBottom(1).BorderLeft(1).BorderColor(Colors.Grey.Lighten2)
                                                    .Padding(3).AlignLeft().Text($"{phong.First().TenPhong}").Bold());
@@ -166,7 +163,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                                 table.Cell().Element(c => c.BorderBottom(1).BorderRight(1).BorderLeft(1)
                                                    .BorderColor(Colors.Grey.Lighten2).Padding(3).AlignCenter().Text(tongCaPhong.ToString()).Bold());
 
-                                // Chi tiết từng bác sĩ
+                               
                                 var bacSiGroups = phong.GroupBy(x => x.BacSiChiDinh);
                                 foreach (var bacSiGroup in bacSiGroups)
                                 {
@@ -193,7 +190,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                         }
                     });
 
-                    // Người lập bảng
+                   
                     contentCol.Item().PaddingTop(20).AlignRight().Width(200).Column(nguoiLapCol =>
                     {
                         nguoiLapCol.Item().AlignCenter().Text($"Ngày {DateTime.Now:dd} tháng {DateTime.Now:MM} năm {DateTime.Now:yyyy}").Italic().FontSize(10);
@@ -202,7 +199,6 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                     });
                 });
 
-                // FOOTER - chỉ số trang
                 page.Footer().AlignRight().Text(x =>
                 {
                     x.Span("Trang ").FontSize(9);
@@ -212,8 +208,5 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                 });
             });
         }
-
-
-
     }
 }

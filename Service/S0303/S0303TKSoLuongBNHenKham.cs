@@ -122,10 +122,10 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service
                 ws.Row(7).Height = 20;
 
                 string[] headers = {
-        "STT", "Mã y tế", "Họ và tên", "Năm sinh", "Giới tính",
-        "Quốc tịch", "CCCD/Passport", "SĐT", "Ngày hẹn", "Bác sĩ",
-        "Nhắc hẹn", "Ghi chú"
-    };
+"STT", "Mã y tế", "Họ và tên", "Năm sinh", "Giới tính",
+"Quốc tịch", "CCCD/Passport", "SĐT", "Ngày hẹn", "Bác sĩ",
+"Nhắc hẹn", "Ghi chú"
+};
 
                 for (int i = 0; i < headers.Length; i++)
                 {
@@ -183,14 +183,21 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service
                 string[] nguoiKy = { "THỦ TRƯỞNG ĐƠN VỊ", "THỦ QUỸ", "KẾ TOÁN", "NGƯỜI LẬP BẢNG" };
                 string[] cotKyStart = { "B", "E", "H", "K" };
 
+             
                 for (int i = 0; i < nguoiKy.Length; i++)
                 {
                     string colStart = cotKyStart[i];
                     string colEnd = ((char)(colStart[0] + 2)).ToString();
-                    ws.Range($"{colStart}{footerRow + 1}:{colEnd}{footerRow + 1}").Merge().Value = nguoiKy[i];
-                    ws.Range($"{colStart}{footerRow + 1}:{colEnd}{footerRow + 1}").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                    ws.Range($"{colStart}{footerRow + 1}:{colEnd}{footerRow + 1}").Style.Font.Bold = true;
+                    ws.Range($"{colStart}{footerRow}:{colEnd}{footerRow}").Merge().Value = nguoiKy[i];
+                    ws.Range($"{colStart}{footerRow}:{colEnd}{footerRow}").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    ws.Range($"{colStart}{footerRow}:{colEnd}{footerRow}").Style.Font.Bold = true;
                 }
+
+                
+                string currentDate = $"Ngày {DateTime.Now.Day} tháng {DateTime.Now.Month} năm {DateTime.Now.Year}";
+                ws.Range($"K{footerRow - 1}:M{footerRow - 1}").Merge().Value = currentDate;
+                ws.Range($"K{footerRow - 1}:M{footerRow - 1}").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                ws.Range($"K{footerRow - 1}:M{footerRow - 1}").Style.Font.Italic = true;
 
                 using (var stream = new MemoryStream())
                 {
@@ -204,7 +211,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service
         }
 
 
-       
+
 
         public async Task<List<M0303TKSoLuongBNHenKhamSTO>> GetBNHenKhamAsync(DateTime? tuNgay, DateTime? denNgay, int? idChiNhanh)
         {

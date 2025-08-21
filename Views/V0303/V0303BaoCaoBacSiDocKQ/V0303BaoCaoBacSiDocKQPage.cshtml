@@ -1,4 +1,9 @@
-﻿
+﻿@{
+    ViewData["NonSixOs"] = true;
+}
+
+@using Nam_ThongKeSoLuongBNHenTaiKham.Models.M0303
+@model List<M0303BaoCaoBacSiDocKQSTO>
 
 <head>
     <link href="~/dist/css/CSS0303/CSS0303TKSoLuongBNHenTaiKham.css" rel="stylesheet" />
@@ -11,13 +16,13 @@
         overflow: hidden;
         text-overflow: ellipsis;
         max-width: calc(100% - 40px);
-        display: block; /* ✅ đổi từ inline-block sang block để ::after hoạt động */
-        position: relative; /* ✅ cần cho tooltip */
+        display: block; 
+        position: relative;
     }
 
     .has-tooltip {
         position: relative;
-        display: block; /* ✅ đảm bảo ::after hoạt động */
+        display: block; 
     }
 
         .has-tooltip:hover::after {
@@ -40,7 +45,7 @@
 
 
     mark {
-        background-color: #ffeb3b; /* hoặc màu bạn thích */
+        background-color: #ffeb3b; 
         padding: 0;
         margin: 0;
         font-weight: inherit;
@@ -52,6 +57,7 @@
     .list-group-item.active .text-muted {
         color: #fff !important;
     }
+
 
 
 

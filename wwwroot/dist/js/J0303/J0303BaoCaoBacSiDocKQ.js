@@ -1,10 +1,10 @@
-﻿let listPhong = [];  // Phòng buồng
-let listKhoa = [];   // Khoa
+﻿let listPhong = [];  
+let listKhoa = [];   
 let fullData = [];
 let currentPage = 1;
 let pageSize = 20;
-let phongIndex = 1; // 🔢 Đánh số thứ tự cho nhóm Phòng
-let khoaStt = 1; // biến toàn cục, chỉ tăng khi render nhiều trang
+let phongIndex = 1; 
+let khoaStt = 1;
 
 function initSearchDropdown({ inputId, dropdownId, hiddenFieldId, data, onSelect }) {
     const $input = $(`#${inputId}`);
@@ -43,7 +43,6 @@ function initSearchDropdown({ inputId, dropdownId, hiddenFieldId, data, onSelect
                 );
             });
 
-            // ✅ Tự động chọn dòng đầu tiên
             currentIndex = 0;
             const firstItem = $dropdown.find(".list-group-item").eq(0);
             firstItem.addClass("active");
@@ -133,7 +132,6 @@ function renderTable() {
         return;
     }
 
-    // BƯỚC 1: Gom nhóm Khoa → Phòng → Bác sĩ
     const khoaGroups = {};
     fullData.forEach(item => {
         if (!khoaGroups[item.idKhoa]) {
@@ -155,14 +153,14 @@ function renderTable() {
         const phong = khoa.phongGroups[item.idPhong];
         phong.list.push(item);
 
-        // cộng dồn tổng
+
         ['thuPhi', 'bhyt', 'no', 'mienGiam'].forEach(key => {
             phong.tong[key] += item[key] || 0;
             khoa.tong[key] += item[key] || 0;
         });
     });
 
-    // BƯỚC 2: Làm phẳng thành list bác sĩ
+
     const flatList = [];
     Object.values(khoaGroups).forEach(khoa => {
         Object.values(khoa.phongGroups).forEach(phong => {
@@ -172,14 +170,14 @@ function renderTable() {
         });
     });
 
-    // BƯỚC 3: Render
+
     let khoaStt = 1;
     let lastKhoa = null;
     let lastPhong = null;
-    let stt = 1; // STT bác sĩ
+    let stt = 1; 
 
     flatList.forEach(({ khoa, phong, item }) => {
-        // Dòng Khoa
+
         if (lastKhoa !== khoa) {
             const khoaTong = Object.values(khoa.tong).reduce((a, b) => a + b, 0);
             tbody.append(`
@@ -193,7 +191,7 @@ function renderTable() {
             lastPhong = null;
         }
 
-        // Dòng Phòng
+
         if (lastPhong !== phong) {
             const phongTong = Object.values(phong.tong).reduce((a, b) => a + b, 0);
             tbody.append(`
@@ -206,7 +204,7 @@ function renderTable() {
             lastPhong = phong;
         }
 
-        // Dòng Bác sĩ
+
         const tongBacSi = (item.thuPhi || 0) + (item.bhyt || 0) + (item.no || 0) + (item.mienGiam || 0);
         tbody.append(`
             <tr>
@@ -300,15 +298,12 @@ $(document).on('change', '#pageSizeSelect', function () {
 function handleFilter() {
     $('.btnFilterBacSi').off('click').on('click', function (e) {
         e.preventDefault();
-        console.log("👉 Nút Lọc đã click!");
 
         setTimeout(function () {
             try {
-                console.log("⏱️ Bắt đầu xử lý filter...");
 
                 const idChiNhanh = window._idcn || 0;
 
-                // Lấy ngày từ input Desktop hoặc Mobile
                 const tuNgayRaw = $('#tuNgayDesktop').val() || $('#tuNgayMobile').val();
                 const denNgayRaw = $('#denNgayDesktop').val() || $('#denNgayMobile').val();
 
@@ -317,7 +312,7 @@ function handleFilter() {
                     return;
                 }
 
-                // Parse và kiểm tra thứ tự ngày
+
                 const tuNgayDate = new Date(tuNgayRaw.split('-').reverse().join('-'));
                 const denNgayDate = new Date(denNgayRaw.split('-').reverse().join('-'));
 
@@ -328,15 +323,15 @@ function handleFilter() {
                     $('#tuNgayMobile').datepicker('update', denNgayRaw);
                 }
 
-                // Format date cho server yyyy-MM-dd
+             
                 const tuNgay = formatDateForServer($('#tuNgayDesktop').val() || $('#tuNgayMobile').val());
                 const denNgay = formatDateForServer($('#denNgayDesktop').val() || $('#denNgayMobile').val());
 
-                // Lấy idKhoa & idPhong
+                
                 let idKhoa = parseInt($("#selectedKhoaId").val());
                 let idPhong = parseInt($("#selectedPhongId").val());
 
-                // Nếu không chọn → gửi 0 để backend trả tất cả
+          
                 if (isNaN(idKhoa)) idKhoa = 0;
                 if (isNaN(idPhong)) idPhong = 0;
 
@@ -350,7 +345,7 @@ function handleFilter() {
                         if (response.success) {
                             fullData = response.data || [];
 
-                            // Gán lại tên Phòng và Khoa từ danh sách đã load
+                           
                             fullData.forEach(item => {
                                 const phong = listPhong.find(p => p.id === item.idPhong);
                                 const khoa = listKhoa.find(k => k.id === item.idKhoa);
@@ -363,8 +358,8 @@ function handleFilter() {
 
                             currentPage = 1;
                             pageSize = parseInt($('#pageSizeSelect').val()) || 10;
-                            khoaStt = 1; // 👉 reset khi filter
-                            renderTable(); // render lại bảng theo dữ liệu lọc
+                            khoaStt = 1; 
+                            renderTable();
                             renderPagination();
                             toastr.success("Lọc dữ liệu thành công!");
                         } else {
@@ -524,7 +519,6 @@ function handleExportPDF() {
 
 async function handleExportExcel() {
     const btn = document.getElementById("btnExportExcelGoiKham");
-
     if (!btn) {
         console.error("❌ Không tìm thấy nút #btnExportExcelGoiKham");
         return;
@@ -535,19 +529,10 @@ async function handleExportExcel() {
             btn.dataset.originalHTML = btn.innerHTML.trim();
         }
 
-        // Log check input DOM
-        const tuNgayDesktopEl = document.getElementById("tuNgayDesktop");
-        const tuNgayMobileEl = document.getElementById("tuNgayMobile");
-        const denNgayDesktopEl = document.getElementById("denNgayDesktop");
-        const denNgayMobileEl = document.getElementById("denNgayMobile");
+        const tuNgayRaw = document.getElementById("tuNgayDesktop")?.value || document.getElementById("tuNgayMobile")?.value;
+        const denNgayRaw = document.getElementById("denNgayDesktop")?.value || document.getElementById("denNgayMobile")?.value;
         const selectKhoaEl = document.getElementById("selectedKhoaId");
         const selectPhongEl = document.getElementById("selectedPhongId");
-
-
-        const tuNgayRaw = (tuNgayDesktopEl && tuNgayDesktopEl.value) || (tuNgayMobileEl && tuNgayMobileEl.value);
-        const denNgayRaw = (denNgayDesktopEl && denNgayDesktopEl.value) || (denNgayMobileEl && denNgayMobileEl.value);
-        const tuNgay = formatDateForServer(tuNgayRaw);
-        const denNgay = formatDateForServer(denNgayRaw);
         const idChiNhanh = window._idcn;
 
         if (!tuNgayRaw || !denNgayRaw) {
@@ -555,71 +540,80 @@ async function handleExportExcel() {
             return;
         }
 
+        const tuNgay = formatDateForServer(tuNgayRaw);
+        const denNgay = formatDateForServer(denNgayRaw);
+
         if (!validateDateRange(tuNgay, denNgay)) {
             btn.innerHTML = btn.dataset.originalHTML;
             btn.disabled = false;
             return;
         }
 
+        const idKhoa = selectKhoaEl?.value || 0;
+        const idPhong = selectPhongEl?.value || 0;
+
         btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>`;
         btn.disabled = true;
 
         try {
-            const checkUrl = `/bao_cao_bac_si_doc_kq/check-data?tuNgay=${tuNgay}&denNgay=${denNgay}&idcn=${idChiNhanh}`;
-            console.log("Fetch checkUrl:", checkUrl);
-
-            const checkResponse = await fetch(checkUrl);
-            if (!checkResponse.ok) {
-                const errorText = await checkResponse.text();
-                throw new Error(errorText);
-            }
-
-            const checkData = await checkResponse.json();
-            console.log("Response check-data:", checkData);
-
-            const { hasData } = checkData;
-        
-
-            if (!hasData) {
-                toastr.error("Lỗi khi xuất Excel: Không có dữ liệu để xuất Excel");
-                btn.innerHTML = btn.dataset.originalHTML;
-                btn.disabled = false;
-                return;
-            }
-
-            const idKhoa = (selectKhoaEl && selectKhoaEl.value) || 0;
-            const idPhong = (selectPhongEl && selectPhongEl.value) || 0;
-
-         
-
-            const exportUrl = `/bao_cao_bac_si_doc_kq/export/excel?tuNgay=${tuNgay}&denNgay=${denNgay}&idcn=${idChiNhanh}&idKhoa=${idKhoa}&idPhong=${idPhong}`;
+            const exportUrl = `/bao_cao_bac_si_doc_kq/check-and-export?tuNgay=${tuNgay}&denNgay=${denNgay}&idcn=${idChiNhanh}&idKhoa=${idKhoa}&idPhong=${idPhong}`;
             console.log("Fetch exportUrl:", exportUrl);
 
             const exportResponse = await fetch(exportUrl);
+
+
             if (!exportResponse.ok) {
+                
                 const errorText = await exportResponse.text();
-                throw new Error("Không thể tải file Excel: " + errorText);
+
+                
+                try {
+                    const errorData = JSON.parse(errorText);
+                    if (errorData.message) {
+                        throw new Error(errorData.message);
+                    }
+                } catch (e) {
+                   
+                    throw new Error(errorText || "Lỗi không xác định");
+                }
             }
 
-            const blob = await exportResponse.blob();
-            if (blob.size < 1000) {
-                toastr.warning("Không có dữ liệu trong khoảng thời gian đã chọn.");
-                return;
+           
+            const contentType = exportResponse.headers.get('content-type');
+
+            if (contentType && contentType.includes('application/json')) {
+              
+                const responseData = await exportResponse.json();
+                if (!responseData.hasData) {
+                    toastr.error(responseData.message || "Không có dữ liệu trong khoảng ngày đã chọn.");
+                    return;
+                }
+            } else if (contentType && (contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') ||
+                contentType.includes('application/octet-stream'))) {
+              
+                const blob = await exportResponse.blob();
+
+                if (blob.size === 0) {
+                    toastr.warning("File Excel trống, không có dữ liệu để xuất.");
+                    return;
+                }
+
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "BaoCaoBacSiDocKQ.xlsx";
+                document.body.appendChild(a);
+                a.click();
+
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                }, 100);
+
+                toastr.success("Xuất Excel thành công!");
+            } else {
+                throw new Error("Định dạng phản hồi không xác định từ server");
             }
-
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = "BaoCaoBacSiDocKQ.xlsx";
-            document.body.appendChild(a);
-            a.click();
-
-            setTimeout(() => {
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(url);
-            }, 100);
-
-            toastr.success("Xuất Excel thành công!");
         } catch (error) {
             toastr.error("Lỗi khi xuất Excel: " + error.message);
         } finally {
@@ -630,6 +624,7 @@ async function handleExportExcel() {
 }
 
 
+
 function exportPDFHandler(btn, viewType) {
     if (!btn.dataset.originalHTML) {
         btn.dataset.originalHTML = btn.innerHTML.trim();
@@ -638,7 +633,7 @@ function exportPDFHandler(btn, viewType) {
     const tuNgay = document.getElementById(viewType === "Mobile" ? "tuNgayMobile" : "tuNgayDesktop").value;
     const denNgay = document.getElementById(viewType === "Mobile" ? "denNgayMobile" : "denNgayDesktop").value;
 
-    // Lấy giá trị Khoa/Phòng từ hidden input
+   
     const idKhoa = document.getElementById("selectedKhoaId").value || 0;
     const idPhong = document.getElementById("selectedPhongId").value || 0;
 
@@ -703,14 +698,14 @@ function exportPDFHandler(btn, viewType) {
         });
 }
 
-// Nếu xóa text trong searchKhoa thì clear hidden luôn
+
 $('#searchKhoa').on('input', function () {
     if (!$(this).val().trim()) {
         $('#selectedKhoaId').val('');
     }
 });
 
-// Nếu xóa text trong searchPhong thì clear hidden luôn
+
 $('#searchPhong').on('input', function () {
     if (!$(this).val().trim()) {
         $('#selectedPhongId').val('');
@@ -727,8 +722,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return { ...n, alias };
         });
 
-        // ✅ Log danh sách Khoa
-        console.log("📌 Danh sách Khoa:", listKhoa);
+   
         $.getJSON("/dist/data/json/DM_PhongBuong.json", function (dataPB) {
             listPhong = dataPB.map(n => {
                 let alias = n.viettat && n.viettat.trim() !== ""
@@ -737,10 +731,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 return { ...n, alias };
             });
 
-            // ✅ Log danh sách Phòng/Buồng
-            console.log("📌 Danh sách Phòng/Buồng:", listPhong);
 
-            // Dropdown
+
             const khoaDropdown = initSearchDropdown({
                 inputId: "searchKhoa",
                 dropdownId: "dropdownKhoa",
