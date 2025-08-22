@@ -368,7 +368,7 @@ function handleFilter() {
                 if (isNaN(idKhoa)) idKhoa = 0;
                 if (isNaN(idPhong)) idPhong = 0;
 
-                console.log("🔎 Params gửi lên API:", { tuNgay, denNgay, idChiNhanh, idKhoa, idPhong });
+              
 
                 $.ajax({
                     url: '/bao_cao_bac_si_doc_kq/tk/FilterByDay',
@@ -387,7 +387,7 @@ function handleFilter() {
                                 item.tenKhoa = khoa?.ten || "Không rõ khoa";
                             });
 
-                            console.log("📊 Dữ liệu fullData:", fullData);
+                            
 
                             currentPage = 1;
                             pageSize = parseInt($('#pageSizeSelect').val()) || 10;
@@ -779,9 +779,17 @@ document.addEventListener('DOMContentLoaded', function () {
                         $("#searchPhong").val("");
                         $("#selectedPhongId").val("");
                     }
+
+                 
                     phongDropdown.renderDropdown("", listPhong.filter(p => p.idKhoa === id));
+
+                   
+                    setTimeout(() => {
+                        $("#searchPhong").focus();
+                    }, 100);
                 }
             });
+
 
             const phongDropdown = initSearchDropdown({
                 inputId: "searchPhong",
@@ -797,6 +805,16 @@ document.addEventListener('DOMContentLoaded', function () {
                             $("#selectedKhoaId").val(khoa.id);
                         }
                     }
+                }
+            });
+
+       
+            $("#searchKhoa, #searchPhong").on("input", function () {
+                const khoaVal = $("#searchKhoa").val().trim();
+                const phongVal = $("#searchPhong").val().trim();
+
+                if (khoaVal === "" && phongVal === "") {
+                    phongDropdown.renderDropdown("", listPhong);
                 }
             });
 
