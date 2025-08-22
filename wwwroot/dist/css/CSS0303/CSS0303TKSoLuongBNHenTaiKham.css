@@ -1,6 +1,5 @@
 ﻿
 .table-wrapper {
-/*    overflow-x: scroll;*/
     overflow: scroll;
     height: 70vh;
     scrollbar-width: thin;

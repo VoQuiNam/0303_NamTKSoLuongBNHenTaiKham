@@ -4,7 +4,7 @@ let fullData = [];
 let currentPage = 1;
 let pageSize = 20;
 let phongIndex = 1; 
-let khoaStt = 1;
+let khoaSttGlobal = 1; 
 
 function initSearchDropdown({ inputId, dropdownId, hiddenFieldId, data, onSelect }) {
     const $input = $(`#${inputId}`);
@@ -107,6 +107,9 @@ function initSearchDropdown({ inputId, dropdownId, hiddenFieldId, data, onSelect
     return { renderDropdown };
 }
 
+
+
+
 function flattenData(khoaGroups) {
     const flatList = [];
     Object.values(khoaGroups).forEach(khoa => {
@@ -153,78 +156,103 @@ function renderTable() {
         const phong = khoa.phongGroups[item.idPhong];
         phong.list.push(item);
 
-
         ['thuPhi', 'bhyt', 'no', 'mienGiam'].forEach(key => {
             phong.tong[key] += item[key] || 0;
             khoa.tong[key] += item[key] || 0;
         });
     });
 
+    const flatList = flattenData(khoaGroups);
 
-    const flatList = [];
-    Object.values(khoaGroups).forEach(khoa => {
-        Object.values(khoa.phongGroups).forEach(phong => {
-            phong.list.forEach(item => {
-                flatList.push({ khoa, phong, item });
-            });
-        });
-    });
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = Math.min(startIndex + pageSize, flatList.length);
+    const pagedData = flatList.slice(startIndex, endIndex);
 
+    let khoaSttStart = 1;
+    if (currentPage > 1) {
+        const allKhoaIds = Object.keys(khoaGroups);
+        let itemsCount = 0;
 
-    let khoaStt = 1;
+        for (let i = 0; i < allKhoaIds.length; i++) {
+            const khoaId = allKhoaIds[i];
+            const khoa = khoaGroups[khoaId];
+            const khoaItemCount = Object.values(khoa.phongGroups).reduce((total, phong) => total + phong.list.length, 0);
+
+            itemsCount += khoaItemCount;
+            if (itemsCount >= startIndex) {
+                khoaSttStart = i + 1;
+                break;
+            }
+        }
+    }
+
+    let currentKhoaStt = khoaSttStart;
     let lastKhoa = null;
     let lastPhong = null;
-    let stt = 1; 
+    let stt = startIndex + 1;
 
-    flatList.forEach(({ khoa, phong, item }) => {
-
+    pagedData.forEach(({ khoa, phong, item }) => {
         if (lastKhoa !== khoa) {
             const khoaTong = Object.values(khoa.tong).reduce((a, b) => a + b, 0);
             tbody.append(`
-                <tr class="fw-bold bg-light">
-                    <td>${khoaStt++}</td> <!-- STT Khoa -->
-                    <td colspan="5" class="text-start">${khoa.tenKhoa}</td>
-                    <td>${khoaTong}</td>
-                </tr>
-            `);
+            <tr class="fw-bold" style="background-color: #f8f9fa;">
+                <td colspan="2" style="text-align: left; padding-left: 8px; font-weight: bold;">
+                    ${String(currentKhoaStt++).padStart(2)}. ${khoa.tenKhoa}
+                </td>
+                <td>${khoa.tong.thuPhi || 0}</td>
+                <td>${khoa.tong.bhyt || 0}</td>
+                <td>${khoa.tong.no || 0}</td>
+                <td>${khoa.tong.mienGiam || 0}</td>
+                <td>${khoaTong}</td>
+            </tr>
+        `);
             lastKhoa = khoa;
             lastPhong = null;
         }
 
-
         if (lastPhong !== phong) {
             const phongTong = Object.values(phong.tong).reduce((a, b) => a + b, 0);
             tbody.append(`
-                <tr class="fw-bold">
-                    <td></td> <!-- STT trống -->
-                    <td colspan="5" class="ps-4 text-start">${phong.tenPhong}</td>
-                    <td>${phongTong}</td>
-                </tr>
-            `);
+            <tr class="fw-bold">
+                <td colspan="2" style="text-align: left; padding-left: 32px; font-weight: bold;">
+                    ${phong.tenPhong}
+                </td>
+                <td>${phong.tong.thuPhi || 0}</td>
+                <td>${phong.tong.bhyt || 0}</td>
+                <td>${phong.tong.no || 0}</td>
+                <td>${phong.tong.mienGiam || 0}</td>
+                <td>${phongTong}</td>
+            </tr>
+        `);
             lastPhong = phong;
         }
 
-
         const tongBacSi = (item.thuPhi || 0) + (item.bhyt || 0) + (item.no || 0) + (item.mienGiam || 0);
         tbody.append(`
-            <tr>
-                <td>${stt++}</td> <!-- STT bác sĩ -->
-                <td class="ps-5 text-start">${item.bacSiChiDinh || ''}</td>
-                <td>${item.thuPhi || 0}</td>
-                <td>${item.bhyt || 0}</td>
-                <td>${item.no || 0}</td>
-                <td>${item.mienGiam || 0}</td>
-                <td>${tongBacSi}</td>
-            </tr>
-        `);
-    });
-}
+    <tr>
+        <td style="border-right: 1px solid #dee2e6; text-align: center; width: 40px;">
+            ${stt++}
+        </td>
+        <td style="text-align: left; padding-left: 16px;">
+            ${item.bacSiChiDinh || ''}
+        </td>
+        <td>${item.thuPhi || 0}</td>
+        <td>${item.bhyt || 0}</td>
+        <td>${item.no || 0}</td>
+        <td>${item.mienGiam || 0}</td>
+        <td>${tongBacSi}</td>
+    </tr>
+`);
 
+    });
+
+}
 
 function updateTable(data) {
     fullData = data || [];
     currentPage = 1;
     pageSize = parseInt($('#pageSizeSelect').val()) || 20;
+    khoaSttGlobal = 1;
 
     renderTable();
     renderPagination();
@@ -280,11 +308,10 @@ function renderPagination() {
     });
 }
 
-
 $(document).on('change', '#pageSizeSelect', function () {
     pageSize = parseInt($(this).val()) || 10;
     currentPage = 1;
-    khoaStt = 1;
+    khoaSttGlobal = 1;
     if (fullData && fullData.length > 0) {
         renderTable();
         renderPagination();
@@ -292,8 +319,6 @@ $(document).on('change', '#pageSizeSelect', function () {
         toastr.error("Vui lòng lọc dữ liệu trước khi thay đổi số dòng hiển thị.");
     }
 });
-
-
 
 function handleFilter() {
     $('.btnFilterBacSi').off('click').on('click', function (e) {
