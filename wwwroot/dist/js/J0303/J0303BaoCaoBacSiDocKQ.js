@@ -140,7 +140,7 @@ function renderTable() {
         if (!khoaGroups[item.idKhoa]) {
             khoaGroups[item.idKhoa] = {
                 tenKhoa: item.tenKhoa,
-                tong: { thuPhi: 0, bhyt: 0, no: 0, mienGiam: 0 },
+                tongSoCa: 0,
                 phongGroups: {}
             };
         }
@@ -149,17 +149,15 @@ function renderTable() {
         if (!khoa.phongGroups[item.idPhong]) {
             khoa.phongGroups[item.idPhong] = {
                 tenPhong: item.tenPhong,
-                tong: { thuPhi: 0, bhyt: 0, no: 0, mienGiam: 0 },
+                tongSoCa: 0,
                 list: []
             };
         }
         const phong = khoa.phongGroups[item.idPhong];
         phong.list.push(item);
 
-        ['thuPhi', 'bhyt', 'no', 'mienGiam'].forEach(key => {
-            phong.tong[key] += item[key] || 0;
-            khoa.tong[key] += item[key] || 0;
-        });
+        khoa.tongSoCa++;
+        phong.tongSoCa++;
     });
 
     const flatList = flattenData(khoaGroups);
@@ -193,41 +191,31 @@ function renderTable() {
 
     pagedData.forEach(({ khoa, phong, item }) => {
         if (lastKhoa !== khoa) {
-            const khoaTong = Object.values(khoa.tong).reduce((a, b) => a + b, 0);
             tbody.append(`
             <tr class="fw-bold" style="background-color: #f8f9fa;">
-                <td colspan="2" style="text-align: left; padding-left: 8px; font-weight: bold;">
+                <td colspan="6" style="text-align: left; padding-left: 8px; font-weight: bold;">
                     ${String(currentKhoaStt++).padStart(2)}. ${khoa.tenKhoa}
                 </td>
-                <td>${khoa.tong.thuPhi || 0}</td>
-                <td>${khoa.tong.bhyt || 0}</td>
-                <td>${khoa.tong.no || 0}</td>
-                <td>${khoa.tong.mienGiam || 0}</td>
-                <td>${khoaTong}</td>
+                <td>${khoa.tongSoCa}</td>
             </tr>
         `);
             lastKhoa = khoa;
             lastPhong = null;
         }
 
+ 
         if (lastPhong !== phong) {
-            const phongTong = Object.values(phong.tong).reduce((a, b) => a + b, 0);
             tbody.append(`
             <tr class="fw-bold">
-                <td colspan="2" style="text-align: left; padding-left: 32px; font-weight: bold;">
+                <td colspan="6" style="text-align: left; padding-left: 32px; font-weight: bold;">
                     ${phong.tenPhong}
                 </td>
-                <td>${phong.tong.thuPhi || 0}</td>
-                <td>${phong.tong.bhyt || 0}</td>
-                <td>${phong.tong.no || 0}</td>
-                <td>${phong.tong.mienGiam || 0}</td>
-                <td>${phongTong}</td>
+                <td>${phong.tongSoCa}</td>
             </tr>
         `);
             lastPhong = phong;
         }
 
-        const tongBacSi = (item.thuPhi || 0) + (item.bhyt || 0) + (item.no || 0) + (item.mienGiam || 0);
         tbody.append(`
     <tr>
         <td style="border-right: 1px solid #dee2e6; text-align: center; width: 40px;">
@@ -240,12 +228,10 @@ function renderTable() {
         <td>${item.bhyt || 0}</td>
         <td>${item.no || 0}</td>
         <td>${item.mienGiam || 0}</td>
-        <td>${tongBacSi}</td>
+        <td>1</td>
     </tr>
 `);
-
     });
-
 }
 
 function updateTable(data) {
