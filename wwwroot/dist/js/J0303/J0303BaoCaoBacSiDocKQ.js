@@ -115,11 +115,7 @@ function flattenData(khoaGroups) {
     Object.values(khoaGroups).forEach(khoa => {
         Object.values(khoa.phongGroups).forEach(phong => {
             phong.list.forEach(item => {
-                flatList.push({
-                    khoa,
-                    phong,
-                    item
-                });
+                flatList.push({ khoa, phong, item });
             });
         });
     });
@@ -155,12 +151,34 @@ function renderTable() {
         }
         const phong = khoa.phongGroups[item.idPhong];
         phong.list.push(item);
-
-        khoa.tongSoCa++;
-        phong.tongSoCa++;
     });
 
-    const flatList = flattenData(khoaGroups);
+    Object.values(khoaGroups).forEach(khoa => {
+        Object.values(khoa.phongGroups).forEach(phong => {
+            phong.tongSoCa = phong.list.reduce((sum, item) => {
+                return sum + ((item.thuPhi || 0) + (item.bhyt || 0) + (item.no || 0) + (item.mienGiam || 0));
+            }, 0);
+
+          
+        });
+
+        khoa.tongSoCa = Object.values(khoa.phongGroups)
+            .reduce((sum, phong) => sum + phong.tongSoCa, 0);
+
+      
+    });
+
+
+
+
+    const flatList = [];
+    Object.values(khoaGroups).forEach(khoa => {
+        Object.values(khoa.phongGroups).forEach(phong => {
+            phong.list.forEach(item => {
+                flatList.push({ khoa, phong, item });
+            });
+        });
+    });
 
     const startIndex = (currentPage - 1) * pageSize;
     const endIndex = Math.min(startIndex + pageSize, flatList.length);
@@ -189,50 +207,54 @@ function renderTable() {
     let lastPhong = null;
     let stt = startIndex + 1;
 
+
     pagedData.forEach(({ khoa, phong, item }) => {
+    
         if (lastKhoa !== khoa) {
             tbody.append(`
-            <tr class="fw-bold" style="background-color: #f8f9fa;">
-                <td colspan="6" style="text-align: left; padding-left: 8px; font-weight: bold;">
-                    ${String(currentKhoaStt++).padStart(2)}. ${khoa.tenKhoa}
-                </td>
-                <td>${khoa.tongSoCa}</td>
-            </tr>
-        `);
+                <tr class="fw-bold" style="background-color: #f8f9fa;">
+                    <td colspan="6" style="text-align: left; padding-left: 8px; font-weight: bold;">
+                        ${String(currentKhoaStt++).padStart(2)}. ${khoa.tenKhoa}
+                    </td>
+                    <td>${khoa.tongSoCa}</td>
+                </tr>
+            `);
             lastKhoa = khoa;
             lastPhong = null;
         }
 
- 
+        
         if (lastPhong !== phong) {
             tbody.append(`
-            <tr class="fw-bold">
-                <td colspan="6" style="text-align: left; padding-left: 32px; font-weight: bold;">
-                    ${phong.tenPhong}
-                </td>
-                <td>${phong.tongSoCa}</td>
-            </tr>
-        `);
+                <tr class="fw-bold">
+                    <td colspan="6" style="text-align: left; padding-left: 32px; font-weight: bold;">
+                        ${phong.tenPhong}
+                    </td>
+                    <td>${phong.tongSoCa}</td>
+                </tr>
+            `);
             lastPhong = phong;
         }
 
+        
         tbody.append(`
-    <tr>
-        <td style="border-right: 1px solid #dee2e6; text-align: center; width: 40px;">
-            ${stt++}
-        </td>
-        <td style="text-align: left; padding-left: 16px;">
-            ${item.bacSiChiDinh || ''}
-        </td>
-        <td>${item.thuPhi || 0}</td>
-        <td>${item.bhyt || 0}</td>
-        <td>${item.no || 0}</td>
-        <td>${item.mienGiam || 0}</td>
-        <td>1</td>
-    </tr>
-`);
+            <tr>
+                <td style="border-right: 1px solid #dee2e6; text-align: center; width: 40px;">
+                    ${stt++}
+                </td>
+                <td style="text-align: left; padding-left: 16px;">
+                    ${item.bacSiChiDinh || ''}
+                </td>
+                <td>${item.thuPhi || 0}</td>
+                <td>${item.bhyt || 0}</td>
+                <td>${item.no || 0}</td>
+                <td>${item.mienGiam || 0}</td>
+                <td>${(item.thuPhi || 0) + (item.bhyt || 0) + (item.no || 0) + (item.mienGiam || 0)}</td>
+            </tr>
+        `);
     });
 }
+
 
 function updateTable(data) {
     fullData = data || [];
