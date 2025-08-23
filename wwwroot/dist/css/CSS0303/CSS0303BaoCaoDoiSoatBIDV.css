@@ -1,0 +1,24 @@
+﻿.table-wrapper thead tr:first-child th {
+    background-color: #f2f2f2;
+    font-size: 1.05rem;
+}
+
+.table-wrapper thead tr:nth-child(2) th {
+    background-color: #f2f2f2;
+    font-size: 0.95rem;
+}
+
+thead th {
+    position: sticky;
+    background: #fff;
+    z-index: 2;
+}
+
+thead tr:first-child th {
+    top: 0;
+    z-index: 3;
+}
+
+thead tr:nth-child(2) th {
+    top: 38px;
+}

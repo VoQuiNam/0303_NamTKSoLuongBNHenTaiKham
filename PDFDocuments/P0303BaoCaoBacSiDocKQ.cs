@@ -139,7 +139,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                             
                             table.Cell().ColumnSpan(2)
                                 .Element(c => c.BorderBottom(1).BorderLeft(1).BorderTop(1).BorderColor(Colors.Grey.Lighten2)
-                                               .Padding(3).AlignLeft().Text($"{sttKhoa:00}. {khoa.First().TenKhoa}").Bold());
+                                               .Padding(3).AlignLeft().Text($"{sttKhoa}. {khoa.First().TenKhoa}").Bold());
                             table.Cell().Element(c => c.BorderBottom(1).BorderTop(1).BorderColor(Colors.Grey.Lighten2).Padding(3));
                             table.Cell().Element(c => c.BorderBottom(1).BorderTop(1).BorderColor(Colors.Grey.Lighten2).Padding(3));
                             table.Cell().Element(c => c.BorderBottom(1).BorderTop(1).BorderColor(Colors.Grey.Lighten2).Padding(3));
