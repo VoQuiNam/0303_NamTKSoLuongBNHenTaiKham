@@ -3,6 +3,8 @@ let listDv = [];
 let listNhomDv = [];
 let currentPage = 1;
 let pageSize = 10;
+let lastFilteredTuNgay = null;
+let lastFilteredDenNgay = null;
 
 
 function validateDateRange(tuNgay, denNgay) {
@@ -222,6 +224,8 @@ function handleFilter() {
 
                             renderTable();
                             renderPagination();
+                            lastFilteredTuNgay = tuNgayRaw;
+                            lastFilteredDenNgay = denNgayRaw;
                             toastr.success("Lọc dữ liệu thành công!");
                         } else {
                             
@@ -461,10 +465,21 @@ function exportPDFHandler(btn, viewType) {
         return;
     }
 
+   
+
     if (!tuNgay || !denNgay) {
         toastr.error("Vui lòng chọn đầy đủ Từ ngày và Đến ngày trước khi xuất PDF.");
         return;
     }
+
+    if (tuNgay !== lastFilteredTuNgay || denNgay !== lastFilteredDenNgay) {
+        toastr.error("Bạn đã thay đổi khoảng thời gian nhưng chưa bấm Lọc lại.");
+        btn.innerHTML = btn.dataset.originalHTML;
+        btn.disabled = false;
+        return;
+    }
+
+
 
     if (!validateDateRange(tuNgay, denNgay)) {
         return;
@@ -542,15 +557,25 @@ function handleExportExcel() {
             const idcn = window._idcn || 0;
 
 
-            if (!fullData || fullData.length === 0) {
-                toastr.error("Vui lòng lọc dữ liệu trước khi xuất Excel.");
-                return;
-            }
+          
+
 
             if (!tuNgayRaw || !denNgayRaw) {
                 toastr.error("Vui lòng chọn đầy đủ Từ ngày và Đến ngày trước khi xuất Excel.");
                 return;
             }
+
+            if (!fullData || fullData.length === 0) {
+                toastr.error("Vui lòng lọc dữ liệu trước khi xuất Excel.");
+                return;
+            }
+
+            if (tuNgayRaw !== lastFilteredTuNgay || denNgayRaw !== lastFilteredDenNgay) {
+                toastr.error("Bạn đã thay đổi khoảng thời gian nhưng chưa bấm Lọc lại.");
+                return;
+            }
+
+
 
             if (!validateDateRange(tuNgayRaw, denNgayRaw)) return;
 

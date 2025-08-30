@@ -2,6 +2,8 @@
 let currentPage = 1;
 let pageSize = 20;
 let doanhNghiepInfo = null;
+let lastFilteredTuNgay = null;
+let lastFilteredDenNgay = null;
 
 toastr.options = {
     "closeButton": true,
@@ -321,7 +323,8 @@ function handleFilter() {
                             $('#diaChiCSKCB').text("📍 " + doanhNghiepInfo.DiaChi);
                             $('#dienThoaiCSKCB').text("📞 " + doanhNghiepInfo.DienThoai);
                         }
-
+                        lastFilteredTuNgay = tuNgayRaw;
+                        lastFilteredDenNgay = denNgayRaw;
                         toastr.success("Lọc dữ liệu thành công!");
                     } else {
                         toastr.error("Lỗi: " + (response.error || "Lỗi khi lọc dữ liệu"));
@@ -364,13 +367,20 @@ async function handleExportExcel() {
         const denNgay = formatDateForServer(denNgayRaw);
         const idChiNhanh = window._idcn;
 
+       
+
+        if (!tuNgayRaw || !denNgayRaw) {
+            toastr.error("Vui lòng chọn đầy đủ Từ ngày và Đến ngày trước khi xuất Excel.");
+            return;
+        }
+
         if (!fullData || fullData.length === 0) {
             toastr.error("Vui lòng lọc dữ liệu trước khi xuất Excel.");
             return;
         }
 
-        if (!tuNgayRaw || !denNgayRaw) {
-            toastr.error("Vui lòng chọn đầy đủ Từ ngày và Đến ngày trước khi xuất Excel.");
+        if (tuNgayRaw !== lastFilteredTuNgay || denNgayRaw !== lastFilteredDenNgay) {
+            toastr.error("Bạn đã thay đổi khoảng thời gian nhưng chưa bấm Lọc lại.");
             return;
         }
 
@@ -447,6 +457,13 @@ function exportPDFHandler(btn, viewType) {
 
     if (!tuNgay || !denNgay) {
         toastr.error("Vui lòng chọn đầy đủ Từ ngày và Đến ngày trước khi xuất PDF.");
+        btn.innerHTML = btn.dataset.originalHTML;
+        btn.disabled = false;
+        return;
+    }
+
+    if (tuNgay !== lastFilteredTuNgay || denNgay !== lastFilteredDenNgay) {
+        toastr.error("Bạn đã thay đổi khoảng thời gian nhưng chưa bấm Lọc lại.");
         btn.innerHTML = btn.dataset.originalHTML;
         btn.disabled = false;
         return;

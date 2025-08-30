@@ -5,6 +5,8 @@ let currentPage = 1;
 let pageSize = 20;
 let phongIndex = 1; 
 let khoaSttGlobal = 1; 
+let lastFilteredTuNgay = null;
+let lastFilteredDenNgay = null;
 
 function initSearchDropdown({ inputId, dropdownId, hiddenFieldId, data, onSelect }) {
     const $input = $(`#${inputId}`);
@@ -394,6 +396,8 @@ function handleFilter() {
                             khoaStt = 1; 
                             renderTable();
                             renderPagination();
+                            lastFilteredTuNgay = tuNgayRaw;
+                            lastFilteredDenNgay = denNgayRaw;
                             toastr.success("Lọc dữ liệu thành công!");
                         } else {
                             toastr.error("Lỗi: " + (response.error || "Lỗi khi lọc dữ liệu"));
@@ -568,15 +572,23 @@ async function handleExportExcel() {
         const selectPhongEl = document.getElementById("selectedPhongId");
         const idChiNhanh = window._idcn;
 
-        if (!fullData || fullData.length === 0) {
-            toastr.error("Vui lòng lọc dữ liệu trước khi xuất Excel.");
-            return;
-        }
+       
 
         if (!tuNgayRaw || !denNgayRaw) {
             toastr.error("Vui lòng chọn đầy đủ Từ ngày và Đến ngày trước khi xuất Excel.");
             return;
         }
+
+        if (!fullData || fullData.length === 0) {
+            toastr.error("Vui lòng lọc dữ liệu trước khi xuất Excel.");
+            return;
+        }
+
+        if (tuNgayRaw !== lastFilteredTuNgay || denNgayRaw !== lastFilteredDenNgay) {
+            toastr.error("Bạn đã thay đổi khoảng thời gian nhưng chưa bấm Lọc lại.");
+            return;
+        }
+
 
         const tuNgay = formatDateForServer(tuNgayRaw);
         const denNgay = formatDateForServer(denNgayRaw);
@@ -683,6 +695,13 @@ function exportPDFHandler(btn, viewType) {
 
     if (!tuNgay || !denNgay) {
         toastr.error("Vui lòng chọn đầy đủ Từ ngày và Đến ngày trước khi xuất PDF.");
+        btn.innerHTML = btn.dataset.originalHTML;
+        btn.disabled = false;
+        return;
+    }
+
+    if (tuNgay !== lastFilteredTuNgay || denNgay !== lastFilteredDenNgay) {
+        toastr.error("Bạn đã thay đổi khoảng thời gian nhưng chưa bấm Lọc lại.");
         btn.innerHTML = btn.dataset.originalHTML;
         btn.disabled = false;
         return;
