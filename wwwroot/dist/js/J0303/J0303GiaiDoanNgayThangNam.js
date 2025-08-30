@@ -1,6 +1,4 @@
-﻿// goiKham.js - Xử lý ngày tháng, phân trang, xuất báo cáo cho module Gói Khám
-
-// ==================== ĐỊNH DẠNG NGÀY NHẬP ====================
+﻿
 function initDateInputFormatting() {
     const dateInputIds = ["tuNgayDesktop", "denNgayDesktop"];
 
@@ -51,7 +49,6 @@ function initDateInputFormatting() {
     });
 }
 
-// ==================== DATEPICKER ====================
 function initDatePicker() {
     $('[id="tuNgayDesktop"], [id="denNgayDesktop"]').datepicker({
         format: 'dd-mm-yyyy',
@@ -64,7 +61,7 @@ function initDatePicker() {
 }
 
 
-// ==================== SỰ KIỆN GIAO DIỆN ====================
+
 document.addEventListener('DOMContentLoaded', function () {
     initDatePicker();
     initDateInputFormatting();
@@ -92,14 +89,12 @@ $(document).ready(function () {
 
                 if (tuNgay > denNgay) {
                     if (source === "denNgay") {
-                        // Người dùng nhập/chọn đến ngày < từ ngày → chỉnh lại từ ngày
                         $('#tuNgayDesktop')
                             .val(denNgayStr)
                             .datepicker('update', denNgayStr)
                             .addClass('highlight-adjust');
                         setTimeout(() => $('#tuNgayDesktop').removeClass('highlight-adjust'), 1000);
                     } else if (source === "tuNgay") {
-                        // Người dùng nhập/chọn từ ngày > đến ngày → chỉnh lại đến ngày
                         $('#denNgayDesktop')
                             .val(tuNgayStr)
                             .datepicker('update', tuNgayStr)
@@ -113,7 +108,6 @@ $(document).ready(function () {
         }
     }
 
-    // Xử lý khi chọn ngày từ datepicker
     $('#tuNgayDesktop').on('changeDate', function () {
         autoAdjustDates("tuNgay");
     });
@@ -122,7 +116,6 @@ $(document).ready(function () {
         autoAdjustDates("denNgay");
     });
 
-    // Xử lý khi nhập tay
     $('#tuNgayDesktop').on('input change propertychange paste', function () {
         if ($('#tuNgayDesktop').val().length === 10 && $('#denNgayDesktop').val().length === 10) {
             setTimeout(() => autoAdjustDates("tuNgay"), 50);
@@ -135,10 +128,8 @@ $(document).ready(function () {
         }
     });
 
-    // Khi click icon trigger của datepicker
     $('.datepicker-trigger').click(function () {
         setTimeout(() => {
-            // không biết click vào ô nào thì cứ kiểm tra cả hai
             autoAdjustDates("tuNgay");
             autoAdjustDates("denNgay");
         }, 100);
@@ -160,7 +151,6 @@ $('#selectGiaiDoan').change(function () {
     const currentMonth = new Date().getMonth() + 1;
     const currentQuy = Math.ceil(currentMonth / 3);
 
-    // ================== FUNCTION TẠO DROPDOWN ==================
     function createDropdownInput(id, label, values, defaultValue, onSelect, length = 10) {
         const html = `
             <div data-dropdown-wrapper style="width: 45%; position: relative;">
@@ -190,7 +180,6 @@ $('#selectGiaiDoan').change(function () {
             }
         }
 
-        // Trong hàm renderList(), sửa phần kiểm tra giá trị như sau:
         function renderList(filter = '') {
             $dropdown.empty();
             currentHighlightIndex = -1;
@@ -198,14 +187,12 @@ $('#selectGiaiDoan').change(function () {
             const typedVal = parseInt($input.val(), 10);
             const typedIsAllowed = Number.isFinite(typedVal) && (values.includes(typedVal) || id === 'yearInput');
 
-            // Xác định giá trị hiện tại để highlight
             let highlightVal = typedVal;
             if ((id === 'quyInput' || id === 'thangInput') &&
                 (!Number.isFinite(typedVal) ||
                     (id === 'quyInput' && (typedVal < 1 || typedVal > 4)) ||
                     (id === 'thangInput' && (typedVal < 1 || typedVal > 12)))) {
 
-                // Lấy giá trị hiện tại để highlight nhưng không thay đổi input
                 const now = new Date();
                 if (id === 'quyInput') {
                     highlightVal = Math.ceil((now.getMonth() + 1) / 3);
@@ -226,7 +213,6 @@ $('#selectGiaiDoan').change(function () {
             }
 
             filteredValues.forEach((val, index) => {
-                // Sử dụng highlightVal thay vì typedVal để xác định isSelected
                 const isSelected = Number.isFinite(highlightVal) && val === highlightVal;
                 const item = $(` 
             <a href="#" class="dropdown-item ${isSelected ? 'active bg-primary text-white' : ''}"
@@ -327,7 +313,7 @@ $('#selectGiaiDoan').change(function () {
         });
     }
 
-    // ================== FORMAT DATE ==================
+    
     function formatDate(date) {
         const day = String(date.getDate()).padStart(2, '0');
         const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -350,12 +336,11 @@ $('#selectGiaiDoan').change(function () {
         }
     }
 
-    // ================== UPDATE DATE RANGE ==================
+
     function updateDates() {
         let yearRaw = parseInt($('#yearInput').val(), 10);
         let year = Number.isFinite(yearRaw) ? yearRaw : currentYear;
 
-        // Chỉ kiểm tra năm không âm
         if (year < 0 || year > currentYear) {
             year = currentYear;
             $('#yearInput').val(currentYear);
@@ -422,7 +407,6 @@ $('#selectGiaiDoan').change(function () {
             updateDates();
         });
 
-    // ================== QUÝ ==================
     if (selectedValue === 'Quy') {
         createDropdownInput('quyInput', 'Quý', [1, 2, 3, 4], currentQuy, updateDates, 1);
 
@@ -440,7 +424,6 @@ $('#selectGiaiDoan').change(function () {
             });
     }
 
-    // ================== THÁNG ==================
     else if (selectedValue === 'Thang') {
         createDropdownInput('thangInput', 'Tháng', Array.from({ length: 12 }, (_, i) => i + 1), currentMonth, updateDates, 2);
 
