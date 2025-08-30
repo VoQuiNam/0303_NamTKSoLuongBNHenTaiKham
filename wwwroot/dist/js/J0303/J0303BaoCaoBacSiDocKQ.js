@@ -568,6 +568,11 @@ async function handleExportExcel() {
         const selectPhongEl = document.getElementById("selectedPhongId");
         const idChiNhanh = window._idcn;
 
+        if (!fullData || fullData.length === 0) {
+            toastr.error("Vui lòng lọc dữ liệu trước khi xuất Excel.");
+            return;
+        }
+
         if (!tuNgayRaw || !denNgayRaw) {
             toastr.error("Vui lòng chọn đầy đủ Từ ngày và Đến ngày trước khi xuất Excel.");
             return;
@@ -669,6 +674,12 @@ function exportPDFHandler(btn, viewType) {
    
     const idKhoa = document.getElementById("selectedKhoaId").value || 0;
     const idPhong = document.getElementById("selectedPhongId").value || 0;
+
+
+    if (!fullData || fullData.length === 0) {
+        toastr.error("Vui lòng lọc dữ liệu trước khi xuất PDF.");
+        return;
+    }
 
     if (!tuNgay || !denNgay) {
         toastr.error("Vui lòng chọn đầy đủ Từ ngày và Đến ngày trước khi xuất PDF.");

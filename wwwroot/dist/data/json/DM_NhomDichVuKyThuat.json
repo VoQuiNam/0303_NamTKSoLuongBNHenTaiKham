@@ -1,0 +1,263 @@
+[
+  {
+    "id": 29,
+    "ma": "N029",
+    "ten": "CT",
+    "cls": true,
+    "congkham": false,
+    "viettat": "C",
+    "active": true
+  },
+  {
+    "id": 6,
+    "ma": "N006",
+    "ten": "Điện não",
+    "cls": true,
+    "congkham": false,
+    "viettat": "DN",
+    "active": true
+  },
+  {
+    "id": 5,
+    "ma": "N005",
+    "ten": "Điện tim",
+    "cls": true,
+    "congkham": false,
+    "viettat": "DT",
+    "active": true
+  },
+  {
+    "id": 17,
+    "ma": "N017",
+    "ten": "DV - Chỉnh nha",
+    "cls": false,
+    "congkham": false,
+    "viettat": "DCN",
+    "active": false
+  },
+  {
+    "id": 21,
+    "ma": "N021",
+    "ten": "DV - Đặt trước",
+    "cls": false,
+    "congkham": false,
+    "viettat": "DDT",
+    "active": false
+  },
+  {
+    "id": 19,
+    "ma": "N019",
+    "ten": "DV - Khám bệnh",
+    "cls": false,
+    "congkham": true,
+    "viettat": "DKB",
+    "active": false
+  },
+  {
+    "id": 20,
+    "ma": "N020",
+    "ten": "DV - Phụ thu",
+    "cls": false,
+    "congkham": false,
+    "viettat": "DPT",
+    "active": false
+  },
+  {
+    "id": 22,
+    "ma": "N022",
+    "ten": "DV - Siêu âm",
+    "cls": true,
+    "congkham": false,
+    "viettat": "DSA",
+    "active": false
+  },
+  {
+    "id": 24,
+    "ma": "N024",
+    "ten": "DV - Thủ thuật khác",
+    "cls": false,
+    "congkham": false,
+    "viettat": "DTTK",
+    "active": false
+  },
+  {
+    "id": 18,
+    "ma": "N018",
+    "ten": "DV - Thủ thuật RHM",
+    "cls": false,
+    "congkham": false,
+    "viettat": "DTTR",
+    "active": false
+  },
+  {
+    "id": 23,
+    "ma": "N023",
+    "ten": "DV - Tiêm, tuyền",
+    "cls": false,
+    "congkham": false,
+    "viettat": "DTT",
+    "active": false
+  },
+  {
+    "id": 15,
+    "ma": "N015",
+    "ten": "DV - X Quang",
+    "cls": true,
+    "congkham": false,
+    "viettat": "DXQ",
+    "active": false
+  },
+  {
+    "id": 16,
+    "ma": "N016",
+    "ten": "DV - Xét nghiệm",
+    "cls": true,
+    "congkham": false,
+    "viettat": "DXN",
+    "active": false
+  },
+  {
+    "id": 1,
+    "ma": "N001",
+    "ten": "Khám bệnh",
+    "cls": false,
+    "congkham": true,
+    "viettat": "KB",
+    "active": true
+  },
+  {
+    "id": 25,
+    "ma": "N025",
+    "ten": "Nội soi (Thủ thuật)",
+    "cls": true,
+    "congkham": false,
+    "viettat": "NS",
+    "active": true
+  },
+  {
+    "id": 28,
+    "ma": "N028",
+    "ten": "Nội soi CĐHA",
+    "cls": true,
+    "congkham": false,
+    "viettat": "NSC",
+    "active": true
+  },
+  {
+    "id": 13,
+    "ma": "N013",
+    "ten": "Nội soi SPK",
+    "cls": true,
+    "congkham": false,
+    "viettat": "NSS",
+    "active": true
+  },
+  {
+    "id": 12,
+    "ma": "N012",
+    "ten": "Nội soi TMH",
+    "cls": true,
+    "congkham": false,
+    "viettat": "NST",
+    "active": true
+  },
+  {
+    "id": 2,
+    "ma": "N002",
+    "ten": "Siêu âm đen trắng",
+    "cls": true,
+    "congkham": false,
+    "viettat": "SADT",
+    "active": true
+  },
+  {
+    "id": 3,
+    "ma": "N003",
+    "ten": "Siêu âm màu",
+    "cls": true,
+    "congkham": false,
+    "viettat": "SAM",
+    "active": true
+  },
+  {
+    "id": 27,
+    "ma": "N027",
+    "ten": "Thủ thuật khác (18)",
+    "cls": false,
+    "congkham": false,
+    "viettat": "TTK",
+    "active": true
+  },
+  {
+    "id": 14,
+    "ma": "N014",
+    "ten": "Thủ thuật khác (8)",
+    "cls": false,
+    "congkham": false,
+    "viettat": "TTK",
+    "active": true
+  },
+  {
+    "id": 10,
+    "ma": "N010",
+    "ten": "Thủ thuật mắt",
+    "cls": false,
+    "congkham": false,
+    "viettat": "TTM",
+    "active": true
+  },
+  {
+    "id": 26,
+    "ma": "N026",
+    "ten": "Thủ thuật RHM (18)",
+    "cls": false,
+    "congkham": false,
+    "viettat": "TTR",
+    "active": true
+  },
+  {
+    "id": 9,
+    "ma": "N009",
+    "ten": "Thủ thuật RHM (8)",
+    "cls": false,
+    "congkham": false,
+    "viettat": "TTR",
+    "active": true
+  },
+  {
+    "id": 11,
+    "ma": "N011",
+    "ten": "Thủ thuật TMH",
+    "cls": false,
+    "congkham": false,
+    "viettat": "TTT",
+    "active": true
+  },
+  {
+    "id": 8,
+    "ma": "N008",
+    "ten": "Thủ thuật YHCT",
+    "cls": false,
+    "congkham": false,
+    "viettat": "TTY",
+    "active": true
+  },
+  {
+    "id": 4,
+    "ma": "N004",
+    "ten": "X Quang",
+    "cls": true,
+    "congkham": false,
+    "viettat": "XQ",
+    "active": true
+  },
+  {
+    "id": 7,
+    "ma": "N007",
+    "ten": "Xét nghiệm",
+    "cls": true,
+    "congkham": false,
+    "viettat": "XN",
+    "active": true
+  }
+]

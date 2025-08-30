@@ -193,7 +193,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                             AddDataCell(item.SoTienTrenHD, false, true, false, true);
                             AddDataCell(item.SoHD, true);
                             AddDataCell(item.TongSoTien, false, true, false, true);
-                            AddDataCell(item.NgayGioGiaoDich?.ToString("dd/MM/yyyy HH:mm:ss"), true);
+                            AddDataCell(item.NgayGioGiaoDich?.ToString("dd-MM-yyyy HH:mm:ss"), true);
                             AddDataCell(item.UserThanhToan, false, false);
                             AddDataCell(item.BVUB_SoTien, false, true, false, true);
                             AddDataCell(item.BVUB_TrangThai, true);

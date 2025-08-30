@@ -364,6 +364,11 @@ async function handleExportExcel() {
         const denNgay = formatDateForServer(denNgayRaw);
         const idChiNhanh = window._idcn;
 
+        if (!fullData || fullData.length === 0) {
+            toastr.error("Vui lòng lọc dữ liệu trước khi xuất Excel.");
+            return;
+        }
+
         if (!tuNgayRaw || !denNgayRaw) {
             toastr.error("Vui lòng chọn đầy đủ Từ ngày và Đến ngày trước khi xuất Excel.");
             return;
@@ -434,6 +439,11 @@ function exportPDFHandler(btn, viewType) {
 
     const tuNgay = document.getElementById(viewType === "Mobile" ? "tuNgayMobile" : "tuNgayDesktop").value;
     const denNgay = document.getElementById(viewType === "Mobile" ? "denNgayMobile" : "denNgayDesktop").value;
+
+    if (!fullData || fullData.length === 0) {
+        toastr.error("Vui lòng lọc dữ liệu trước khi xuất PDF.");
+        return;
+    }
 
     if (!tuNgay || !denNgay) {
         toastr.error("Vui lòng chọn đầy đủ Từ ngày và Đến ngày trước khi xuất PDF.");

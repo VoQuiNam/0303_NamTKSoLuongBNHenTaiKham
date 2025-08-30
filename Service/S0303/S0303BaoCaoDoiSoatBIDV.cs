@@ -249,7 +249,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                     ws.Cell(row, 8).Value = item.SoTienTrenHD;
                     ws.Cell(row, 9).Value = item.SoHD;
                     ws.Cell(row, 10).Value = item.TongSoTien;
-                    ws.Cell(row, 11).Value = item.NgayGioGiaoDich?.ToString("dd/MM/yyyy HH:mm:ss");
+                    ws.Cell(row, 11).Value = item.NgayGioGiaoDich?.ToString("dd-MM-yyyy HH:mm:ss");
                     ws.Cell(row, 12).Value = item.UserThanhToan;
                     ws.Cell(row, 13).Value = item.BVUB_SoTien;
                     ws.Cell(row, 14).Value = item.BVUB_TrangThai;

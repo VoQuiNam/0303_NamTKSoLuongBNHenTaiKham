@@ -19,12 +19,17 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Models.M0303
       
         public DbSet<M0303BaoCaoBacSiDocKQSTO> M0303BaoCaoBacSiDocKQSTOs { get; set; }
 
+        public DbSet<M0303DanhSachBNThucHienTheoThietBiSTO> M0303DanhSachBNThucHienTheoThietBiSTOs { get; set; }
+
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
            
             modelBuilder.Entity<M0303TKSoLuongBNHenKhamSTO>().HasNoKey();
             modelBuilder.Entity<M0303BaoCaoDoiSoatBIDVSTO>().HasNoKey(); 
             modelBuilder.Entity<M0303BaoCaoBacSiDocKQSTO>().HasNoKey();
+            modelBuilder.Entity<M0303DanhSachBNThucHienTheoThietBiSTO>().HasNoKey();
         }
 
         public bool TestConnection()

@@ -10,11 +10,12 @@ using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllersWithViews();
 
 builder.Services.AddScoped<I0303TKSoLuongBNHenKham, S0303TKSoLuongBNHenKham>();
 builder.Services.AddScoped<I0303BaoCaoDoiSoatBIDV, S0303BaoCaoDoiSoatBIDV>();
 builder.Services.AddScoped<IC0303BaoCaoBacSiDocKQ, S0303BaoCaoBacSiDocKQ>();
+builder.Services.AddScoped<I0303DanhSachBNThucHienTheoThietBi, S0303DanhSachBNThucHienTheoThietBi>();
+
 
 builder.Services.AddDbContext<Context0303>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Connection")));
@@ -33,7 +34,7 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
-
+app.UseWebSockets();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 

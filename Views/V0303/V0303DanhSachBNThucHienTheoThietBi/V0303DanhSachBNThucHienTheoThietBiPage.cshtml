@@ -1,17 +1,15 @@
-﻿
-@{
+﻿@{
     ViewData["NonSixOs"] = true;
 }
 
 
 @using Nam_ThongKeSoLuongBNHenTaiKham.Models.M0303
-@model List<M0303TKSoLuongBNHenKhamSTO>
-<head> 
+@model List<M0303DanhSachBNThucHienTheoThietBiSTO>
+<head>
     <link href="~/dist/css/CSS0303/CSS0303TKSoLuongBNHenTaiKham.css" rel="stylesheet" />
     <link href="~/dist/lib/bootstrap-datepicker-1.10.0/dist/css/bootstrap-datepicker.min.css" rel="stylesheet" />
     <link href="~/dist/lib/toastr/toastr.min.css" rel="stylesheet" />
 </head>
-
 
 <div class="card p-1">
     <div class="container_goiKham">
@@ -73,7 +71,7 @@
 
 
                 <label style="padding:0;">
-                    <button class="btnFilter btn btn-outline-primary mb-3" @(ViewBag.quyenvaitro.Xem ? "" : "disabled")>
+                    <button class="btnFilterBidv btn btn-outline-primary mb-3" @(ViewBag.quyenvaitro.Xem ? "" : "disabled")>
                         <i class="bi bi-funnel"></i> Lọc danh sách
                     </button>
                 </label>
@@ -96,36 +94,53 @@
                 <p>Đang tải dữ liệu...</p>
             </div>
 
+
             <div class="table-wrapper">
                 <table style="width:100%; margin: 0; table-layout: fixed; min-width: 1800px;" cellpadding="8">
-
                     <thead>
                         <tr>
-                            <th class="text-center" style="width:3%;">STT</th>
-                            <th class="text-center" style="width:6%;">Mã y tế</th>
-                            <th class="text-center" style="width:17%;">Họ và tên</th>
-                            <th class="text-center" style="width:6%;">Năm sinh</th>
-                            <th class="text-center" style="width:6%;">Giới tính</th>
-                            <th class="text-center" style="width:6%;">Quốc tịch</th>
-                            <th class="text-center" style="width:10%;">Cccd/Passport</th>
-                            <th class="text-center" style="width:8%;">SĐT</th>
-                            <th class="text-center" style="width:8%;">Ngày hẹn khám</th>
-                            <th class="text-center" style="width:12%;">Bác sĩ hẹn khám</th>
-                            <th class="text-center" style="width:9%;">Nhắc hẹn</th>
-                            <th class="text-center" style="width:9%;">Ghi chú</th>
+                            <th style="width:50px;">STT</th>
+                            <th style="width: 107px;">Mã YT</th>
+                            <th style="width: 110px;">Số HS</th>
+                            <th style="width: 110px;">Số BA</th>
+                            <th style="width:70px;">ICD</th>
+                            <th style="width:160px;">Họ và tên</th>
+                            <th style="width:70px;">Giới tính</th>
+                            <th style="width: 118px;">Số BHYT</th>
+                            <th style="width:120px;">KCBBĐ</th>
+                            <th style="width:70px;">ĐT</th>
+                            <th style="width: 87px;">Đối Tượng</th>
+                            <th style="width: 68px;">TT</th>
+                            <th style="width:100px;">Nơi Chỉ Định</th>
+                            <th style="width: 137px;">Bác sỹ</th>
+                            <th style="width:90px;">Nhóm DV</th>
+                            <th style="width:100px;">Dịch vụ</th>
+                            <th style="width: 65px;">Số lượng</th>
+                            <th style="width: 96px;">Ngày YC</th>
+                            <th style="width: 96px;">Ngày TH</th>
+                            <th style="width: 117px;">Quyển</th>
+                            <th style="width: 114px;">Số BL</th>
+                            <th style="width: 115px;">Chứng từ</th>
+                            <th style="width:120px;">Thiết bị</th>
+                            <th style="width: 98px;">Doanh thu</th>
+                            <th style="width: 98px;">Bảo hiểm</th>
+                            <th style="width: 98px;">Đã thanh toán</th>
+                            <th style="width: 98px;">Chưa thanh toán</th>
+                            <th style="width:70px;">Hủy hoàn</th>
+                            <th style="width:90px;">Đã thanh toán</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody">
-                       
+                     
                     </tbody>
-
                 </table>
-
             </div>
+
+
             <div class="phan_trang">
                 <div class="d-flex">
                     <label name="pageSizeSelect" class="form-label" style="font-size:1rem !important;">Số bản ghi mỗi trang:</label>
-                    <select id="pageSizeSelect"  style="font-size:1rem !important;" class="form-select">
+                    <select id="pageSizeSelect" style="font-size:1rem !important;" class="form-select">
                         <option value="10">10</option>
                         <option value="20">20</option>
                         <option value="50">50</option>
@@ -151,10 +166,10 @@
     <script src="~/dist/lib/toastr/toastr.min.js" asp-append-version="true" defer></script>
     <script src="~/dist/lib/bootstrap-datepicker-1.10.0/dist/js/bootstrap-datepicker.min.js" asp-append-version="true" defer></script>
     <script src="~/dist/lib/bootstrap-datepicker-1.10.0/dist/locales/bootstrap-datepicker.vi.min.js" asp-append-version="true" defer></script>
-    <script src="~/dist/js/J0303/J0303TKSoLuongBNHenTaiKham.js" asp-append-version="true" defer></script>
+    <script src="~/dist/js/J0303/J0303DanhSachBNThucHienTheoThietBi.js" asp-append-version="true" defer></script>
     <script src="~/dist/js/J0303/J0303GiaiDoanNgayThangNam.js" asp-append-version="true" defer></script>
+   
 
-  
 }
 
 
