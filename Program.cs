@@ -15,6 +15,8 @@ builder.Services.AddScoped<I0303TKSoLuongBNHenKham, S0303TKSoLuongBNHenKham>();
 builder.Services.AddScoped<I0303BaoCaoDoiSoatBIDV, S0303BaoCaoDoiSoatBIDV>();
 builder.Services.AddScoped<IC0303BaoCaoBacSiDocKQ, S0303BaoCaoBacSiDocKQ>();
 builder.Services.AddScoped<I0303DanhSachBNThucHienTheoThietBi, S0303DanhSachBNThucHienTheoThietBi>();
+builder.Services.AddScoped<I0303BaoCaoTongHopThuVienPhiTrucTiep, S0303BaoCaoTongHopThuVienPhiTrucTiep>();
+
 
 
 builder.Services.AddDbContext<Context0303>(options =>
