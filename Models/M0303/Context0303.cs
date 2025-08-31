@@ -21,7 +21,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Models.M0303
 
         public DbSet<M0303DanhSachBNThucHienTheoThietBiSTO> M0303DanhSachBNThucHienTheoThietBiSTOs { get; set; }
 
-
+        public DbSet<M0303BaoCaoTongHopThuVienPhiTrucTiepSTO> M0303BaoCaoTongHopThuVienPhiTrucTiepSTOs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -30,6 +30,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Models.M0303
             modelBuilder.Entity<M0303BaoCaoDoiSoatBIDVSTO>().HasNoKey(); 
             modelBuilder.Entity<M0303BaoCaoBacSiDocKQSTO>().HasNoKey();
             modelBuilder.Entity<M0303DanhSachBNThucHienTheoThietBiSTO>().HasNoKey();
+            modelBuilder.Entity<M0303BaoCaoTongHopThuVienPhiTrucTiepSTO>().HasNoKey();
         }
 
         public bool TestConnection()
