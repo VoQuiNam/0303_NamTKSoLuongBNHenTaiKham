@@ -43,7 +43,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
 
             var reportData = (_data ?? new List<M0303BaoCaoTongHopThuVienPhiTrucTiepSTO>()).ToList();
 
-            // Danh sách cột cố định
+           
             string[] fixedCols = {
         "STT", "Mã BN/Mã đợt", "Họ và tên", "Năm sinh", "Mã thẻ BHYT",
         "Đối tượng", "Ngày thu", "Quyển sổ", "Số biên lai", "Số chứng từ",
@@ -53,21 +53,21 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
 
             string[] fixedEndCols = { "Hủy", "Hoàn", "Ngày Hủy/Hoàn" };
 
-            // Tổng số cột = cố định + nhóm dịch vụ + Thuốc + Tổng cộng + cột cuối
+          
             int totalCols = fixedCols.Length + _nhomdichvukythuatList.Count + 1 + 1 + fixedEndCols.Length;
 
-            // Tính tổng các cột
+            
             decimal totalMienGiam = reportData.Sum(x => x.MienGiam ?? 0);
             decimal totalNo = reportData.Sum(x => x.No ?? 0);
             decimal totalSoTien = reportData.Sum(x => x.SoTien ?? 0);
 
-            // Tính tổng theo từng nhóm dịch vụ
+            
             Dictionary<int, decimal> tongTheoNhom = _nhomdichvukythuatList.ToDictionary(
                 n => n.id,
                 n => reportData.Where(x => x.IdNhomDichVu == n.id).Sum(x => x.SoTienChiTiet ?? 0)
             );
 
-            // Tổng cộng chi tiết CHỈ bao gồm dịch vụ kỹ thuật (không bao gồm cột Số tiền)
+           
             decimal totalTongCongChiTiet = tongTheoNhom.Values.Sum();
 
             container.Page(page =>
@@ -76,7 +76,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                 page.Margin(5f);
                 page.DefaultTextStyle(x => x.FontFamily("Arial Narrow").FontSize(6f));
 
-                // ===== Header =====
+                
                 page.Header().ShowOnce().Column(headerCol =>
                 {
                     headerCol.Item().Row(row =>
@@ -106,40 +106,40 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                     headerCol.Item().PaddingVertical(2f).LineHorizontal(0.5f).LineColor(Colors.Grey.Medium);
                 });
 
-                // ===== Nội dung =====
+                
                 page.Content().Column(contentCol =>
                 {
                     contentCol.Item().Table(table =>
                     {
-                        // Định nghĩa số cột động
+                        
                         table.ColumnsDefinition(columns =>
                         {
                             for (int i = 0; i < totalCols; i++)
                                 columns.RelativeColumn();
                         });
 
-                        // ===== Header 3 hàng =====
+                        
                         table.Header(header =>
                         {
-                            // --- Hàng 1 ---
+                            
                             foreach (var col in fixedCols)
                             {
                                 header.Cell().RowSpan(2).Element(c =>
                                     c.Background(Colors.Grey.Lighten3).Border(0.5f).Padding(1.5f).AlignCenter().Text(col).Bold().FontSize(5f));
                             }
 
-                            // Gộp cho "Thông tin chi tiết" (Thuốc + nhóm DV + Tổng cộng)
+                            
                             header.Cell().ColumnSpan((uint)(_nhomdichvukythuatList.Count + 2)).Element(c =>
                                 c.Background(Colors.Grey.Lighten3).Border(0.5f).Padding(1.5f).AlignCenter().Text("THÔNG TIN CHI TIẾT").Bold().FontSize(5f));
 
-                            // Các cột cuối
+                            
                             foreach (var col in fixedEndCols)
                             {
                                 header.Cell().RowSpan(2).Element(c =>
                                     c.Background(Colors.Grey.Lighten3).Border(0.5f).Padding(1.5f).AlignCenter().Text(col).Bold().FontSize(5f));
                             }
 
-                            // --- Hàng 2 ---
+                            
                             header.Cell().Element(c => c.Background(Colors.Grey.Lighten3).Border(0.5f).Padding(1.5f).AlignCenter().Text("Thuốc").Bold().FontSize(5f));
 
                             foreach (var nhom in _nhomdichvukythuatList)
@@ -151,7 +151,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                             header.Cell().Element(c =>
                                 c.Background(Colors.Grey.Lighten3).Border(0.5f).Padding(1.5f).AlignCenter().Text("Tổng cộng").Bold().FontSize(5f));
 
-                            // --- Hàng 3 (A,1,2...) ---
+                            
                             for (int i = 0; i < totalCols; i++)
                             {
                                 string label = i == 0 ? "A" : i.ToString();
@@ -160,7 +160,6 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                             }
                         });
 
-                        // ===== Nội dung dữ liệu =====
                         int stt = 1;
                         foreach (var item in reportData)
                         {
@@ -181,10 +180,10 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                             table.Cell().Element(c => c.Border(0.5f).Padding(1.5f).AlignRight().Text(FormatNumber(item.No)).FontSize(5f)); // Sửa ở đây
                             table.Cell().Element(c => c.Border(0.5f).Padding(1.5f).AlignRight().Text(FormatNumber(item.SoTien)).FontSize(5f)); // Sửa ở đây
 
-                            // Thuốc
+
                             table.Cell().Element(c => c.Border(0.5f).Padding(1.5f).AlignRight().Text("-").FontSize(5f));
 
-                            // Nhóm dịch vụ
+
                             foreach (var nhom in _nhomdichvukythuatList)
                             {
                                 if (item.IdNhomDichVu == nhom.id)
@@ -193,48 +192,46 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                                     table.Cell().Element(c => c.Border(0.5f).Padding(1.5f).AlignCenter().Text("-").FontSize(5f));
                             }
 
-                            // Tổng cộng CHI TIẾT (chỉ dịch vụ kỹ thuật)
+
                             decimal tongCongChiTiet = item.SoTienChiTiet ?? 0;
                             table.Cell().Element(c => c.Border(0.5f).Padding(1.5f).AlignRight().Text(FormatNumber(tongCongChiTiet)).FontSize(5f)); // Sửa ở đây
 
-                            // Các cột cuối
                             table.Cell().Element(c => c.Border(0.5f).Padding(1.5f).AlignCenter().Text(FormatNumber(item.Huy, true)).FontSize(5f)); // Sửa ở đây
                             table.Cell().Element(c => c.Border(0.5f).Padding(1.5f).AlignCenter().Text(FormatNumber(item.Hoan, true)).FontSize(5f)); // Sửa ở đây
                             table.Cell().Element(c => c.Border(0.5f).Padding(1.5f).AlignCenter().Text(item.NgayHuyHoan?.ToString("dd-MM-yy") ?? "-").FontSize(5f));
                         }
 
-                        // ===== HÀNG TỔNG CỘNG =====
-                        // Cột STT đến Số chứng từ (10 cột đầu)
+               
                         table.Cell().ColumnSpan(10).Element(c => c.Border(0.5f).Padding(1.5f).AlignCenter().Text("TỔNG CỘNG").Bold().FontSize(5f));
 
-                        // Cột Miễn giảm
+                 
                         table.Cell().Element(c => c.Border(0.5f).Padding(1.5f).AlignRight().Text(FormatNumber(totalMienGiam)).Bold().FontSize(5f)); // Sửa ở đây
 
-                        // Bỏ qua các cột Lý do miễn, Nhập viện nhập miễn, Ghi chú miễn (3 cột)
+             
                         for (int i = 0; i < 3; i++)
                         {
                             table.Cell().Element(c => c.Border(0.5f).Padding(1.5f).Text("").FontSize(5f));
                         }
 
-                        // Cột Nợ
+                  
                         table.Cell().Element(c => c.Border(0.5f).Padding(1.5f).AlignRight().Text(FormatNumber(totalNo)).Bold().FontSize(5f)); // Sửa ở đây
 
-                        // Cột Số tiền
+                      
                         table.Cell().Element(c => c.Border(0.5f).Padding(1.5f).AlignRight().Text(FormatNumber(totalSoTien)).Bold().FontSize(5f)); // Sửa ở đây
 
-                        // Cột Thuốc (luôn là 0)
+                       
                         table.Cell().Element(c => c.Border(0.5f).Padding(1.5f).AlignRight().Text("-").FontSize(5f));
 
-                        // Các nhóm dịch vụ
+                      
                         foreach (var nhom in _nhomdichvukythuatList)
                         {
                             table.Cell().Element(c => c.Border(0.5f).Padding(1.5f).AlignRight().Text(FormatNumber(tongTheoNhom[nhom.id])).Bold().FontSize(5f)); // Sửa ở đây
                         }
 
-                        // Cột Tổng cộng chi tiết (CHỈ dịch vụ kỹ thuật)
+                        
                         table.Cell().Element(c => c.Border(0.5f).Padding(1.5f).AlignRight().Text(FormatNumber(totalTongCongChiTiet)).Bold().FontSize(5f)); // Sửa ở đây
 
-                        // Các cột cuối (Hủy, Hoàn, Ngày Hủy/Hoàn) - để trống
+                        
                         for (int i = 0; i < 3; i++)
                         {
                             table.Cell().Element(c => c.Border(0.5f).Padding(1.5f).Text("").FontSize(5f));
@@ -242,7 +239,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                     });
                 });
 
-                // Footer
+                
                 page.Footer().AlignRight().Text(x =>
                 {
                     x.Span("Trang ").FontSize(6f);
@@ -260,21 +257,15 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
             return text.Substring(0, maxLength) + "...";
         }
 
-        // Hàm mới để format số: hiển thị "-" nếu giá trị là 0
+        
         private string FormatNumber(decimal? value, bool isSimpleFormat = false)
         {
             if (value == null || value == 0) return "-";
             return isSimpleFormat ? value.Value.ToString("N0") : value.Value.ToString("N0");
         }
 
-        // Overload cho các kiểu số khác
+       
         private string FormatNumber(int? value, bool isSimpleFormat = false)
-        {
-            if (value == null || value == 0) return "-";
-            return isSimpleFormat ? value.Value.ToString() : value.Value.ToString("N0");
-        }
-
-        private string FormatNumber(double? value, bool isSimpleFormat = false)
         {
             if (value == null || value == 0) return "-";
             return isSimpleFormat ? value.Value.ToString() : value.Value.ToString("N0");

@@ -191,15 +191,15 @@ function formatSoTien(soTien) {
 
 function parseHocPhiToNumber(str) {
     if (!str) return null;
-    return parseFloat(str.replace(/,/g, '')); // Loại bỏ dấu phẩy, chuyển sang số
+    return parseFloat(str.replace(/,/g, ''));
 }
 
 
 async function loadJsonData() {
     try {
         const nhomDvRes = await fetch('/dist/data/json/DM_NhomDichVuKyThuat.json').then(r => r.json());
-        listNhomDv = nhomDvRes; // [{id, ma, ten}]
-        renderHeader(); // render thead sau khi có dữ liệu
+        listNhomDv = nhomDvRes;
+        renderHeader();
     } catch (err) {
         console.error("❌ Lỗi tải JSON:", err);
     }
@@ -207,12 +207,12 @@ async function loadJsonData() {
 
 function renderHeader() {
     const thead = document.querySelector('table thead');
-    thead.innerHTML = ''; // clear nội dung cũ
+    thead.innerHTML = '';
 
-    // Tính tổng số cột
-    const totalCols = fixedColumns.length + listNhomDv.length + fixedEndColumns.length + 2; // +1 Thuốc +1 Tổng cộng
+  
+    const totalCols = fixedColumns.length + listNhomDv.length + fixedEndColumns.length + 2;
 
-    // Hàng 1
+  
     let row1 = `<tr>`;
     row1 += fixedColumns.map(col =>
         `<th rowspan="2" style="width:${col.width}; position:sticky; top:0; z-index:30; background-color:#f8f8f8; border:1px solid #ddd; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);">${col.title}</th>`
@@ -223,7 +223,6 @@ function renderHeader() {
     ).join('');
     row1 += `</tr>`;
 
-    // Hàng 2
     let row2 = `<tr>`;
     row2 += `<th style="position:sticky; z-index:20; background-color:#f8f8f8; border:1px solid #ddd; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);">Thuốc</th>`;
     row2 += listNhomDv.map(nhom =>
@@ -232,33 +231,28 @@ function renderHeader() {
     row2 += `<th style="position:sticky; z-index:20; background-color:#f8f8f8; border:1px solid #ddd; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);">Tổng cộng</th>`;
     row2 += `</tr>`;
 
-    // Hàng 3 - Hiển thị số thứ tự cột
     let row3 = `<tr>`;
 
-    // Đếm số thứ tự cột - Cột đầu tiên là "A", sau đó là số
-    let colIndex = 0; // Bắt đầu từ 0
+   
+    let colIndex = 0;
 
-    // Các cột fixedColumns (hiển thị số thứ tự)
+   
     for (let i = 0; i < fixedColumns.length; i++) {
         row3 += `<th style="position:sticky; z-index:10; background-color:#f8f8f8; border:1px solid #ddd; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);">${colIndex === 0 ? 'A' : colIndex}</th>`;
         colIndex++;
     }
 
-    // Cột Thuốc
     row3 += `<th style="position:sticky; z-index:10; background-color:#f8f8f8; border:1px solid #ddd; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);">${colIndex}</th>`;
     colIndex++;
 
-    // Các cột nhóm dịch vụ
     for (let i = 0; i < listNhomDv.length; i++) {
         row3 += `<th style="position:sticky; z-index:10; background-color:#f8f8f8; border:1px solid #ddd; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);">${colIndex}</th>`;
         colIndex++;
     }
 
-    // Cột Tổng cộng
     row3 += `<th style="position:sticky; z-index:10; background-color:#f8f8f8; border:1px solid #ddd; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);">${colIndex}</th>`;
     colIndex++;
 
-    // Các cột fixedEndColumns
     for (let i = 0; i < fixedEndColumns.length; i++) {
         row3 += `<th style="position:sticky; z-index:10; background-color:#f8f8f8; border:1px solid #ddd; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);">${colIndex}</th>`;
         colIndex++;
@@ -268,12 +262,12 @@ function renderHeader() {
 
     thead.innerHTML = row1 + row2 + row3;
 
-    // Thiết lập lại chiều cao thực tế cho sticky positioning
+   
     setTimeout(() => {
         const row1Height = thead.querySelector('tr:nth-child(1)').offsetHeight;
         const row2Height = thead.querySelector('tr:nth-child(2)').offsetHeight;
 
-        // Cập nhật top cho hàng 2 và 3
+        
         thead.querySelectorAll('tr:nth-child(2) th').forEach(th => {
             th.style.top = `${row1Height}px`;
         });
@@ -338,15 +332,13 @@ function handleFilter() {
                         if (response.success) {
                             fullData = response.data || [];
 
-                            console.log("✅ Dữ liệu trả về từ API:", response.data); // Log toàn bộ dữ liệu gốc
-                            console.log("✅ Dữ liệu fullData sau khi gán:", fullData); // Log dữ liệu đã gán cho biến toàn cục
-
+                           
                             fullData.forEach(item => {
                                 const nhomdichvu = listNhomDv.find(p => p.id === item.idNhomDichVu);
                                 item.tenNhomDV = nhomdichvu?.ten || "Không rõ nhóm dịch vụ";
                             });
 
-                            console.log("✅ Dữ liệu sau khi xử lý thêm tên nhóm dịch vụ:", fullData); // Log sau khi xử lý
+                            console.log("✅ Dữ liệu sau khi xử lý thêm tên nhóm dịch vụ:", fullData); 
 
                             currentPage = 1;
                             pageSize = parseInt($('#pageSizeSelect').val()) || 10;
@@ -377,16 +369,16 @@ function handleFilter() {
 }
 
 function randomDecimal(min, max) {
-    return (Math.random() * (max - min) + min).toFixed(0); // 0 chữ số thập phân, dạng số tiền
+    return (Math.random() * (max - min) + min).toFixed(0);
 }
 
-// Hàm helper: định dạng số hoặc hiển thị "-"
+
 function formatSoTienOrDash(value) {
     if (!value || Number(value) === 0) return '-';
     return formatSoTien(value);
 }
 
-// Hàm tính tổng toàn bộ dữ liệu filter
+
 function calculateTotals(data) {
     let totalMienGiam = 0;
     let totalNo = 0;
@@ -412,13 +404,12 @@ function calculateTotals(data) {
     return { totalMienGiam, totalNo, totalSoTien, totalThuoc, totalChiTietNhom };
 }
 
-// Hàm render bảng
 function renderTable() {
     const tbody = $('#tableBody');
     tbody.html('');
 
     if (!fullData || fullData.length === 0) {
-        const totalCols = fixedColumns.length + listNhomDv.length + fixedEndColumns.length + 2; // +1 Thuốc +1 Tổng cộng
+        const totalCols = fixedColumns.length + listNhomDv.length + fixedEndColumns.length + 2; 
         tbody.html(`<tr><td colspan="${totalCols}" style="text-align:center;">Không có dữ liệu</td></tr>`);
         return;
     }
@@ -464,7 +455,6 @@ function renderTable() {
             }
         });
 
-        // Cột Tổng cộng
         row += `<td class="text-end">${formatSoTienOrDash(sumChiTiet)}</td>`;
 
         row += `<td class="text-end">${item.huy || '-'}</td>`;
@@ -475,36 +465,36 @@ function renderTable() {
         html += row;
     });
 
-    // Tính tổng cộng toàn bộ dữ liệu
+
     const totals = calculateTotals(fullData);
     let totalChiTietSum = totals.totalThuoc;
     listNhomDv.forEach(nhom => {
         totalChiTietSum += totals.totalChiTietNhom[nhom.id];
     });
 
-    // Sửa hàng tổng cộng - điều chỉnh cho chính xác
+   
     let totalRow = `<tr style="font-weight:bold; background:#f2f2f2;">`;
-    totalRow += `<td colspan="10" style="text-align:center;">Tổng cộng</td>`; // 10 cột đầu (STT đến Số chứng từ)
-    totalRow += `<td class="text-end">${formatSoTienOrDash(totals.totalMienGiam)}</td>`; // Cột Miễn giảm
-    totalRow += `<td class="text-end">-</td>`; // Cột Lý do miễn
-    totalRow += `<td class="text-end">-</td>`; // Cột Nhập viện nhập miễn
-    totalRow += `<td class="text-end">-</td>`; // Cột Ghi chú miễn
-    totalRow += `<td class="text-end">${formatSoTienOrDash(totals.totalNo)}</td>`; // Cột Nợ
-    totalRow += `<td class="text-end">${formatSoTienOrDash(totals.totalSoTien)}</td>`; // Cột Số tiền
-    totalRow += `<td class="text-end">${formatSoTienOrDash(totals.totalThuoc)}</td>`; // Cột Thuốc
+    totalRow += `<td colspan="10" style="text-align:center;">Tổng cộng</td>`; 
+    totalRow += `<td class="text-end">${formatSoTienOrDash(totals.totalMienGiam)}</td>`;
+    totalRow += `<td class="text-end">-</td>`;
+    totalRow += `<td class="text-end">-</td>`;
+    totalRow += `<td class="text-end">-</td>`;
+    totalRow += `<td class="text-end">${formatSoTienOrDash(totals.totalNo)}</td>`;
+    totalRow += `<td class="text-end">${formatSoTienOrDash(totals.totalSoTien)}</td>`;
+    totalRow += `<td class="text-end">${formatSoTienOrDash(totals.totalThuoc)}</td>`;
 
-    // Các cột nhóm dịch vụ
+
     listNhomDv.forEach(nhom => {
         totalRow += `<td class="text-end">${formatSoTienOrDash(totals.totalChiTietNhom[nhom.id])}</td>`;
     });
 
-    // Cột Tổng cộng
+  
     totalRow += `<td class="text-end">${formatSoTienOrDash(totalChiTietSum)}</td>`;
 
-    // 3 cột cuối (Hủy, Hoàn, Ngày Hủy/Hoàn)
-    totalRow += `<td class="text-end">-</td>`; // Cột Hủy
-    totalRow += `<td class="text-end">-</td>`; // Cột Hoàn
-    totalRow += `<td class="text-end">-</td>`; // Cột Ngày Hủy/Hoàn
+   
+    totalRow += `<td class="text-end">-</td>`;
+    totalRow += `<td class="text-end">-</td>`;
+    totalRow += `<td class="text-end">-</td>`;
     totalRow += `</tr>`;
 
     html += totalRow;

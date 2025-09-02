@@ -194,7 +194,6 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                 using var workbook = new XLWorkbook();
                 var ws = workbook.Worksheets.Add("Báo cáo thu viện phí");
 
-                // Logo
                 var logoPath = Path.Combine(_env.WebRootPath, "dist", "img", "logo.png");
                 if (System.IO.File.Exists(logoPath))
                 {
@@ -255,7 +254,6 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                 ws.Range("A7:P7").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                 ws.Row(7).Height = 20;
 
-                // Header
                 int startRow = ws.LastRowUsed().RowNumber() + 2;
                 string[] fixedCols = {
             "STT", "Mã BN/Mã đợt", "Họ và tên", "Năm sinh", "Mã thẻ BHYT",
@@ -268,7 +266,6 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                 int colIndex = 1;
                 int totalCols = fixedCols.Length + 1 + nhomDichVuList.Count + 1 + fixedEndCols.Length;
 
-                // Hàng 1 header
                 foreach (var fc in fixedCols)
                 {
                     ws.Cell(startRow, colIndex).Value = fc;
@@ -300,7 +297,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                     endColIndex++;
                 }
 
-                // Hàng 2 header chi tiết
+            
                 colIndex = fixedCols.Length + 1;
                 ws.Cell(startRow + 1, colIndex).Value = "Thuốc";
                 ws.Cell(startRow + 1, colIndex).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
@@ -331,7 +328,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                 ws.Range(startRow, 1, startRow + 1, totalCols).Style.Alignment.WrapText = true;
                 ws.Range(startRow, 1, startRow + 1, totalCols).Style.Font.FontSize = 11;
 
-                // Tính toán vị trí các cột
+                
                 int colThuoc = 17;
                 int colNhomDichVuStart = colThuoc + 1;
                 int colTongCong = colNhomDichVuStart + nhomDichVuList.Count;
@@ -339,7 +336,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                 int colHoan = colHuy + 1;
                 int colNgayHuyHoan = colHoan + 1;
 
-                // Adjust column widths
+                
                 ws.Column(1).Width = 8;
                 ws.Column(2).Width = 15;
                 ws.Column(3).Width = 25;
@@ -347,26 +344,26 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                 ws.Column(5).Width = 20;
                 ws.Column(6).Width = 20;
                 ws.Column(7).Width = 20;
-                ws.Column(8).Width = 15;  // Quyển sổ
-                ws.Column(9).Width = 15;  // Số biên lai
-                ws.Column(10).Width = 15; // Số chứng từ
-                ws.Column(11).Width = 15; // Miễn giảm
-                ws.Column(12).Width = 25; // Lý do miễn
-                ws.Column(13).Width = 25; // Nhập viện nhập miễn
-                ws.Column(14).Width = 25; // Ghi chú miễn
-                ws.Column(15).Width = 15; // Nợ
-                ws.Column(16).Width = 15; // Số tiền
+                ws.Column(8).Width = 15;
+                ws.Column(9).Width = 15;
+                ws.Column(10).Width = 15;
+                ws.Column(11).Width = 15;
+                ws.Column(12).Width = 25;
+                ws.Column(13).Width = 25;
+                ws.Column(14).Width = 25;
+                ws.Column(15).Width = 15;
+                ws.Column(16).Width = 15;
 
-                // Điều chỉnh độ rộng cột dịch vụ
+                
                 for (int i = 0; i < nhomDichVuList.Count; i++)
                     ws.Column(colNhomDichVuStart + i).Width = 20;
 
-                ws.Column(colTongCong).Width = 15;    // Tổng cộng
-                ws.Column(colHuy).Width = 10;         // Hủy
-                ws.Column(colHoan).Width = 10;        // Hoàn
-                ws.Column(colNgayHuyHoan).Width = 25; // Ngày Hủy/Hoàn - độ rộng mặc định
+                ws.Column(colTongCong).Width = 15;   
+                ws.Column(colHuy).Width = 10;         
+                ws.Column(colHoan).Width = 10;        
+                ws.Column(colNgayHuyHoan).Width = 25; 
 
-                // ==== Dữ liệu ====
+               
                 int row = startRow + 2;
                 int stt = 1;
                 decimal totalMienGiam = 0, totalNo = 0, totalSoTien = 0;
@@ -376,17 +373,19 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                 foreach (var item in data)
                 {
                     int c = 1;
-                    ws.Cell(row, c++).Value = stt++; // STT
-                    ws.Cell(row, c++).Value = item.MaBN; // Mã BN/Mã đợt
+                    ws.Cell(row, c).Value = stt++;
+                    ws.Cell(row, c).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    c++;
+                    ws.Cell(row, c++).Value = item.MaBN;
                     ws.Cell(row, c - 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                    ws.Cell(row, c++).Value = item.HoTen; // Họ và tên
-                    ws.Cell(row, c++).Value = item.NamSinh; // Năm sinh
+                    ws.Cell(row, c++).Value = item.HoTen;
+                    ws.Cell(row, c++).Value = item.NamSinh;
                     ws.Cell(row, c - 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                    ws.Cell(row, c++).Value = item.MaTheBHYT; // Mã thẻ BHYT
+                    ws.Cell(row, c++).Value = item.MaTheBHYT;
                     ws.Cell(row, c - 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                    ws.Cell(row, c++).Value = item.DoiTuong; // Đối tượng
+                    ws.Cell(row, c++).Value = item.DoiTuong;
 
-                    // Ngày thu
+                 
                     if (item.NgayThu.HasValue)
                     {
                         ws.Cell(row, c).Value = item.NgayThu.Value;
@@ -398,38 +397,38 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                     }
                     c++;
 
-                    // Quyển sổ
+                   
                     ws.Cell(row, c).Value = string.IsNullOrEmpty(item.QuyenSo) ? "-" : item.QuyenSo;
                     ws.Cell(row, c++).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
 
-                    // Số biên lai
+                   
                     ws.Cell(row, c).Value = string.IsNullOrEmpty(item.SoBienLai) ? "-" : item.SoBienLai;
                     ws.Cell(row, c++).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
 
-                    // Số chứng từ
+                   
                     ws.Cell(row, c).Value = string.IsNullOrEmpty(item.SoChungTu) ? "-" : item.SoChungTu;
                     ws.Cell(row, c++).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
 
-                    // Miễn giảm
+                   
                     ws.Cell(row, c).Value = (item.MienGiam ?? 0) == 0 ? "-" : item.MienGiam;
                     ws.Cell(row, c).Style.NumberFormat.Format = "#,##0";
                     ws.Cell(row, c++).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
 
-                    // Lý do miễn
+                   
                     ws.Cell(row, c++).Value = item.LyDoMien;
 
-                    // Nhập viện nhập miễn
+                   
                     ws.Cell(row, c++).Value = item.NhapVienNhapMien;
 
-                    // Ghi chú miễn
+                   
                     ws.Cell(row, c++).Value = item.GhiChuMien;
 
-                    // Nợ
+                   
                     ws.Cell(row, c).Value = (item.No ?? 0) == 0 ? "-" : item.No;
                     ws.Cell(row, c).Style.NumberFormat.Format = "#,##0";
                     ws.Cell(row, c++).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
 
-                    // Số tiền
+                   
                     ws.Cell(row, c).Value = (item.SoTien ?? 0) == 0 ? "-" : item.SoTien;
                     ws.Cell(row, c).Style.NumberFormat.Format = "#,##0";
                     ws.Cell(row, c++).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
@@ -440,16 +439,19 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
 
                     decimal tongChiTiet = 0;
 
-                    // Thuốc (luôn là "-" theo dữ liệu mẫu)
-                    ws.Cell(row, c++).Value = "-";
+                    
+                    ws.Cell(row, c).Value = "-";
+                    ws.Cell(row, c++).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
 
-                    // Dịch vụ theo nhóm
+                    
                     foreach (var nhom in nhomDichVuList)
                     {
-                        if (item.IdNhomDichVu == nhom.id)
+                        if (item.IdNhomDichVu == nhom.id && (item.SoTienChiTiet ?? 0) != 0)
                         {
-                            ws.Cell(row, c).Value = item.SoTienChiTiet ?? 0;
+                            ws.Cell(row, c).Value = item.SoTienChiTiet;
                             ws.Cell(row, c).Style.NumberFormat.Format = "#,##0";
+                            ws.Cell(row, c).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+
                             tongChiTiet += item.SoTienChiTiet ?? 0;
                             tongTheoNhom[nhom.id] += item.SoTienChiTiet ?? 0;
                             totalTongCongChiTiet += item.SoTienChiTiet ?? 0;
@@ -457,24 +459,29 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                         else
                         {
                             ws.Cell(row, c).Value = "-";
+                            ws.Cell(row, c).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
                         }
                         c++;
                     }
+                    ws.Cell(row, c).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
 
-                    // Tổng cộng chi tiết
-                    ws.Cell(row, c).Value = tongChiTiet;
-                    ws.Cell(row, c).Style.NumberFormat.Format = "#,##0";
-                    ws.Cell(row, c++).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+                  
+                    ws.Cell(row, c).Value = tongChiTiet == 0 ? "-" : tongChiTiet;
+                    ws.Cell(row, c).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+                    if (tongChiTiet != 0)
+                        ws.Cell(row, c).Style.NumberFormat.Format = "#,##0";
+                    c++;
 
-                    // Hủy
+
+                 
                     ws.Cell(row, c).Value = (item.Huy ?? 0) == 0 ? "-" : item.Huy;
                     ws.Cell(row, c++).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
 
-                    // Hoàn
+                    
                     ws.Cell(row, c).Value = (item.Hoan ?? 0) == 0 ? "-" : item.Hoan;
                     ws.Cell(row, c++).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
 
-                    // Ngày Hủy/Hoàn
+                   
                     if (item.NgayHuyHoan.HasValue)
                     {
                         ws.Cell(row, c).Value = item.NgayHuyHoan.Value;
@@ -484,12 +491,12 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                     {
                         ws.Cell(row, c).Value = "-";
                     }
-                    ws.Cell(row, c++).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    ws.Cell(row, c++).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
 
                     row++;
                 }
 
-                // Tổng cộng
+                
                 int colIndex_MienGiam = 11;
                 int colIndex_No = 15;
                 int colIndex_SoTien = 16;
@@ -499,44 +506,64 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                 ws.Cell(row, 1).Style.Font.Bold = true;
                 ws.Cell(row, 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
 
-                ws.Cell(row, colIndex_MienGiam).Value = totalMienGiam;
-                ws.Cell(row, colIndex_MienGiam).Style.NumberFormat.Format = "#,##0";
+                ws.Cell(row, colIndex_MienGiam).Value = totalMienGiam == 0 ? "-" : totalMienGiam;
+                ws.Cell(row, colIndex_MienGiam).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+                if (totalMienGiam != 0)
+                    ws.Cell(row, colIndex_MienGiam).Style.NumberFormat.Format = "#,##0";
 
-                ws.Cell(row, colIndex_No).Value = totalNo;
-                ws.Cell(row, colIndex_No).Style.NumberFormat.Format = "#,##0";
+                
+                ws.Cell(row, colIndex_No).Value = totalNo == 0 ? "-" : totalNo;
+                ws.Cell(row, colIndex_No).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
                 ws.Cell(row, colIndex_No).Style.Font.Bold = true;
+                if (totalNo != 0)
+                    ws.Cell(row, colIndex_No).Style.NumberFormat.Format = "#,##0";
 
-                ws.Cell(row, colIndex_SoTien).Value = totalSoTien;
-                ws.Cell(row, colIndex_SoTien).Style.NumberFormat.Format = "#,##0";
+               
+                ws.Cell(row, colIndex_SoTien).Value = totalSoTien == 0 ? "-" : totalSoTien;
+                ws.Cell(row, colIndex_SoTien).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
                 ws.Cell(row, colIndex_SoTien).Style.Font.Bold = true;
+                if (totalSoTien != 0)
+                    ws.Cell(row, colIndex_SoTien).Style.NumberFormat.Format = "#,##0";
 
-                // Tổng chi tiết dịch vụ
+               
+                int colIndex_Thuoc = colThuoc;
+                ws.Cell(row, colIndex_Thuoc).Value = "-";
+                ws.Cell(row, colIndex_Thuoc).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+                ws.Cell(row, colIndex_Thuoc).Style.Font.Bold = true;
+
+                
                 int colChiTietStart_total = fixedCols.Length + 2;
                 for (int i = 0; i < nhomDichVuList.Count; i++)
                 {
                     var nhom = nhomDichVuList[i];
-                    ws.Cell(row, colChiTietStart_total + i).Value = tongTheoNhom[nhom.id];
-                    ws.Cell(row, colChiTietStart_total + i).Style.NumberFormat.Format = "#,##0";
-                    ws.Cell(row, colChiTietStart_total + i).Style.Font.Bold = true;
+                    var giaTriNhom = tongTheoNhom[nhom.id];
+                    ws.Cell(row, colChiTietStart_total + i).Value = giaTriNhom == 0 ? "-" : giaTriNhom;
                     ws.Cell(row, colChiTietStart_total + i).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+                    ws.Cell(row, colChiTietStart_total + i).Style.Font.Bold = true;
+                    if (giaTriNhom != 0)
+                        ws.Cell(row, colChiTietStart_total + i).Style.NumberFormat.Format = "#,##0";
+
                 }
 
-                // Tổng cộng chi tiết
-                ws.Cell(row, colChiTietStart_total + nhomDichVuList.Count).Value = totalTongCongChiTiet;
-                ws.Cell(row, colChiTietStart_total + nhomDichVuList.Count).Style.NumberFormat.Format = "#,##0";
-                ws.Cell(row, colChiTietStart_total + nhomDichVuList.Count).Style.Font.Bold = true;
+                
+                var tongCongChiTiet = totalTongCongChiTiet;
+                ws.Cell(row, colChiTietStart_total + nhomDichVuList.Count).Value = tongCongChiTiet == 0 ? "-" : tongCongChiTiet;
                 ws.Cell(row, colChiTietStart_total + nhomDichVuList.Count).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+                ws.Cell(row, colChiTietStart_total + nhomDichVuList.Count).Style.Font.Bold = true;
+                if (tongCongChiTiet != 0)
+                    ws.Cell(row, colChiTietStart_total + nhomDichVuList.Count).Style.NumberFormat.Format = "#,##0";
 
-                // Tự động điều chỉnh độ rộng cột "Ngày Hủy/Hoàn" sau khi đã có dữ liệu
+
+                
                 ws.Column(colNgayHuyHoan).AdjustToContents();
 
-                // Đảm bảo cột có độ rộng tối thiểu
+                
                 if (ws.Column(colNgayHuyHoan).Width < 25)
                 {
                     ws.Column(colNgayHuyHoan).Width = 25;
                 }
 
-                // Border
+                
                 ws.Range(startRow, 1, row, totalCols).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
                 ws.Range(startRow, 1, row, totalCols).Style.Border.InsideBorder = XLBorderStyleValues.Thin;
 
