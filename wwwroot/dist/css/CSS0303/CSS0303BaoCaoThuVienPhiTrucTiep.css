@@ -1,1 +1,249 @@
-﻿
+﻿/* ========== TABLE WRAPPER ========== */
+.table-wrapper {
+    overflow: scroll;
+    height: 70vh;
+    scrollbar-width: thin;
+    -ms-overflow-style: scrollbar;
+    border: 1px solid #ddd;
+}
+
+    .table-wrapper::-webkit-scrollbar {
+        display: block;
+        height: 12px;
+        width: 12px;
+    }
+
+    /* ========== TABLE ========== */
+    .table-wrapper table {
+        border-collapse: separate;
+        border-spacing: 0;
+        width: auto;
+        min-width: 1500px;
+        table-layout: fixed;
+    }
+
+    .table-wrapper th,
+    .table-wrapper td {
+        border: 1px solid #ccc;
+        padding: 6px 8px;
+        text-align: center;
+        font-size: 1rem;
+        /* Cho phép xuống dòng */
+        white-space: normal;
+        overflow: visible;
+        text-overflow: unset;
+        word-wrap: break-word; /* Cho phép xuống dòng khi từ quá dài */
+    }
+
+
+/* ========== STICKY HEADER MULTI-ROW ========== */
+thead tr:nth-child(1) th {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    background-color: #f8f8f8;
+}
+
+thead tr:nth-child(2) th {
+    position: sticky;
+    top: calc(var(--row1-height, 40px));
+    z-index: 20;
+    background-color: #f8f8f8;
+}
+
+thead tr:nth-child(3) th {
+    position: sticky;
+    top: calc(var(--row1-height, 40px) + var(--row2-height, 40px));
+    z-index: 10;
+    background-color: #f8f8f8;
+}
+
+/* Đảm bảo border không bị đè */
+th::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 1px solid #ddd;
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* Hover row */
+.table-wrapper tr:hover td {
+    background-color: #e6f7ff;
+}
+
+/* Fixed border cho first & last th */
+.table-wrapper th:first-child {
+    border-left: 1px solid #ccc !important;
+}
+
+.table-wrapper th:last-child {
+    border-right: 1px solid #ccc !important;
+}
+
+/* ========== FORM & INPUTS ========== */
+.form-label {
+    margin: auto !important;
+}
+
+label {
+    font-size: 1rem !important;
+    font-weight: 600;
+    margin: 5px 0 4px 0;
+}
+
+input {
+    font-size: 1rem !important;
+    margin: 5px 0;
+    font-weight: 400;
+}
+
+.input-group {
+    align-items: center;
+}
+
+    .input-group .form-control {
+        font-size: 1rem;
+        padding: 8px 12px;
+        height: 42px;
+    }
+
+.input-group-text {
+    font-size: 1rem;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 42px;
+}
+
+    .input-group-text i {
+        font-size: 1rem;
+    }
+
+#btnFilter {
+    margin: 8px 0 6px 0 !important;
+}
+
+/* ========== CONTAINER & BUTTONS ========== */
+.container_goiKham {
+    display: flex;
+    justify-content: space-around;
+}
+
+    .container_goiKham.left {
+        display: block;
+        width: 14%;
+    }
+
+    .container_goiKham.right {
+        width: 83%;
+        display: block;
+    }
+
+    .container_goiKham.left .row {
+        font-size: 1rem;
+    }
+
+        .container_goiKham.left .row button {
+            width: 100%;
+            font-size: 0.8rem;
+        }
+
+        .container_goiKham.left .row.export-buttons {
+            display: flex;
+            font-size: 0.8rem;
+            gap: 8px;
+        }
+
+            .container_goiKham.left .row.export-buttons button {
+                flex: 1;
+                padding: 8px;
+                font-size: 0.8rem;
+            }
+
+/* ========== DATEPICKER ========== */
+.datepicker {
+    font-size: 0.9rem;
+    transform: scale(1.2);
+    transform-origin: top left;
+    position: absolute;
+    top: 0;
+    left: 100%;
+    margin-left: 5px;
+    z-index: 99999 !important;
+    background: white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+/* ========== PAGINATION ========== */
+.pagination {
+    margin: 0;
+}
+
+.page-item.active .page-link {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.page-link {
+    color: #0d6efd;
+}
+
+.page-item.disabled .page-link {
+    color: #6c757d;
+}
+
+.page-link:hover {
+    color: #0a58ca;
+}
+
+#pageInfo {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+#pageSizeSelect {
+    width: auto;
+    display: inline-block;
+    margin-left: 10px;
+}
+
+.phan_trang {
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    padding-right: 30px;
+    flex-wrap: nowrap;
+    margin: 20px auto !important;
+    font-size: 1rem;
+    gap: 10px;
+    min-height: 50px;
+}
+
+.page-link:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* ========== LOADING SPINNER ========== */
+#loadingSpinner {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+    width: 100px;
+    height: 100px;
+}
+
+    #loadingSpinner .spinner-border {
+        width: 5rem;
+        height: 5rem;
+        border-width: 0.5em;
+    }
