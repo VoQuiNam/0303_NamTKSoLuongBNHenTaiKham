@@ -622,6 +622,7 @@ function handleExportExcel() {
 
 document.addEventListener('DOMContentLoaded', async () => {
     initDatePicker();
+    renderTable();
     await loadJsonData();
     handleFilter();
     handleExportPDF();

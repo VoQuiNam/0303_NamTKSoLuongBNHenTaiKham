@@ -1,47 +1,50 @@
-﻿/* ========== TABLE WRAPPER ========== */
-.table-wrapper {
-    overflow: scroll;
+﻿.table-wrapper {
+    overflow: auto;
     height: 70vh;
+    border: 1px solid #ddd;
     scrollbar-width: thin;
     -ms-overflow-style: scrollbar;
-    border: 1px solid #ddd;
 }
 
-    .table-wrapper::-webkit-scrollbar {
-        display: block;
-        height: 12px;
-        width: 12px;
-    }
 
-    /* ========== TABLE ========== */
-    .table-wrapper table {
-        border-collapse: separate;
-        border-spacing: 0;
-        width: auto;
-        min-width: 1500px;
-        table-layout: fixed;
-    }
+.table-wrapper::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
 
-    .table-wrapper th,
-    .table-wrapper td {
-        border: 1px solid #ccc;
-        padding: 6px 8px;
-        text-align: center;
-        font-size: 1rem;
-        /* Cho phép xuống dòng */
-        white-space: normal;
-        overflow: visible;
-        text-overflow: unset;
-        word-wrap: break-word; /* Cho phép xuống dòng khi từ quá dài */
-    }
+.table-wrapper table {
+    border-collapse: collapse;
+    width: auto;
+    min-width: 1500px;
+    table-layout: fixed;
+}
 
 
-/* ========== STICKY HEADER MULTI-ROW ========== */
+.table-wrapper th,
+.table-wrapper td {
+    border: 1px solid #ccc;
+    padding: 6px 8px;
+    text-align: center;
+    font-size: 1rem;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow: visible;
+    text-overflow: unset;
+    background-clip: padding-box;
+}
+
+
+.table-wrapper thead {
+    background-color: #f8f8f8;
+}
+
+
 thead tr:nth-child(1) th {
     position: sticky;
     top: 0;
     z-index: 30;
     background-color: #f8f8f8;
+    box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);
 }
 
 thead tr:nth-child(2) th {
@@ -49,6 +52,7 @@ thead tr:nth-child(2) th {
     top: calc(var(--row1-height, 40px));
     z-index: 20;
     background-color: #f8f8f8;
+    box-shadow: 0 2px 3px -1px rgba(0,0,0,0.05);
 }
 
 thead tr:nth-child(3) th {
@@ -56,36 +60,49 @@ thead tr:nth-child(3) th {
     top: calc(var(--row1-height, 40px) + var(--row2-height, 40px));
     z-index: 10;
     background-color: #f8f8f8;
+    box-shadow: 0 2px 3px -1px rgba(0,0,0,0.05);
 }
 
-/* Đảm bảo border không bị đè */
-th::after {
+thead th::after {
     content: "";
     position: absolute;
-    top: 0;
     left: 0;
     right: 0;
-    bottom: 0;
-    border: 1px solid #ddd;
+    bottom: -1px;
+    height: 1px;
+    background: #ddd;
     pointer-events: none;
-    z-index: -1;
+    z-index: 5;
 }
 
-/* Hover row */
+
 .table-wrapper tr:hover td {
     background-color: #e6f7ff;
 }
 
-/* Fixed border cho first & last th */
-.table-wrapper th:first-child {
+
+.table-wrapper th:first-child,
+.table-wrapper td:first-child {
     border-left: 1px solid #ccc !important;
 }
 
-.table-wrapper th:last-child {
+.table-wrapper th:last-child,
+.table-wrapper td:last-child {
     border-right: 1px solid #ccc !important;
 }
 
-/* ========== FORM & INPUTS ========== */
+.table-wrapper td {
+    word-break: break-word;
+    white-space: normal;
+}
+
+
+.table-wrapper thead th {
+    background-clip: padding-box;
+}
+
+
+
 .form-label {
     margin: auto !important;
 }
@@ -129,7 +146,6 @@ input {
     margin: 8px 0 6px 0 !important;
 }
 
-/* ========== CONTAINER & BUTTONS ========== */
 .container_goiKham {
     display: flex;
     justify-content: space-around;
@@ -166,7 +182,6 @@ input {
                 font-size: 0.8rem;
             }
 
-/* ========== DATEPICKER ========== */
 .datepicker {
     font-size: 0.9rem;
     transform: scale(1.2);
@@ -180,7 +195,6 @@ input {
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
-/* ========== PAGINATION ========== */
 .pagination {
     margin: 0;
 }
@@ -230,7 +244,6 @@ input {
     opacity: 0.5;
 }
 
-/* ========== LOADING SPINNER ========== */
 #loadingSpinner {
     display: none;
     position: fixed;

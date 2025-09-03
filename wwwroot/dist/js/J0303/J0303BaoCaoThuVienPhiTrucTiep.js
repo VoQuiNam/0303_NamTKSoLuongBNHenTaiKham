@@ -215,8 +215,9 @@ function renderHeader() {
   
     let row1 = `<tr>`;
     row1 += fixedColumns.map(col =>
-        `<th rowspan="2" style="width:${col.width}; position:sticky; top:0; z-index:30; background-color:#f8f8f8; border:1px solid #ddd; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);">${col.title}</th>`
+        `<th rowspan="2" style="width:${col.width}; z-index:30; background-color:#f8f8f8; border:1px solid #ddd;">${col.title}</th>`
     ).join('');
+
     row1 += `<th colspan="${listNhomDv.length + 2}" style="text-align:center; position:sticky; top:0; z-index:30; background-color:#f8f8f8; border:1px solid #ddd; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);">Thông tin chi tiết</th>`;
     row1 += fixedEndColumns.map(col =>
         `<th rowspan="2" style="width:${col.width}; position:sticky; top:0; z-index:30; background-color:#f8f8f8; border:1px solid #ddd; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);">${col.title}</th>`
@@ -267,7 +268,9 @@ function renderHeader() {
         const row1Height = thead.querySelector('tr:nth-child(1)').offsetHeight;
         const row2Height = thead.querySelector('tr:nth-child(2)').offsetHeight;
 
-        
+        thead.style.setProperty('--row1-height', row1Height + 'px');
+        thead.style.setProperty('--row2-height', row2Height + 'px');
+
         thead.querySelectorAll('tr:nth-child(2) th').forEach(th => {
             th.style.top = `${row1Height}px`;
         });
@@ -276,6 +279,9 @@ function renderHeader() {
             th.style.top = `${row1Height + row2Height}px`;
         });
     }, 0);
+
+
+
 }
 
 function handleFilter() {
@@ -409,8 +415,14 @@ function renderTable() {
     tbody.html('');
 
     if (!fullData || fullData.length === 0) {
-        const totalCols = fixedColumns.length + listNhomDv.length + fixedEndColumns.length + 2; 
-        tbody.html(`<tr><td colspan="${totalCols}" style="text-align:center;">Không có dữ liệu</td></tr>`);
+        const totalCols = fixedColumns.length + listNhomDv.length + fixedEndColumns.length + 2;
+        tbody.html(`
+            <tr>
+                <td colspan="50" style="text-align:center; vertical-align:middle; border: 1px solid #ccc; padding: 6px 8px; background-color: #fff;">
+                    Không có dữ liệu
+                </td>
+            </tr>
+        `);
         return;
     }
 
@@ -465,16 +477,14 @@ function renderTable() {
         html += row;
     });
 
-
     const totals = calculateTotals(fullData);
     let totalChiTietSum = totals.totalThuoc;
     listNhomDv.forEach(nhom => {
         totalChiTietSum += totals.totalChiTietNhom[nhom.id];
     });
 
-   
     let totalRow = `<tr style="font-weight:bold; background:#f2f2f2;">`;
-    totalRow += `<td colspan="10" style="text-align:center;">Tổng cộng</td>`; 
+    totalRow += `<td colspan="10" style="text-align:center;">Tổng cộng</td>`;
     totalRow += `<td class="text-end">${formatSoTienOrDash(totals.totalMienGiam)}</td>`;
     totalRow += `<td class="text-end">-</td>`;
     totalRow += `<td class="text-end">-</td>`;
@@ -483,15 +493,12 @@ function renderTable() {
     totalRow += `<td class="text-end">${formatSoTienOrDash(totals.totalSoTien)}</td>`;
     totalRow += `<td class="text-end">${formatSoTienOrDash(totals.totalThuoc)}</td>`;
 
-
     listNhomDv.forEach(nhom => {
         totalRow += `<td class="text-end">${formatSoTienOrDash(totals.totalChiTietNhom[nhom.id])}</td>`;
     });
 
-  
     totalRow += `<td class="text-end">${formatSoTienOrDash(totalChiTietSum)}</td>`;
 
-   
     totalRow += `<td class="text-end">-</td>`;
     totalRow += `<td class="text-end">-</td>`;
     totalRow += `<td class="text-end">-</td>`;
@@ -742,6 +749,7 @@ $(document).on('change', '#pageSizeSelect', function () {
 
 document.addEventListener('DOMContentLoaded', async () => {
     initDatePicker();
+    renderTable();
     await loadJsonData();
     handleFilter();
     handleExportPDF();
