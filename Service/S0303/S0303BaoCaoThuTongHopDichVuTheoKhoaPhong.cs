@@ -1,0 +1,471 @@
+﻿using ClosedXML.Excel;
+using ClosedXML.Excel.Drawings;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using Nam_ThongKeSoLuongBNHenTaiKham.Models.M0303;
+using Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments;
+using Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303.SI0303;
+using Newtonsoft.Json;
+using QuestPDF.Fluent;
+
+namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
+{
+    public class S0303BaoCaoThuTongHopDichVuTheoKhoaPhong : ControllerBase, I0303BaoCaoThuTongHopDichVuTheoKhoaPhong
+    {
+        private readonly Context0303 _localDb;
+        private readonly IWebHostEnvironment _env;
+        private readonly ILogger<S0303BaoCaoThuTongHopDichVuTheoKhoaPhong> _logger;
+
+        public S0303BaoCaoThuTongHopDichVuTheoKhoaPhong(
+            Context0303 localDb,
+            IWebHostEnvironment env,
+            ILogger<S0303BaoCaoThuTongHopDichVuTheoKhoaPhong> logger)
+        {
+            _localDb = localDb;
+            _env = env;
+            _logger = logger;
+        }
+
+        public async Task<object> FilterByDayAsync(string tuNgay, string denNgay, int idChiNhanh, int idNhomKyThuat, int idPhong)
+        {
+            try
+            {
+                object paramTuNgay = string.IsNullOrEmpty(tuNgay)
+                    ? (object)DBNull.Value
+                    : DateTime.ParseExact(tuNgay, "yyyy-MM-dd", null).ToString("dd-MM-yyyy");
+
+                object paramDenNgay = string.IsNullOrEmpty(denNgay)
+                    ? (object)DBNull.Value
+                    : DateTime.ParseExact(denNgay, "yyyy-MM-dd", null).ToString("dd-MM-yyyy");
+
+                var data = await _localDb.Set<M0303BaoCaoThuTongHopDichVuTheoKhoaPhongSTO>()
+                    .FromSqlRaw(@"EXEC S0303_BaoCaoTongHopDichVuTheoKhoaPhong @TuNgay, @DenNgay, @IDCN, @IdNhomKyThuat, @IdPhong",
+                        new SqlParameter("@TuNgay", paramTuNgay),
+                        new SqlParameter("@DenNgay", paramDenNgay),
+                        new SqlParameter("@IDCN", idChiNhanh),
+                        new SqlParameter("@idNhomKyThuat", idNhomKyThuat),
+                        new SqlParameter("@IdPhong", idPhong))
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                var thongTinDoanhNghiep = await _localDb.ThongTinDoanhNghieps
+                    .AsNoTracking()
+                    .Where(x => x.IDChiNhanh == idChiNhanh)
+                    .Select(x => new
+                    {
+                        TenCSKCB = x.TenCSKCB ?? "",
+                        DiaChi = x.DiaChi ?? "",
+                        DienThoai = x.DienThoai ?? "",
+                        Email = x.Email ?? "",
+                        Website = x.Website ?? "",
+                        MaCSKCB = x.MaCSKCB ?? ""
+                    })
+                    .FirstOrDefaultAsync();
+
+                return new
+                {
+                    success = true,
+                    data,
+                    thongTinDoanhNghiep
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ LỖI: {ex.Message}");
+                return new { success = false, error = ex.Message };
+            }
+        }
+
+        public async Task<List<M0303BaoCaoThuTongHopDichVuTheoKhoaPhongSTO>> GetBNHenKhamAsync(
+        DateTime? tuNgay,
+        DateTime? denNgay,
+        int? idChiNhanh,
+        int idPhong = 0,
+        int idDichVuKyThuat = 0,
+        int idNhomDichVu = 0)
+        {
+            _logger.LogInformation("DEBUG: idNhomDichVu = {idNhomDichVu}", idNhomDichVu);
+
+            string tuNgayStr = tuNgay?.ToString("dd/MM/yyyy") ?? DateTime.Now.ToString("dd/MM/yyyy");
+            string denNgayStr = denNgay?.ToString("dd/MM/yyyy") ?? DateTime.Now.ToString("dd/MM/yyyy");
+            int idCN = idChiNhanh ?? 0;
+
+            var data = await _localDb.M0303BaoCaoThuTongHopDichVuTheoKhoaPhongSTOs
+                .FromSqlInterpolated($@"
+                EXEC S0303_BaoCaoTongHopDichVuTheoKhoaPhong 
+                @TuNgay = {tuNgayStr}, 
+                @DenNgay = {denNgayStr}, 
+                @IDCN = {idCN}, 
+                @IdPhong = {idPhong}, 
+                @IdDichVuKyThuat = 0")
+                .ToListAsync();
+
+            string jsonFile = Path.Combine("wwwroot", "dist/data/json/DM_DichVuKyThuat.json");
+            var jsonData = await System.IO.File.ReadAllTextAsync(jsonFile);
+            var dsDichVu = JsonConvert.DeserializeObject<List<M0303DichVuKyThuat>>(jsonData);
+
+            if (dsDichVu != null && idNhomDichVu != 0)
+            {
+                var dsIds = dsDichVu
+                    .Where(x => x.idNhomDichVu == idNhomDichVu)
+                    .Select(x => x.id)
+                    .ToList();
+
+                _logger.LogInformation("DEBUG: dsIds.Count = {count}", dsIds.Count);
+
+                data = data.Where(x => x.IdDichVuKyThuat.HasValue && dsIds.Contains((int)x.IdDichVuKyThuat.Value)).ToList();
+
+                _logger.LogInformation("DEBUG: data.Count sau khi lọc = {count}", data.Count);
+            }
+
+            return data;
+        }
+
+        public async Task<IActionResult> ExportToPDF(
+      DateTime? tuNgay,
+      DateTime? denNgay,
+      int? idChiNhanh,
+      int idPhong = 0,
+      int idDichVuKyThuat = 0,
+      int idNhomDichVu = 0)
+        {
+            // 1. Lấy dữ liệu báo cáo đã lọc
+            var data = await GetBNHenKhamAsync(tuNgay, denNgay, idChiNhanh, idPhong, idDichVuKyThuat, idNhomDichVu);
+
+
+            if (!data.Any())
+                return new BadRequestObjectResult("Không có dữ liệu để xuất PDF");
+
+            
+
+            // 2. Lấy logo
+            var logoPath = Path.Combine(_env.WebRootPath, "dist", "img", "logo.png");
+
+            // 3. Lấy thông tin doanh nghiệp
+            var thongTinDoanhNghiep = await _localDb.ThongTinDoanhNghieps
+                .AsNoTracking()
+                .Where(x => idChiNhanh.HasValue && x.IDChiNhanh == idChiNhanh.Value)
+                .Select(x => new M0303ThongTinDoanhNghiep
+                {
+                    TenCSKCB = x.TenCSKCB ?? "",
+                    DiaChi = x.DiaChi ?? "",
+                    DienThoai = x.DienThoai ?? "",
+                    Email = x.Email ?? "",
+                    Website = x.Website ?? "",
+                    MaCSKCB = x.MaCSKCB ?? ""
+                })
+                .FirstOrDefaultAsync();
+
+            // 4. Khởi tạo báo cáo
+            var document = new P0303BaoCaoThuTongHopDichVuTheoKhoaPhong(
+                data,
+                tuNgay,
+                denNgay,
+                idPhong,
+                idDichVuKyThuat,
+                logoPath,
+                thongTinDoanhNghiep,
+                idNhomDichVu
+            );
+
+            // 5. Đọc danh sách nhóm dịch vụ từ JSON
+            var nhomDichVuJson = await System.IO.File.ReadAllTextAsync(
+                Path.Combine(_env.WebRootPath, "dist/data/json/DM_NhomDichVuKyThuat.json")
+            );
+            document._nhomdichvukythuatList = JsonConvert.DeserializeObject<List<M0303NhomDichVuKyThuat>>(nhomDichVuJson);
+
+            // 6. Đọc danh sách dịch vụ kỹ thuật từ JSON
+            var dichVuJson = await System.IO.File.ReadAllTextAsync(
+                Path.Combine(_env.WebRootPath, "dist/data/json/DM_DichVuKyThuat.json")
+            );
+            document._dichvukythuatList = JsonConvert.DeserializeObject<List<M0303DichVuKyThuat>>(dichVuJson);
+
+            // 7. Đọc danh sách phòng từ JSON (nếu cần)
+            var phongJson = await System.IO.File.ReadAllTextAsync(
+                Path.Combine(_env.WebRootPath, "dist/data/json/DM_PhongBuong.json")
+            );
+            document._nhomphongList = JsonConvert.DeserializeObject<List<M0303Phong>>(phongJson);
+
+            // 8. Generate PDF
+            var stream = new MemoryStream();
+            document.GeneratePdf(stream);
+            stream.Position = 0;
+
+            return new FileStreamResult(stream, "application/pdf")
+            {
+                FileDownloadName = $"BaoCaoBacSi_{DateTime.Now:yyyyMMddHHmmss}.pdf"
+            };
+        }
+
+        public async Task<IActionResult> ExportExcel(
+DateTime? tuNgay,
+DateTime? denNgay,
+int? idChiNhanh,
+int idPhong = 0,
+int idDichVuKyThuat = 0,
+int idNhomDichVu = 0)
+        {
+            try
+            {
+                // 1. Lấy dữ liệu đã lọc
+                var data = await GetBNHenKhamAsync(tuNgay, denNgay, idChiNhanh, idPhong, idDichVuKyThuat, idNhomDichVu);
+                if (!data.Any())
+                    return new BadRequestObjectResult("Không có dữ liệu để xuất Excel");
+
+                // 2. Thông tin doanh nghiệp
+                var thongTinDoanhNghiep = await _localDb.ThongTinDoanhNghieps
+                    .AsNoTracking()
+                    .Where(x => idChiNhanh.HasValue && x.IDChiNhanh == idChiNhanh.Value)
+                    .Select(x => new M0303ThongTinDoanhNghiep
+                    {
+                        TenCoQuanChuyenMon = "SỞ Y TẾ TP. HỒ CHÍ MINH",
+                        TenCSKCB = x.TenCSKCB ?? "",
+                        DiaChi = x.DiaChi ?? "",
+                        DienThoai = x.DienThoai ?? "",
+                        Email = x.Email ?? "",
+                        Website = x.Website ?? "",
+                        MaCSKCB = x.MaCSKCB ?? ""
+                    }).FirstOrDefaultAsync();
+
+                thongTinDoanhNghiep ??= new M0303ThongTinDoanhNghiep
+                {
+                    TenCoQuanChuyenMon = "SỞ Y TẾ TP. HỒ CHÍ MINH",
+                    TenCSKCB = "BỆNH VIỆN UNG BƯỚU",
+                    DiaChi = "Số 3 Nơ Trang Long, Phường 12, Quận Bình Thạnh, TP. Hồ Chí Minh",
+                    DienThoai = "(028) 38433022"
+                };
+
+                // 3. Load JSON danh mục dịch vụ kỹ thuật
+                var pathDichVu = Path.Combine(_env.WebRootPath, "dist/data/json/DM_DichVuKyThuat.json");
+                var dichVuList = JsonConvert.DeserializeObject<List<M0303DichVuKyThuat>>(
+                    await System.IO.File.ReadAllTextAsync(pathDichVu)) ?? new List<M0303DichVuKyThuat>();
+
+                // 4. Load JSON nhóm dịch vụ
+                var pathNhomDV = Path.Combine(_env.WebRootPath, "dist/data/json/DM_NhomDichVuKyThuat.json");
+                var nhomDichVuList = JsonConvert.DeserializeObject<List<M0303NhomDichVuKyThuat>>(
+                    await System.IO.File.ReadAllTextAsync(pathNhomDV)) ?? new List<M0303NhomDichVuKyThuat>();
+
+                if (idNhomDichVu > 0)
+                    nhomDichVuList = nhomDichVuList.Where(n => n.id == idNhomDichVu).ToList();
+
+                // 5. Load JSON phòng
+                var pathPhong = Path.Combine(_env.WebRootPath, "dist/data/json/DM_PhongBuong.json");
+                var phongListJson = JsonConvert.DeserializeObject<List<M0303Phong>>(
+                    await System.IO.File.ReadAllTextAsync(pathPhong)) ?? new List<M0303Phong>();
+
+                var phongList = phongListJson
+                    .Where(p => data.Any(d => d.IdPhong == p.id))
+                    .OrderBy(x => x.id)
+                    .Select(p => new { p.id, p.ten }).ToList();
+
+                // 6. Tạo workbook Excel
+                using var workbook = new XLWorkbook();
+                var ws = workbook.Worksheets.Add("BÁO CÁO TỔNG HỢP DỊCH VỤ");
+
+                // 6a. Logo
+                var logoPath = Path.Combine(_env.WebRootPath, "dist", "img", "logo.png");
+                if (System.IO.File.Exists(logoPath))
+                {
+                    ws.Range("A1:A4").Merge();
+                    ws.Column(1).Width = 20;
+                    ws.Column(2).Width = 40;
+                    var img = ws.AddPicture(logoPath)
+                                .MoveTo(ws.Cell("A1"), 5, 5)
+                                .WithPlacement(XLPicturePlacement.FreeFloating)
+                                .Scale(0.25);
+                }
+
+
+                string tenCoQuan = thongTinDoanhNghiep.TenCoQuanChuyenMon;
+                string tenCSKCB = thongTinDoanhNghiep.TenCSKCB;
+                bool hienTenCSKCB = !string.Equals(tenCoQuan.Trim(), tenCSKCB.Trim(), StringComparison.OrdinalIgnoreCase);
+                string diaChi = thongTinDoanhNghiep.DiaChi;
+                string dienThoai = thongTinDoanhNghiep.DienThoai;
+
+                ws.Cell("B1").Value = tenCoQuan;
+                ws.Cell("B1").Style.Font.SetBold().Font.FontName = "Times New Roman".ToString();
+                ws.Cell("B1").Style.Font.FontSize = 10;
+                ws.Cell("B1").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+                ws.Cell("B1").Style.Alignment.Indent = 10;
+                ws.Row(1).Height = 20;
+
+                if (hienTenCSKCB)
+                {
+                    ws.Cell("B2").Value = tenCSKCB;
+                    ws.Cell("B2").Style.Font.FontName = "Times New Roman".ToString();
+                    ws.Cell("B2").Style.Font.FontSize = 10;
+                    ws.Cell("B2").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+                    ws.Cell("B2").Style.Alignment.Indent = 10;
+                    ws.Row(2).Height = 20;
+                }
+
+                ws.Cell("B3").Value = diaChi;
+                ws.Cell("B3").Style.Font.FontName = "Times New Roman";
+                ws.Cell("B3").Style.Font.FontSize = 10;
+                ws.Cell("B3").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+                ws.Cell("B3").Style.Alignment.Indent = 10;
+                ws.Row(3).Height = 20;
+
+                ws.Cell("B4").Value = $"Điện thoại: {dienThoai}";
+                ws.Cell("B4").Style.Font.FontName = "Times New Roman";
+                ws.Cell("B4").Style.Font.FontSize = 10;
+                ws.Cell("B4").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+                ws.Cell("B4").Style.Alignment.Indent = 10;
+                ws.Row(4).Height = 20;
+
+                // 7. Tiêu đề báo cáo
+                ws.Range("A6:P6").Merge().Value = "BÁO CÁO TỔNG HỢP DỊCH VỤ THEO KHOA/PHÒNG";
+                ws.Range("A6:P6").Style.Font.Bold = true;
+                ws.Range("A6:P6").Style.Font.FontSize = 20;
+                ws.Range("A6:P6").Style.Font.FontName = "Times New Roman";
+                ws.Range("A6:P6").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                ws.Range("A6:P6").Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                ws.Row(6).Height = 40;
+
+                string thoiGianThongKe = tuNgay.HasValue && denNgay.HasValue
+                    ? $"Từ ngày {tuNgay.Value:dd-MM-yyyy} đến ngày {denNgay.Value:dd-MM-yyyy}"
+                    : "Toàn bộ thời gian";
+
+                ws.Range("A7:P7").Merge().Value = thoiGianThongKe;
+                ws.Range("A7:P7").Style.Font.Bold = true;
+                ws.Range("A7:P7").Style.Font.FontSize = 12;
+                ws.Range("A7:P7").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                ws.Row(7).Height = 20;
+
+                // 7. Header STT, Dịch vụ, các phòng, Tổng cộng
+                int startRow = 9;
+                int col = 1;
+                ws.Cell(startRow, col++).Value = "STT";
+                ws.Cell(startRow, col++).Value = "Dịch vụ";
+                foreach (var phong in phongList)
+                    ws.Cell(startRow, col++).Value = phong.ten;
+                ws.Cell(startRow, col++).Value = "Tổng cộng";
+
+                ws.Range(startRow, 1, startRow, col - 1).Style.Font.Bold = true;
+                ws.Range(startRow, 1, startRow, col - 1).Style.Fill.BackgroundColor = XLColor.LightGray;
+                ws.Range(startRow, 1, startRow, col - 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+                // 8. Dữ liệu chi tiết
+                int row = startRow + 1;
+                decimal tongTatCa = 0;
+
+                foreach (var nhom in nhomDichVuList)
+                {
+                    var dsDichVu = dichVuList.Where(dv => dv.idNhomDichVu == nhom.id).ToList();
+                    if (!dsDichVu.Any()) continue;
+
+                    // Tính tổng theo phòng
+                    var tongTheoPhong = phongList.Select(p =>
+                        dsDichVu.Sum(dv => data.Where(x => x.IdDichVuKyThuat == dv.id && x.IdPhong == p.id).Sum(x => x.Gia ?? 0))
+                    ).ToList();
+                    var tongNhom = tongTheoPhong.Sum();
+                    tongTatCa += tongNhom;
+
+                    // --- Hàng nhóm dịch vụ: merge cột 1 (STT) + 2 (Dịch vụ) ---
+                    var nhomRange = ws.Range(row, 1, row, 2);
+                    nhomRange.Merge();
+                    nhomRange.Value = nhom.ten;
+                    nhomRange.Style.Font.Bold = true;
+                    nhomRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+                    nhomRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                    nhomRange.Style.Alignment.Indent = 1;
+
+                    // Tổng các phòng
+                    col = 3;
+                    foreach (var tong in tongTheoPhong)
+                    {
+                        var cell = ws.Cell(row, col++);
+                        cell.Value = tong == 0 ? "" : tong;
+                        cell.Style.Font.Bold = true;
+                        cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+                        if (tong != 0) cell.Style.NumberFormat.Format = "#,##0";
+                    }
+
+                    var cellTongNhom = ws.Cell(row, col++);
+                    cellTongNhom.Value = tongNhom == 0 ? "" : tongNhom;
+                    cellTongNhom.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+                    cellTongNhom.Style.Font.Bold = true;           // làm đậm ngay dòng nhóm
+                    if (tongNhom != 0) cellTongNhom.Style.NumberFormat.Format = "#,##0";
+
+                    ws.Row(row).Height = 18;
+                    row++;
+
+                    // Hàng dịch vụ
+                    int dvIndex = 1;
+                    foreach (var dv in dsDichVu)
+                    {
+                        col = 1;
+                        var cellSTT = ws.Cell(row, col++);
+                        cellSTT.Value = dvIndex++;
+                        cellSTT.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+                        ws.Cell(row, col++).Value = dv.ten; // Dịch vụ
+
+                        decimal tongDV = 0;
+                        foreach (var phong in phongList)
+                        {
+                            var gia = data.Where(d => d.IdDichVuKyThuat == dv.id && d.IdPhong == phong.id).Sum(d => d.Gia ?? 0);
+                            var cellGia = ws.Cell(row, col++);
+                            cellGia.Value = gia == 0 ? "" : gia;
+                            cellGia.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+                            if (gia != 0) cellGia.Style.NumberFormat.Format = "#,##0";
+                            tongDV += gia;
+                        }
+                        var cellTongDV = ws.Cell(row, col++);
+                        cellTongDV.Value = tongDV == 0 ? "" : tongDV;
+                        cellTongDV.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+                        if (tongDV != 0) cellTongDV.Style.NumberFormat.Format = "#,##0";
+
+                        row++;
+                    }
+                }
+
+                // 9. Tổng cuối
+                // 9. Tổng cuối (merge tất cả cột trừ cột Tổng cộng)
+                int totalCol = 3 + phongList.Count; // cột Tổng cộng
+                ws.Range(row, 1, row, totalCol - 1).Merge(); // merge từ STT -> cột trước Tổng cộng
+                ws.Range(row, 1, row, totalCol - 1).Value = ""; // để trống
+                var cellTongTatCa = ws.Cell(row, totalCol);
+                cellTongTatCa.Value = tongTatCa == 0 ? "" : tongTatCa;
+                cellTongTatCa.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+                if (tongTatCa != 0) cellTongTatCa.Style.NumberFormat.Format = "#,##0";
+                ws.Range(row, 1, row, totalCol).Style.Font.Bold = true;
+                ws.Row(row).Height = 18;
+
+
+                // 10. Set width cột
+                ws.Column(1).Width = 6;    // STT
+                ws.Column(2).Width = 80;   // Dịch vụ
+                ws.Column(2).Style.Alignment.WrapText = true;
+
+                for (int i = 0; i < phongList.Count; i++)
+                    ws.Column(3 + i).Width = 25; // các phòng
+
+                ws.Column(3 + phongList.Count).Width = 15; // Tổng cộng
+
+                // 11. Định dạng bảng & border
+                var dataRange = ws.Range(startRow, 1, row, 3 + phongList.Count);
+                dataRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                dataRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+
+                // 12. Xuất file
+                using var stream = new MemoryStream();
+                workbook.SaveAs(stream);
+                stream.Position = 0;
+
+                return File(stream.ToArray(),
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    $"BaoCaoTongHopDichVu_{DateTime.Now:yyyyMMddHHmmss}.xlsx");
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult(ex.Message);
+            }
+        }
+
+
+
+
+    }
+}
