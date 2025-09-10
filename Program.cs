@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Nam_ThongKeSoLuongBNHenTaiKham.Models;
 using Nam_ThongKeSoLuongBNHenTaiKham.Models.M0303;
 using Nam_ThongKeSoLuongBNHenTaiKham.Service;
@@ -16,11 +17,12 @@ builder.Services.AddScoped<I0303BaoCaoDoiSoatBIDV, S0303BaoCaoDoiSoatBIDV>();
 builder.Services.AddScoped<IC0303BaoCaoBacSiDocKQ, S0303BaoCaoBacSiDocKQ>();
 builder.Services.AddScoped<I0303DanhSachBNThucHienTheoThietBi, S0303DanhSachBNThucHienTheoThietBi>();
 builder.Services.AddScoped<I0303BaoCaoTongHopThuVienPhiTrucTiep, S0303BaoCaoTongHopThuVienPhiTrucTiep>();
-
+builder.Services.AddScoped<I0303BaoCaoThuTongHopDichVuTheoKhoaPhong, S0303BaoCaoThuTongHopDichVuTheoKhoaPhong>();
+builder.Services.AddScoped<I0303LayPhieuNhapKhoInGop, S0303LayPhieuNhapKhoInGop>();
 
 
 builder.Services.AddDbContext<Context0303>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("Connection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddHttpContextAccessor();
 
