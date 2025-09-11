@@ -16,16 +16,69 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
         private readonly Context0303 _localDb;
         private readonly IWebHostEnvironment _env;
         private readonly ILogger<S0303BaoCaoThuTongHopDichVuTheoKhoaPhong> _logger;
+        private readonly IHttpClientFactory _httpClientFactory;
 
         public S0303BaoCaoThuTongHopDichVuTheoKhoaPhong(
             Context0303 localDb,
             IWebHostEnvironment env,
-            ILogger<S0303BaoCaoThuTongHopDichVuTheoKhoaPhong> logger)
+            ILogger<S0303BaoCaoThuTongHopDichVuTheoKhoaPhong> logger,
+            IHttpClientFactory httpClientFactory)
         {
             _localDb = localDb;
             _env = env;
             _logger = logger;
+            _httpClientFactory = httpClientFactory;
         }
+
+        //public async Task<object> FilterByDayAsync(string tuNgay, string denNgay, int idChiNhanh, int idNhomKyThuat, int idPhong)
+        //{
+        //    try
+        //    {
+        //        object paramTuNgay = string.IsNullOrEmpty(tuNgay)
+        //            ? (object)DBNull.Value
+        //            : DateTime.ParseExact(tuNgay, "yyyy-MM-dd", null).ToString("dd-MM-yyyy");
+
+        //        object paramDenNgay = string.IsNullOrEmpty(denNgay)
+        //            ? (object)DBNull.Value
+        //            : DateTime.ParseExact(denNgay, "yyyy-MM-dd", null).ToString("dd-MM-yyyy");
+
+        //        var data = await _localDb.Set<M0303BaoCaoThuTongHopDichVuTheoKhoaPhongSTO>()
+        //            .FromSqlRaw(@"EXEC S0303_BaoCaoTongHopDichVuTheoKhoaPhong @TuNgay, @DenNgay, @IDCN, @IdNhomKyThuat, @IdPhong",
+        //                new SqlParameter("@TuNgay", paramTuNgay),
+        //                new SqlParameter("@DenNgay", paramDenNgay),
+        //                new SqlParameter("@IDCN", idChiNhanh),
+        //                new SqlParameter("@idNhomKyThuat", idNhomKyThuat),
+        //                new SqlParameter("@IdPhong", idPhong))
+        //            .AsNoTracking()
+        //            .ToListAsync();
+
+        //        var thongTinDoanhNghiep = await _localDb.ThongTinDoanhNghieps
+        //            .AsNoTracking()
+        //            .Where(x => x.IDChiNhanh == idChiNhanh)
+        //            .Select(x => new
+        //            {
+        //                TenCSKCB = x.TenCSKCB ?? "",
+        //                DiaChi = x.DiaChi ?? "",
+        //                DienThoai = x.DienThoai ?? "",
+        //                Email = x.Email ?? "",
+        //                Website = x.Website ?? "",
+        //                MaCSKCB = x.MaCSKCB ?? ""
+        //            })
+        //            .FirstOrDefaultAsync();
+
+        //        return new
+        //        {
+        //            success = true,
+        //            data,
+        //            thongTinDoanhNghiep
+        //        };
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine($"❌ LỖI: {ex.Message}");
+        //        return new { success = false, error = ex.Message };
+        //    }
+        //}
 
         public async Task<object> FilterByDayAsync(string tuNgay, string denNgay, int idChiNhanh, int idNhomKyThuat, int idPhong)
         {
@@ -40,12 +93,12 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                     : DateTime.ParseExact(denNgay, "yyyy-MM-dd", null).ToString("dd-MM-yyyy");
 
                 var data = await _localDb.Set<M0303BaoCaoThuTongHopDichVuTheoKhoaPhongSTO>()
-                    .FromSqlRaw(@"EXEC S0303_BaoCaoTongHopDichVuTheoKhoaPhong @TuNgay, @DenNgay, @IDCN, @IdNhomKyThuat, @IdPhong",
+                    .FromSqlRaw(@"EXEC S0305_BaoCaoTongHopDichVuTheoKhoaPhong @TuNgay, @DenNgay, @IDCN, @IDDVKT, @IDPhongBuong",
                         new SqlParameter("@TuNgay", paramTuNgay),
                         new SqlParameter("@DenNgay", paramDenNgay),
                         new SqlParameter("@IDCN", idChiNhanh),
-                        new SqlParameter("@idNhomKyThuat", idNhomKyThuat),
-                        new SqlParameter("@IdPhong", idPhong))
+                        new SqlParameter("@IDDVKT", idNhomKyThuat),
+                        new SqlParameter("@IDPhongBuong", idPhong))
                     .AsNoTracking()
                     .ToListAsync();
 
@@ -77,15 +130,64 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
             }
         }
 
-        public async Task<List<M0303BaoCaoThuTongHopDichVuTheoKhoaPhongSTO>> GetBNHenKhamAsync(
-        DateTime? tuNgay,
-        DateTime? denNgay,
-        int? idChiNhanh,
-        int idPhong = 0,
-        int idDichVuKyThuat = 0,
-        int idNhomDichVu = 0)
+
+       
+
+        public async Task<List<M0303NhomDichVuKyThuat>> GetNhomDVKT()
         {
-            _logger.LogInformation("DEBUG: idNhomDichVu = {idNhomDichVu}", idNhomDichVu);
+            var nhomDVKT = await _localDb.Set<M0303BaoCaoThuTongHopDichVuTheoKhoaPhongSTO>()
+                .FromSqlRaw(@"SELECT ID AS IDNhomDVKT, TenDichVu AS TenNhomDichVu FROM [dbo].[DM_NhomDichVuKyThuat]")
+                .Select(ndvkt => new M0303NhomDichVuKyThuat
+                {
+                    id = ndvkt.IDNhomDVKT,
+                    ten = ndvkt.TenNhomDichVu ?? ""
+                })
+                .ToListAsync();
+
+            return nhomDVKT;
+        }
+
+        public async Task<List<M0303Phong>> GetDSPhongBuong()
+        {
+            var dsPhongBuong = await _localDb.Set<M0303BaoCaoThuTongHopDichVuTheoKhoaPhongSTO>()
+                .FromSqlRaw(@"SELECT ID AS IDPhongBuong, TenPhong FROM [dbo].[DM_PhongBuong]")
+                .Select(dspb => new M0303Phong
+                {
+                    id = dspb.IDPhongBuong,
+                    ten = dspb.TenPhong ?? ""
+                })
+                .ToListAsync();
+
+            return dsPhongBuong;
+        }
+
+        public async Task<List<M0303DichVuKyThuat>> GetDSDichVuKyThuat()
+        {
+            var dsDichVuKyThuat = await _localDb.Set<M0303BaoCaoThuTongHopDichVuTheoKhoaPhongSTO>()
+                .FromSqlRaw(@"
+                        SELECT dvkt.ID AS IDDVKT, dvkt.TenDichVu, ndvkt.ID as IDNhomDVKT, ndvkt.TenDichVu as TenNhomDichVu
+	                    FROM [dbo].[DM_DichVuKyThuat] dvkt , [dbo].[DM_NhomDichVuKyThuat] ndvkt  
+	                    Where dvkt.IDNhomDichVu  = ndvkt.ID")
+                .Select(dsdvkt => new M0303DichVuKyThuat
+                {
+                    id = dsdvkt.IDDVKT,
+                    idNhomDichVu = dsdvkt.IDNhomDVKT,
+                    ten = dsdvkt.TenDichVu ?? ""
+                })
+                .ToListAsync();
+
+            return dsDichVuKyThuat;
+        }
+
+        public async Task<List<M0303BaoCaoThuTongHopDichVuTheoKhoaPhongSTO>> GetBNHenKhamAsync(
+            DateTime? tuNgay,
+            DateTime? denNgay,
+            int? idChiNhanh,
+            int idPhong = 0,
+            int idDichVuKyThuat = 0,
+            int idNhomDichVu = 0)
+        {
+        
 
             string tuNgayStr = tuNgay?.ToString("dd/MM/yyyy") ?? DateTime.Now.ToString("dd/MM/yyyy");
             string denNgayStr = denNgay?.ToString("dd/MM/yyyy") ?? DateTime.Now.ToString("dd/MM/yyyy");
@@ -93,34 +195,36 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
 
             var data = await _localDb.M0303BaoCaoThuTongHopDichVuTheoKhoaPhongSTOs
                 .FromSqlInterpolated($@"
-                EXEC S0303_BaoCaoTongHopDichVuTheoKhoaPhong 
-                @TuNgay = {tuNgayStr}, 
-                @DenNgay = {denNgayStr}, 
-                @IDCN = {idCN}, 
-                @IdPhong = {idPhong}, 
-                @IdDichVuKyThuat = 0")
+                    EXEC S0305_BaoCaoTongHopDichVuTheoKhoaPhong 
+                    @TuNgay = {tuNgayStr}, 
+                    @DenNgay = {denNgayStr}, 
+                    @IDCN = {idCN}, 
+                    @IDPhongBuong = {idPhong}, 
+                    @IDDVKT = {idDichVuKyThuat}")
                 .ToListAsync();
 
-            string jsonFile = Path.Combine("wwwroot", "dist/data/json/DM_DichVuKyThuat.json");
-            var jsonData = await System.IO.File.ReadAllTextAsync(jsonFile);
-            var dsDichVu = JsonConvert.DeserializeObject<List<M0303DichVuKyThuat>>(jsonData);
+            //string jsonFile = Path.Combine("wwwroot", "dist/data/json/DM_DichVuKyThuat.json");
+            //var jsonData = await System.IO.File.ReadAllTextAsync(jsonFile);
+            //var dsDichVu = JsonConvert.DeserializeObject<List<M0303DichVuKyThuat>>(jsonData);
 
-            if (dsDichVu != null && idNhomDichVu != 0)
-            {
-                var dsIds = dsDichVu
-                    .Where(x => x.idNhomDichVu == idNhomDichVu)
-                    .Select(x => x.id)
-                    .ToList();
+            //if (dsDichVu != null && idNhomDichVu != 0)
+            //{
+            //    var dsIds = dsDichVu
+            //        .Where(x => x.idNhomDichVu == idNhomDichVu)
+            //        .Select(x => x.id)
+            //        .ToList();
 
-                _logger.LogInformation("DEBUG: dsIds.Count = {count}", dsIds.Count);
+            //    _logger.LogInformation("DEBUG: dsIds.Count = {count}", dsIds.Count);
 
-                data = data.Where(x => x.IdDichVuKyThuat.HasValue && dsIds.Contains((int)x.IdDichVuKyThuat.Value)).ToList();
+            //    data = data.Where(x => x.IdDichVuKyThuat.HasValue && dsIds.Contains((int)x.IdDichVuKyThuat.Value)).ToList();
 
-                _logger.LogInformation("DEBUG: data.Count sau khi lọc = {count}", data.Count);
-            }
+            //    _logger.LogInformation("DEBUG: data.Count sau khi lọc = {count}", data.Count);
+            //}
+            data.ForEach(item => _logger.LogWarning(item.TenDichVu));
 
             return data;
         }
+
 
         public async Task<IActionResult> ExportToPDF(
       DateTime? tuNgay,
@@ -137,7 +241,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
             if (!data.Any())
                 return new BadRequestObjectResult("Không có dữ liệu để xuất PDF");
 
-            
+
 
             // 2. Lấy logo
             var logoPath = Path.Combine(_env.WebRootPath, "dist", "img", "logo.png");
@@ -170,22 +274,28 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
             );
 
             // 5. Đọc danh sách nhóm dịch vụ từ JSON
-            var nhomDichVuJson = await System.IO.File.ReadAllTextAsync(
-                Path.Combine(_env.WebRootPath, "dist/data/json/DM_NhomDichVuKyThuat.json")
-            );
-            document._nhomdichvukythuatList = JsonConvert.DeserializeObject<List<M0303NhomDichVuKyThuat>>(nhomDichVuJson);
+            //var nhomDichVuJson = await System.IO.File.ReadAllTextAsync(
+            //    Path.Combine(_env.WebRootPath, "dist/data/json/DM_NhomDichVuKyThuat.json")
+            //);
+            //document._nhomdichvukythuatList = JsonConvert.DeserializeObject<List<M0303NhomDichVuKyThuat>>(nhomDichVuJson);
+
+            document._nhomdichvukythuatList = await this.GetNhomDVKT();
 
             // 6. Đọc danh sách dịch vụ kỹ thuật từ JSON
-            var dichVuJson = await System.IO.File.ReadAllTextAsync(
-                Path.Combine(_env.WebRootPath, "dist/data/json/DM_DichVuKyThuat.json")
-            );
-            document._dichvukythuatList = JsonConvert.DeserializeObject<List<M0303DichVuKyThuat>>(dichVuJson);
+            //var dichVuJson = await System.IO.File.ReadAllTextAsync(
+            //    Path.Combine(_env.WebRootPath, "dist/data/json/DM_DichVuKyThuat.json")
+            //);
+            //document._dichvukythuatList = JsonConvert.DeserializeObject<List<M0303DichVuKyThuat>>(dichVuJson);
+
+            document._dichvukythuatList = await this.GetDSDichVuKyThuat();
 
             // 7. Đọc danh sách phòng từ JSON (nếu cần)
-            var phongJson = await System.IO.File.ReadAllTextAsync(
-                Path.Combine(_env.WebRootPath, "dist/data/json/DM_PhongBuong.json")
-            );
-            document._nhomphongList = JsonConvert.DeserializeObject<List<M0303Phong>>(phongJson);
+            //var phongJson = await System.IO.File.ReadAllTextAsync(
+            //    Path.Combine(_env.WebRootPath, "dist/data/json/DM_PhongBuong.json")
+            //);
+            //document._nhomphongList = JsonConvert.DeserializeObject<List<M0303Phong>>(phongJson);
+            document._nhomphongList = await this.GetDSPhongBuong();
+
 
             // 8. Generate PDF
             var stream = new MemoryStream();
@@ -237,25 +347,28 @@ int idNhomDichVu = 0)
                 };
 
                 // 3. Load JSON danh mục dịch vụ kỹ thuật
-                var pathDichVu = Path.Combine(_env.WebRootPath, "dist/data/json/DM_DichVuKyThuat.json");
-                var dichVuList = JsonConvert.DeserializeObject<List<M0303DichVuKyThuat>>(
-                    await System.IO.File.ReadAllTextAsync(pathDichVu)) ?? new List<M0303DichVuKyThuat>();
+                //var pathDichVu = Path.Combine(_env.WebRootPath, "dist/data/json/DM_DichVuKyThuat.json");
+                //var dichVuList = JsonConvert.DeserializeObject<List<M0303DichVuKyThuat>>(
+                //    await System.IO.File.ReadAllTextAsync(pathDichVu)) ?? new List<M0303DichVuKyThuat>();
+                var dichVuList = await this.GetDSDichVuKyThuat();
 
                 // 4. Load JSON nhóm dịch vụ
-                var pathNhomDV = Path.Combine(_env.WebRootPath, "dist/data/json/DM_NhomDichVuKyThuat.json");
-                var nhomDichVuList = JsonConvert.DeserializeObject<List<M0303NhomDichVuKyThuat>>(
-                    await System.IO.File.ReadAllTextAsync(pathNhomDV)) ?? new List<M0303NhomDichVuKyThuat>();
+                //var pathNhomDV = Path.Combine(_env.WebRootPath, "dist/data/json/DM_NhomDichVuKyThuat.json");
+                //var nhomDichVuList = JsonConvert.DeserializeObject<List<M0303NhomDichVuKyThuat>>(
+                //    await System.IO.File.ReadAllTextAsync(pathNhomDV)) ?? new List<M0303NhomDichVuKyThuat>();
+                var nhomDichVuList = await this.GetNhomDVKT();
 
                 if (idNhomDichVu > 0)
                     nhomDichVuList = nhomDichVuList.Where(n => n.id == idNhomDichVu).ToList();
 
                 // 5. Load JSON phòng
-                var pathPhong = Path.Combine(_env.WebRootPath, "dist/data/json/DM_PhongBuong.json");
-                var phongListJson = JsonConvert.DeserializeObject<List<M0303Phong>>(
-                    await System.IO.File.ReadAllTextAsync(pathPhong)) ?? new List<M0303Phong>();
+                //var pathPhong = Path.Combine(_env.WebRootPath, "dist/data/json/DM_PhongBuong.json");
+                //var phongListJson = JsonConvert.DeserializeObject<List<M0303Phong>>(
+                //    await System.IO.File.ReadAllTextAsync(pathPhong)) ?? new List<M0303Phong>();
+                var phongListJson = await this.GetDSPhongBuong();
 
                 var phongList = phongListJson
-                    .Where(p => data.Any(d => d.IdPhong == p.id))
+                    .Where(p => data.Any(d => d.IDPhongBuong == p.id))
                     .OrderBy(x => x.id)
                     .Select(p => new { p.id, p.ten }).ToList();
 
@@ -357,7 +470,7 @@ int idNhomDichVu = 0)
 
                     // Tính tổng theo phòng
                     var tongTheoPhong = phongList.Select(p =>
-                        dsDichVu.Sum(dv => data.Where(x => x.IdDichVuKyThuat == dv.id && x.IdPhong == p.id).Sum(x => x.Gia ?? 0))
+                        dsDichVu.Sum(dv => data.Where(x => x.IDDVKT == dv.id && x.IDPhongBuong == p.id).Sum(x => (decimal?)x.GiaTien ?? 0))
                     ).ToList();
                     var tongNhom = tongTheoPhong.Sum();
                     tongTatCa += tongNhom;
@@ -405,7 +518,7 @@ int idNhomDichVu = 0)
                         decimal tongDV = 0;
                         foreach (var phong in phongList)
                         {
-                            var gia = data.Where(d => d.IdDichVuKyThuat == dv.id && d.IdPhong == phong.id).Sum(d => d.Gia ?? 0);
+                            var gia = data.Where(d => d.IDDVKT == dv.id && d.IDPhongBuong == phong.id).Sum(d => (decimal?)d.GiaTien ?? 0);
                             var cellGia = ws.Cell(row, col++);
                             cellGia.Value = gia == 0 ? "" : gia;
                             cellGia.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;

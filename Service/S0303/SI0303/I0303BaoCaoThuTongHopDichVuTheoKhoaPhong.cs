@@ -17,6 +17,11 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303.SI0303
                 int idNhomDichVu = 0
             );
 
+        Task<List<M0303NhomDichVuKyThuat>> GetNhomDVKT();
+        Task<List<M0303Phong>> GetDSPhongBuong();
+
+        Task<List<M0303DichVuKyThuat>> GetDSDichVuKyThuat();
+
         Task<IActionResult> ExportExcel(DateTime? tuNgay, DateTime? denNgay, int? idChiNhanh, int idPhong, int idDichVuKyThuat, int idNhomDichVu);
     }
 }

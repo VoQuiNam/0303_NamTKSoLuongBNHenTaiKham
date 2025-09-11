@@ -74,7 +74,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
 
             // Lọc phòng chỉ lấy những phòng có dữ liệu
             var phongListHienThi = phongList
-                .Where(p => filteredData.Any(d => d.IdPhong.HasValue && d.IdPhong.Value == p.id))
+                .Where(p => filteredData.Any(d => d.IDPhongBuong.HasValue && d.IDPhongBuong.Value == p.id))
                 .OrderBy(p => p.ten)
                 .ToList();
 
@@ -95,17 +95,19 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                             {
                                 PhongId = phong.id,
                                 Gia = filteredData
-                                    .Where(x => x.IdDichVuKyThuat.HasValue &&
-                                                x.IdDichVuKyThuat.Value == dv.id &&
-                                                x.IdPhong.HasValue &&
-                                                x.IdPhong.Value == phong.id)
-                                    .Select(x => x.Gia ?? 0m)
+                                    .Where(x => x.IDDVKT.HasValue &&
+                                                x.IDDVKT.Value == dv.id &&
+                                                x.IDPhongBuong.HasValue &&
+                                                x.IDPhongBuong.Value == phong.id)
+                                    .Select(x => (decimal?)(x.GiaTien) ?? 0m)
+
                                     .Sum()
                             }).ToList(),
                             TongGia = filteredData
-                                .Where(x => x.IdDichVuKyThuat.HasValue &&
-                                            x.IdDichVuKyThuat.Value == dv.id)
-                                .Select(x => x.Gia ?? 0m)
+                                .Where(x => x.IDDVKT.HasValue &&
+                                            x.IDDVKT.Value == dv.id)
+                                .Select(x => (decimal?)(x.GiaTien) ?? 0m)
+
                                 .Sum()
                         })
                         .ToList()
