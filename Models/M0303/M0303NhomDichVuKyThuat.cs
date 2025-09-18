@@ -2,7 +2,7 @@
 {
     public class M0303NhomDichVuKyThuat
     {
-        public int id { get; set; }
+        public long? id { get; set; }
         public string ma { get; set; }
         public string ten { get; set; }
     }

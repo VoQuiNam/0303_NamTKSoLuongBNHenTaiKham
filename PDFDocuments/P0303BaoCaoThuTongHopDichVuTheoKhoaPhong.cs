@@ -49,15 +49,11 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
 
         public void Compose(IDocumentContainer container)
         {
-            Console.WriteLine($"== DEBUG: _idNhomDichVu trong Compose = {_idNhomDichVu}");
-
             var tuNgayStr = _tuNgay?.ToString("dd-MM-yyyy") ?? "__";
             var denNgayStr = _denNgay?.ToString("dd-MM-yyyy") ?? "__";
 
-            // Copy dữ liệu readonly vào danh sách làm việc
+            // Lọc dữ liệu theo ngày nếu có
             var filteredData = _data;
-
-            // Lọc theo ngày nếu có
             if (_tuNgay != null && _denNgay != null)
             {
                 filteredData = _data.Where(x =>
@@ -67,63 +63,25 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                 ).ToList();
             }
 
-            // Chuẩn bị danh sách phòng, dịch vụ và nhóm dịch vụ
+            // Lọc theo idNhomDichVu / idDichVuKyThuat nếu có
+            filteredData = filteredData
+                .Where(d => (_idNhomDichVu == 0 || d.IDNhomDVKT == _idNhomDichVu)
+                         && (_idDichVuKyThuat == 0 || (d.IDDVKT.HasValue && d.IDDVKT.Value == _idDichVuKyThuat)))
+                .ToList();
+
             var phongList = _nhomphongList ?? new List<M0303Phong>();
-            var dichVuList = _dichvukythuatList ?? new List<M0303DichVuKyThuat>();
             var nhomDichVuList = _nhomdichvukythuatList ?? new List<M0303NhomDichVuKyThuat>();
 
-            // Lọc phòng chỉ lấy những phòng có dữ liệu
+            // Lấy tất cả phòng (không lọc theo dữ liệu)
             var phongListHienThi = phongList
-                .Where(p => filteredData.Any(d => d.IDPhongBuong.HasValue && d.IDPhongBuong.Value == p.id))
                 .OrderBy(p => p.ten)
                 .ToList();
-
-            // Lọc nhóm dịch vụ theo _idNhomDichVu
-            var nhomDVList = nhomDichVuList
-                .Where(n => _idNhomDichVu == 0 || n.id == _idNhomDichVu)
-                .Select(nhom => new
-                {
-                    Id = nhom.id,
-                    Ten = nhom.ten,
-                    DichVuList = dichVuList
-                        .Where(dv => dv.idNhomDichVu == nhom.id)
-                        .Select(dv => new
-                        {
-                            Id = dv.id,
-                            Ten = dv.ten,
-                            GiaTheoPhong = phongListHienThi.Select(phong => new
-                            {
-                                PhongId = phong.id,
-                                Gia = filteredData
-                                    .Where(x => x.IDDVKT.HasValue &&
-                                                x.IDDVKT.Value == dv.id &&
-                                                x.IDPhongBuong.HasValue &&
-                                                x.IDPhongBuong.Value == phong.id)
-                                    .Select(x => (decimal?)(x.GiaTien) ?? 0m)
-
-                                    .Sum()
-                            }).ToList(),
-                            TongGia = filteredData
-                                .Where(x => x.IDDVKT.HasValue &&
-                                            x.IDDVKT.Value == dv.id)
-                                .Select(x => (decimal?)(x.GiaTien) ?? 0m)
-
-                                .Sum()
-                        })
-                        .ToList()
-                })
-                .ToList();
-
-            int tongSoBanGhi = nhomDVList.Sum(n => n.DichVuList.Count);
 
             container.Page(page =>
             {
                 page.Size(PageSizes.A4.Landscape());
-                page.Margin(8);
-                page.DefaultTextStyle(x => x
-                    .FontFamily("Times New Roman")
-                    .FontSize(7)
-                );
+                page.Margin(20);
+                page.DefaultTextStyle(x => x.FontFamily("Times New Roman").FontSize(7));
 
                 // Header
                 page.Header().ShowOnce().Column(headerCol =>
@@ -147,18 +105,16 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                         {
                             col.Item().AlignRight().Text("BÁO CÁO TỔNG HỢP DỊCH VỤ THEO KHOA/PHÒNG").Bold().FontSize(9);
                             col.Item().AlignRight().Text($"Từ ngày: {tuNgayStr}   Đến ngày: {denNgayStr}").FontSize(6);
-                            col.Item().AlignRight().Text($"Tổng số dịch vụ: {tongSoBanGhi}").FontSize(6);
                         });
                     });
                     headerCol.Item().PaddingVertical(3).LineHorizontal(0.5f).LineColor(Colors.Grey.Medium);
                 });
 
-                // Nội dung
+                // Nội dung bảng
                 page.Content().Column(contentCol =>
                 {
                     contentCol.Item().Table(table =>
                     {
-                        // Columns
                         table.ColumnsDefinition(columns =>
                         {
                             columns.ConstantColumn(20); // STT
@@ -168,166 +124,107 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                             columns.RelativeColumn();   // Tổng cộng
                         });
 
-                        // Header
+                        // Header - SỬ DỤNG .Header() ĐỂ HIỂN THỊ TRÊN MỖI TRANG
                         table.Header(header =>
                         {
-                            header.Cell().Element(c => c.Background(Colors.Grey.Lighten3)
-                                                       .Border(0.5f)
-                                                       .AlignCenter()       // căn ngang
-                                                       .AlignMiddle()       // căn dọc
-                                                       .Text("STT").Bold().FontSize(7).LineHeight(1.6f));
-
-                            header.Cell().Element(c => c.Background(Colors.Grey.Lighten3)
-                                                       .Border(0.5f)
-                                                       .AlignCenter()
-                                                       .AlignMiddle()
-                                                       .Text("Dịch vụ").Bold().FontSize(7).LineHeight(1.6f));
-
+                            header.Cell().Element(c => c.Border(0.5f).AlignCenter().AlignMiddle().Text("STT").Bold().FontSize(7));
+                            header.Cell().Element(c => c.Border(0.5f).AlignCenter().AlignMiddle().Text("Dịch vụ").Bold().FontSize(7));
                             foreach (var phong in phongListHienThi)
-                                header.Cell().Element(c => c.Background(Colors.Grey.Lighten3)
-                                                           .Border(0.5f)
-                                                           .AlignCenter()
-                                                           .AlignMiddle()
-                                                           .Text(phong.ten).Bold().FontSize(6).LineHeight(1.6f));
-
-                            header.Cell().Element(c => c.Background(Colors.Grey.Lighten3)
-                                                       .Border(0.5f)
-                                                       .AlignCenter()
-                                                       .AlignMiddle()
-                                                       .Text("Tổng cộng").Bold().FontSize(7).LineHeight(1.6f));
+                                header.Cell().Element(c => c.Border(0.5f).AlignCenter().AlignMiddle().Text(phong.ten).Bold().FontSize(6));
+                            header.Cell().Element(c => c.Border(0.5f).AlignCenter().AlignMiddle().Text("Tổng cộng").Bold().FontSize(7));
                         });
 
+                        decimal tongTatCa = 0;
+                        int sttNhom = 1;
+                        int sttDV = 1;
 
+                        // Nhóm dữ liệu theo nhóm dịch vụ
+                        var nhomDichVuIds = filteredData.Select(d => d.IDNhomDVKT).Distinct().ToList();
+                        var nhomDichVuCoDuLieu = nhomDichVuList.Where(n => nhomDichVuIds.Contains(n.id)).OrderBy(n => n.ten).ToList();
 
-                        //int nhomIndex = 1;
-                        decimal tongTatCaDichVu = 0;
-
-                        // Dữ liệu
-                        foreach (var nhom in nhomDVList)
+                        foreach (var nhom in nhomDichVuCoDuLieu)
                         {
-                            var tongTheoPhong = phongListHienThi.Select(p =>
-                                nhom.DichVuList.Sum(dv => dv.GiaTheoPhong.FirstOrDefault(x => x.PhongId == p.id)?.Gia ?? 0m)
-                            ).ToList();
+                            var dichVuTrongNhom = filteredData.Where(d => d.IDNhomDVKT == nhom.id).ToList();
 
-                            var tongTatCa = tongTheoPhong.Sum();
-                            tongTatCaDichVu += tongTatCa;
+                            // Tính tổng theo phòng cho nhóm - HIỂN THỊ TẤT CẢ PHÒNG
+                            var tongTheoPhong = phongListHienThi
+                                .Select(p => (decimal)dichVuTrongNhom
+                                                .Where(d => d.IDPhongBuong == p.id)
+                                                .Sum(d => d.GiaTien ?? 0))
+                                .ToList();
+                            decimal tongNhom = tongTheoPhong.Sum();
+                            tongTatCa += tongNhom;
 
-                            // Hàng nhóm
+                            // Dòng tên nhóm dịch vụ kỹ thuật (STT nhóm)
                             table.Cell().ColumnSpan(2).Element(c =>
                                 c.Border(0.5f)
-                                 .Padding(5)
-                                 //.Text($"{nhomIndex++}. {nhom.Ten}")
-                                 .Text($"{nhom.Ten}")
+                                 .AlignLeft()
+                                 .AlignMiddle()
+                                 .Padding(2)
+                                 .Text($"{sttNhom}. {nhom.ten}")
                                  .Bold()
-                                 .FontSize(7)
-                                 .LineHeight(1.8f)
-                            );
-                            foreach (var tong in tongTheoPhong)
-                                table.Cell().Element(c => c
-                                    .Border(0.5f)
-                                    .AlignRight()   // căn ngang phải
-                                    .AlignMiddle()  // căn dọc giữa
-                                    .Padding(3)
-                                    .Text(tong != 0 ? tong.ToString("N0") : " ")
-                                    .Bold()
-                                    .FontSize(6)
-                                    .LineHeight(1.6f)
-                                );
-                            table.Cell().Element(c => c
-                                .Border(0.5f)
-                                .AlignRight()
-                                .AlignMiddle()
-                                .Padding(3)
-                                .Text(tongTatCa != 0 ? tongTatCa.ToString("N0") : " ")
-                                .Bold()
-                                .FontSize(6)
-                                .LineHeight(1.6f)
-                            );
+                                 .FontSize(6));
 
-                            // Hàng dịch vụ
-                            int dvIndex = 1;
-                            foreach (var dv in nhom.DichVuList)
+                            // Tổng theo từng phòng ngay dòng tên nhóm - HIỂN THỊ TẤT CẢ PHÒNG
+                            for (int i = 0; i < phongListHienThi.Count; i++)
                             {
-                                table.Cell().Element(c => c
-                                    .Border(0.5f)
-                                    .AlignCenter()
-                                    .AlignMiddle() // căn dọc giữa
-                                    .Padding(2)
-                                    .Text(dvIndex++.ToString())
-                                    .FontSize(6)
-                                    .LineHeight(1.6f)
-                                );
-                                table.Cell().Element(c => c
-                                    .Border(0.5f)
-                                    .AlignMiddle() // căn dọc giữa
-                                    .Padding(2)
-                                    .Text(dv.Ten)
-                                    .FontSize(6)
-                                    .LineHeight(1.6f)
-                                );
+                                var tongPhong = tongTheoPhong[i];
+                                table.Cell().Element(c => c.Border(0.5f).AlignRight().AlignMiddle().Padding(2)
+                                    .Text(tongPhong != 0 ? tongPhong.ToString("N0") : " ").Bold().FontSize(6));
+                            }
+
+                            // Cột tổng cộng nhóm
+                            table.Cell().Element(c => c.Border(0.5f).AlignRight().AlignMiddle().Padding(2)
+                                .Text(tongNhom != 0 ? tongNhom.ToString("N0") : " ").Bold().FontSize(6));
+
+                            sttNhom++; // Tăng STT nhóm
+
+                            // HIỂN THỊ TẤT CẢ DỊCH VỤ (KHÔNG GỘP TRÙNG) - GIỮ NGUYÊN TẤT CẢ BẢN GHI
+                            foreach (var dv in dichVuTrongNhom)
+                            {
+                                var tongDV = dv.GiaTien.HasValue ? (decimal)dv.GiaTien.Value : 0m;
+
+                                table.Cell().Element(c => c.Border(0.5f).AlignCenter().AlignMiddle().Padding(2).Text((sttDV++).ToString()).FontSize(6));
+                                table.Cell().Element(c => c.Border(0.5f).AlignMiddle().Padding(2).Text(dv.TenDichVu ?? "").FontSize(6));
+
+                                // Hiển thị giá trị cho từng phòng (kể cả phòng không có dữ liệu)
                                 foreach (var phong in phongListHienThi)
                                 {
-                                    var gia = dv.GiaTheoPhong.FirstOrDefault(x => x.PhongId == phong.id)?.Gia ?? 0m;
-                                    table.Cell().Element(c => c
-                                        .Border(0.5f)
-                                        .AlignRight()   // căn ngang phải
-                                        .AlignMiddle()  // căn dọc giữa
-                                        .Padding(2)
-                                        .Text(gia != 0 ? gia.ToString("N0") : " ")
-                                        .FontSize(6)
-                                        .LineHeight(1.6f)
-                                    );
+                                    var gia = (dv.IDPhongBuong == phong.id) ? (decimal)(dv.GiaTien ?? 0) : 0m;
+
+                                    table.Cell().Element(c => c.Border(0.5f).AlignRight().AlignMiddle().Padding(2)
+                                        .Text(gia != 0 ? gia.ToString("N0") : " ").FontSize(6));
                                 }
-                                table.Cell().Element(c => c
-                                    .Border(0.5f)
-                                    .AlignRight()
-                                    .AlignMiddle()  // căn dọc giữa
-                                    .Padding(2)
-                                    .Text(dv.TongGia != 0 ? dv.TongGia.ToString("N0") : " ")
-                                    .Bold()
-                                    .FontSize(6)
-                                    .LineHeight(1.6f)
-                                );
+
+                                // Cột tổng cộng dịch vụ
+                                table.Cell().Element(c => c.Border(0.5f).AlignRight().AlignMiddle().Padding(2)
+                                    .Text(tongDV != 0 ? tongDV.ToString("N0") : " ").FontSize(6));
                             }
                         }
 
                         // Tổng cuối bảng
                         table.Cell().ColumnSpan((uint)(2 + phongListHienThi.Count)).Element(c =>
-                            c
-                             .Border(0.5f)
-                             .Padding(5)
-                             .AlignMiddle()
-                             .AlignRight()
-                        );
-
+                            c.Border(0.5f).Padding(5).AlignLeft().Text("TỔNG CỘNG").Bold().FontSize(8));
                         table.Cell().Element(c =>
-                            c
-                             .Border(0.5f)
-                             .Padding(5)
-                             .AlignMiddle()
-                             .AlignRight()
-                             .Column(col =>
-                             {
-                                 col.Item().AlignMiddle().AlignRight()
-                                    .Text(tongTatCaDichVu != 0 ? tongTatCaDichVu.ToString("N0") : " ")
-                                    .Bold()
-                                    .FontSize(7)
-                                    .LineHeight(1.8f);
-                             })
-                        );
+                            c.Border(0.5f).Padding(5).AlignRight().Text(tongTatCa != 0 ? tongTatCa.ToString("N0") : " ").Bold().FontSize(7));
                     });
                 });
 
                 // Footer
                 page.Footer().AlignRight().Text(x =>
                 {
-                    x.Span("Trang ").FontSize(6).LineHeight(1.4f);
-                    x.CurrentPageNumber().FontSize(6).LineHeight(1.4f);
-                    x.Span(" / ").FontSize(6).LineHeight(1.4f);
-                    x.TotalPages().FontSize(6).LineHeight(1.4f);
+                    x.Span("Trang ").FontSize(6);
+                    x.CurrentPageNumber().FontSize(6);
+                    x.Span(" / ").FontSize(6);
+                    x.TotalPages().FontSize(6);
                 });
             });
         }
+
+
+
+
+
 
 
 

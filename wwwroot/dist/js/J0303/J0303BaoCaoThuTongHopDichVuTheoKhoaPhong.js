@@ -175,22 +175,22 @@ function renderHeader() {
 
     // Tạo hàng tiêu đề với chỉ các phòng ĐÃ LỌC
     let row = `<tr>`;
-    row += `<th class="text-center" style="width:10%;">STT</th>`;
-    row += `<th class="text-center" style="width:15%;">Dịch vụ</th>`;
+    row += `<th class="text-center">STT</th>`;
+    row += `<th class="text-center"  style="width: 100%;">Dịch vụ</th>`;
 
     // Thêm cột cho các phòng ĐÃ LỌC
     if (window.filteredPhongList && window.filteredPhongList.length > 0) {
         window.filteredPhongList.forEach(phong => {
-            row += `<th class="text-center" style="width:15%;">${phong.ten}</th>`;
+            row += `<th class="text-center">${phong.ten}</th>`;
         });
     } else {
         // Nếu không có phòng nào được lọc, hiển thị tất cả (fallback)
         listPhongBuong.forEach(phong => {
-            row += `<th class="text-center" style="width:15%;">${phong.ten}</th>`;
+            row += `<th class="text-center">${phong.ten}</th>`;
         });
     }
 
-    row += `<th class="text-center" style="width:11%;">Tổng</th>`;
+    row += `<th class="text-center">Tổng</th>`;
     row += `</tr>`;
 
     thead.innerHTML = row;
@@ -434,9 +434,22 @@ async function loadJsonData() {
     }
 }
 
+
+function showLoading() {
+    document.getElementById('loadingSpinner').style.display = 'block';
+}
+
+function hideLoading() {
+    document.getElementById('loadingSpinner').style.display = 'none';
+}
+
+
 function handleFilter() {
     $('.btnFilterBacSi').off('click').on('click', function (e) {
         e.preventDefault();
+        
+        // Hiển thị loading khi bắt đầu lọc
+        showLoading();
 
         setTimeout(function () {
             try {
@@ -447,6 +460,7 @@ function handleFilter() {
 
                 if (!tuNgayRaw || !denNgayRaw) {
                     toastr.error("Vui lòng chọn đầy đủ Từ ngày và Đến ngày");
+                    hideLoading(); // Ẩn loading nếu có lỗi
                     return;
                 }
 
@@ -469,10 +483,16 @@ function handleFilter() {
                 $.ajax({
                     url: '/bao_cao_thu_tong_hop_dv_theo_khoa_phong/tk/FilterByDay',
                     type: 'POST',
-                    data: { tuNgay, denNgay, idChiNhanh, idNhomdichvu, idPhong },
+                    data: { tuNgay, denNgay, idChiNhanh, idDichVuKyThuat: idNhomdichvu, idPhong },
+                    beforeSend: function () {
+                        // Hiển thị loading trước khi gửi request
+                        showLoading();
+                    },
                     success: function (response) {
+                       
                         if (response.success) {
-                            console.log("✅ Dữ liệu trả về:", response);
+                            console.log('id nhom dich vu: ', idNhomdichvu, idPhong);
+                           
                             fullData = response.data || [];
                             let filteredPhongIds = [];
 
@@ -504,6 +524,7 @@ function handleFilter() {
                                 filteredPhongIds.includes(phong.id)
                             );
 
+                            console.log(fullData);
                             // Reset phân trang + render lại
                             currentPage = 1;
                             pageSize = parseInt($('#pageSizeSelect').val()) || 10;
@@ -516,19 +537,27 @@ function handleFilter() {
                             lastFilteredDenNgay = denNgayRaw;
 
                             toastr.success("Lọc dữ liệu thành công!");
+                        } else {
+                            toastr.error("Lỗi khi lọc dữ liệu");
                         }
                     },
                     error: function (xhr) {
                         console.error("❌ Lỗi kết nối:", xhr);
                         toastr.error("❌ Lỗi kết nối: " + xhr.responseText);
+                    },
+                    complete: function () {
+                        // Ẩn loading khi request hoàn thành
+                        hideLoading();
                     }
                 });
             } catch (err) {
                 console.error("❌ Lỗi trong setTimeout:", err);
+                hideLoading(); // Ẩn loading nếu có lỗi
             }
         }, 100);
     });
 }
+
 
 
 
@@ -692,11 +721,15 @@ function exportPDFHandler(btn, viewType) {
     const idNhomDichVu = parseInt(document.getElementById("nhomDichVuIdHidden").value) || 0;
     const idDichVuKyThuat = 0;
 
-    console.log('id nhom dich vu: ', idNhomDichVu);
+   
 
     const url = `/bao_cao_thu_tong_hop_dv_theo_khoa_phong/export/pdf?` +
         `tuNgay=${formattedTuNgay}&denNgay=${formattedDenNgay}&idChiNhanh=${idChiNhanh}` +
         `&idNhomDichVu=${idNhomDichVu}&idDichVuKyThuat=${idDichVuKyThuat}`;
+
+    console.log(url);
+
+   
 
     fetch(url, {
         method: "GET",
@@ -717,7 +750,7 @@ function exportPDFHandler(btn, viewType) {
             const blobUrl = window.URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = blobUrl;
-            a.download = `BaoCao_${formattedTuNgay}_${formattedDenNgay}.pdf`;
+            a.download = `BaoCaoTongHopDichVuKhoaPhong.pdf`;
             document.body.appendChild(a);
             a.click();
             a.remove();
@@ -813,7 +846,7 @@ async function handleExportExcel() {
                 const blobUrl = window.URL.createObjectURL(blob);
                 const a = document.createElement("a");
                 a.href = blobUrl;
-                a.download = `BaoCaoTongHopDichVuKhoaPhong_${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '')}.xlsx`;
+                a.download = `BaoCaoTongHopDichVuKhoaPhong.xlsx`;
                 document.body.appendChild(a);
                 a.click();
                 a.remove();
@@ -833,178 +866,129 @@ async function handleExportExcel() {
 }
 
 
-//function renderPagination() {
-//    const pagination = $('#pagination');
-//    pagination.empty();
 
-//    const selectedNhomDichVuId = parseInt(document.getElementById("nhomDichVuIdHidden").value) || 0;
-//    let dichVuHienThi = [];
-
-//    let filteredNhomDichVuList = listNhomDichVuKyThuat;
-//    if (selectedNhomDichVuId !== 0) {
-//        filteredNhomDichVuList = listNhomDichVuKyThuat.filter(nhom => nhom.id === selectedNhomDichVuId);
-//    }
-
-//    filteredNhomDichVuList.forEach(nhomDichVu => {
-//        if (!nhomDichVu.active) return;
-//        const dichVuInNhom = listDichVuKyThuat.filter(dv => dv.idNhomDichVu === nhomDichVu.id && dv.active);
-//        dichVuHienThi = dichVuHienThi.concat(dichVuInNhom);
-//    });
-
-//    // Kiểm tra tổng giá
-//    let tongTatCaGia = 0;
-//    dichVuHienThi.forEach(dv => {
-//        (window.filteredPhongList || []).forEach(phong => {
-//            const data = fullData.find(item => item.idDichVuKyThuat === dv.id && item.idPhong === phong.id);
-//            tongTatCaGia += data ? data.gia : 0;
-//        });
-//    });
-
-//    const totalRecords = dichVuHienThi.length;
-//    const pages = tongTatCaGia === 0 ? 1 : Math.max(1, Math.ceil(totalRecords / pageSize));
-
-//    if (currentPage > pages) currentPage = pages;
-
-//    const totalText = tongTatCaGia === 0 ? 'Tổng 0 dịch vụ' : `Tổng ${totalRecords} dịch vụ`;
-//    $('#paginationContainer').text(`Trang ${currentPage}/${pages} – ${totalText}`);
-
-//    // Nút trước
-//    pagination.append(`<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-//        <a class="page-link" href="#" data-page="${Math.max(1, currentPage - 1)}">Trước</a>
-//    </li>`);
-
-//    const visibleCount = 3;
-//    let startPage = Math.max(1, currentPage - 1);
-//    let endPage = Math.min(pages, startPage + visibleCount - 1);
-
-//    if (endPage - startPage + 1 < visibleCount) {
-//        startPage = Math.max(1, endPage - visibleCount + 1);
-//    }
-
-//    for (let i = startPage; i <= endPage; i++) {
-//        pagination.append(`<li class="page-item ${i === currentPage ? 'active' : ''}">
-//            <a class="page-link" href="#" data-page="${i}">${i}</a>
-//        </li>`);
-//    }
-
-//    // Nút sau
-//    pagination.append(`<li class="page-item ${currentPage === pages ? 'disabled' : ''}">
-//        <a class="page-link" href="#" data-page="${Math.min(pages, currentPage + 1)}">Sau</a>
-//    </li>`);
-
-//    pagination.find('a.page-link').on('click', function (e) {
-//        e.preventDefault();
-//        const page = parseInt($(this).data('page'));
-//        if (!isNaN(page) && page !== currentPage) {
-//            currentPage = page;
-//            renderTable();
-//            renderPagination();
-//        }
-//    });
-//}
 
 function renderTable() {
     const tbody = $('#tableBody');
+    const tfoot = document.querySelector(".table-wrapper-scroll tfoot");
     tbody.empty();
+    tfoot.innerHTML = '';
 
-    const phongList = window.filteredPhongList || listPhongBuong;
+    showLoading();
 
-    let selectedNhomDichVuId = parseInt(document.getElementById("nhomDichVuIdHidden").value) || 0;
+    setTimeout(() => {
+        try {
+            const phongList = window.filteredPhongList || listPhongBuong;
+            let selectedNhomDichVuId = parseInt(document.getElementById("nhomDichVuIdHidden").value) || 0;
 
-    // Lấy danh sách nhóm DVKT từ dữ liệu đã filter (fullData)
-    let nhomIds = [...new Set(fullData.map(item => item.idNhomDichVu))];
-    let filteredNhomDichVuList = listNhomDichVuKyThuat.filter(nhom => nhomIds.includes(nhom.id));
+            if (!fullData || fullData.length === 0) {
+                // Tính tổng cột dựa trên header: STT + Dịch vụ + phòng + Tổng cộng
+                const colCount = 2 + (phongList ? phongList.length : 0) + 1;
+                tbody.append(`<tr><td colspan="15" class="text-center text-muted">Không có dữ liệu</td></tr>`);
+                hideLoading();
+                return;
+            }
 
-    if (selectedNhomDichVuId !== 0) {
-        filteredNhomDichVuList = filteredNhomDichVuList.filter(nhom => nhom.id === selectedNhomDichVuId);
-    }
+            // Lọc nhóm theo dữ liệu
+            let nhomIds = [...new Set(fullData.map(item => item.idNhomDichVu))];
+            let filteredNhomDichVuList = listNhomDichVuKyThuat.filter(nhom => nhomIds.includes(nhom.id));
 
-    if (!fullData || fullData.length === 0) {
-        const colCount = 2 + phongList.length + 1;
-        tbody.append(`<tr><td colspan="${colCount}" class="text-center text-muted">Không có dữ liệu</td></tr>`);
-        return;
-    }
+            if (selectedNhomDichVuId !== 0) {
+                filteredNhomDichVuList = filteredNhomDichVuList.filter(nhom => nhom.id === selectedNhomDichVuId);
+            }
 
-    // Gom tất cả dịch vụ theo nhóm
-    let allDichVuHienThi = [];
-    filteredNhomDichVuList.forEach(nhom => {
-        const dichVuInNhom = fullData.filter(item => item.idNhomDichVu === nhom.id);
-        allDichVuHienThi = allDichVuHienThi.concat(dichVuInNhom);
-    });
-
-    // Phân trang
-    const totalRecords = allDichVuHienThi.length;
-    const pages = Math.max(1, Math.ceil(totalRecords / pageSize));
-    if (currentPage > pages) currentPage = pages;
-
-    const start = (currentPage - 1) * pageSize;
-    const end = start + pageSize;
-    const pageData = allDichVuHienThi.slice(start, end);
-
-    // Tổng toàn bảng
-    let tongTatCaGia = 0;
-    phongList.forEach(phong => {
-        tongTatCaGia += fullData
-            .filter(item => item.idPhong === phong.id)
-            .reduce((sum, item) => sum + (item.giaTien || 0), 0);
-    });
-
-    // STT toàn cục
-    let sttGlobal = start + 1;
-
-    // Render theo nhóm
-    filteredNhomDichVuList.forEach((nhomDichVu, index) => {
-        const dichVuInNhom = pageData.filter(dv => dv.idNhomDichVu === nhomDichVu.id);
-        if (dichVuInNhom.length === 0) return;
-
-        // Tính tổng nhóm
-        let tongNhom = 0;
-        let tongPhongTrongNhom = {};
-        phongList.forEach(phong => {
-            const tongPhong = fullData
-                .filter(item => item.idPhong === phong.id && item.idNhomDichVu === nhomDichVu.id)
-                .reduce((sum, item) => sum + (item.giaTien || 0), 0);
-            tongPhongTrongNhom[phong.id] = tongPhong;
-            tongNhom += tongPhong;
-        });
-
-        // Hàng nhóm
-        let headerRow = `<tr class="bg-light font-weight-bold">
-            <td colspan="2" class="text-start ps-2">
-                ${String(index + 1).padStart(2, '0')}. ${nhomDichVu.ten}
-            </td>`;
-        phongList.forEach(phong => {
-            headerRow += `<td class="text-end pe-2">${tongPhongTrongNhom[phong.id] > 0 ? formatSoTien(tongPhongTrongNhom[phong.id]) : ''}</td>`;
-        });
-        headerRow += `<td class="text-end pe-2">${tongNhom > 0 ? formatSoTien(tongNhom) : ''}</td></tr>`;
-        tbody.append(headerRow);
-
-        // Hàng dịch vụ trong nhóm
-        dichVuInNhom.forEach(dichVu => {
-            let rowHtml = `<tr>
-                <td class="text-center">${String(sttGlobal).padStart(2, '0')}</td>
-                <td class="text-start ps-2">${dichVu.tenDichVuKyThuat}</td>`;
-            let tongGia = 0;
-            phongList.forEach(phong => {
-                const gia = fullData
-                    .filter(item => item.idDichVuKyThuat === dichVu.idDichVuKyThuat && item.idPhong === phong.id)
-                    .reduce((sum, item) => sum + (item.giaTien || 0), 0);
-                tongGia += gia;
-                rowHtml += `<td class="text-end pe-2">${gia > 0 ? formatSoTien(gia) : ''}</td>`;
+            // Gom tất cả dịch vụ theo nhóm
+            let dichVuHienThi = [];
+            filteredNhomDichVuList.forEach(nhom => {
+                const dichVuInNhom = fullData.filter(item => item.idNhomDichVu === nhom.id);
+                dichVuHienThi = dichVuHienThi.concat(dichVuInNhom);
             });
-            rowHtml += `<td class="text-end pe-2 font-weight-bold">${tongGia > 0 ? formatSoTien(tongGia) : ''}</td></tr>`;
-            tbody.append(rowHtml);
-            sttGlobal++;
-        });
-    });
 
-    // Tổng cuối bảng
-    let totalRowHtml = `<tr style="background-color:#f2f2f2; color:black; font-weight:bold;">
-        <td colspan="${2 + phongList.length}" class="text-start ps-2">TỔNG CỘNG</td>
-        <td class="text-end pe-2">${tongTatCaGia > 0 ? formatSoTien(tongTatCaGia) : ''}</td>
-    </tr>`;
-    tbody.append(totalRowHtml);
+            // Phân trang dịch vụ theo pageSize
+            const totalRecords = dichVuHienThi.length;
+            const pages = Math.max(1, Math.ceil(totalRecords / pageSize));
+            if (currentPage > pages) currentPage = pages;
+
+            const start = (currentPage - 1) * pageSize;
+            const end = start + pageSize;
+            const pageData = dichVuHienThi.slice(start, end);
+
+            let sttGlobal = start + 1;
+
+            // Lấy các nhóm hiện tại trong pageData
+            let nhomBlocks = filteredNhomDichVuList.map((nhom, idx) => {
+                const items = pageData.filter(dv => dv.idNhomDichVu === nhom.id);
+                return { nhom, items, sttNhom: idx + 1 }; // STT nhóm liên tục theo filteredNhomDichVuList
+            }).filter(block => block.items.length > 0);
+
+            // render từng nhóm
+            nhomBlocks.forEach((block) => {
+                const nhomDichVu = block.nhom;
+                const dichVuInNhom = block.items;
+
+                // Tính tổng nhóm theo tất cả dịch vụ của nhóm, không phụ thuộc trang
+                let tongNhomTheoPhong = {};
+                phongList.forEach(phong => {
+                    tongNhomTheoPhong[phong.id] = fullData
+                        .filter(item => item.idNhomDichVu === nhomDichVu.id && item.idPhong === phong.id)
+                        .reduce((sum, item) => sum + (parseFloat(item.giaTien) || 0), 0);
+                });
+
+                let tongNhom = Object.values(tongNhomTheoPhong).reduce((a, b) => a + b, 0);
+
+                // header nhóm sử dụng sttNhom
+                let headerRow = `<tr style="background-color:#f8f9fa; font-weight:bold;">
+  <td colspan="2" class="text-start ps-2">${block.sttNhom}. ${nhomDichVu.ten}</td>`;
+                phongList.forEach(phong => {
+                    headerRow += `<td class="text-end pe-2" style="font-weight:bold;">${tongNhomTheoPhong[phong.id] > 0 ? formatSoTien(tongNhomTheoPhong[phong.id]) : ''}</td>`;
+                });
+                headerRow += `<td class="text-end pe-2" style="font-weight:bold;">${formatSoTien(tongNhom)}</td></tr>`;
+                tbody.append(headerRow);
+
+
+
+                // render chi tiết dịch vụ
+                dichVuInNhom.forEach(item => {
+                    let rowHtml = `<tr>
+                        <td class="text-center">${sttGlobal}</td>
+                        <td class="text-start ps-2">${item.tenDichVuKyThuat}</td>`;
+                    phongList.forEach(phong => {
+                        if (item.idPhong === phong.id) {
+                            rowHtml += `<td class="text-end pe-2">${formatSoTien(item.giaTien)}</td>`;
+                        } else {
+                            rowHtml += `<td></td>`;
+                        }
+                    });
+                    rowHtml += `<td class="text-end pe-2 font-weight-bold">${formatSoTien(item.giaTien)}</td></tr>`;
+                    tbody.append(rowHtml);
+                    sttGlobal++;
+                });
+            });
+
+            // tổng cuối bảng
+            let tongTatCaGia = fullData.reduce((sum, item) => sum + (parseFloat(item.giaTien) || 0), 0);
+            let totalRowHtml = `<tr style="background-color:#f2f2f2; color:black; font-weight:bold;">
+                <td colspan="${2 + phongList.length}" class="text-start ps-2">TỔNG CỘNG</td>
+                <td class="text-end pe-2">${formatSoTien(tongTatCaGia)}</td>
+            </tr>`;
+            tfoot.innerHTML = totalRowHtml;
+
+        } catch (error) {
+            console.error('Lỗi khi render table:', error);
+            const phongList = window.filteredPhongList || listPhongBuong;
+            const colCount = 2 + phongList.length + 1;
+            tbody.append(`<tr><td colspan="${colCount}" class="text-center text-danger">Đã xảy ra lỗi khi tải dữ liệu</td></tr>`);
+        } finally {
+            hideLoading();
+        }
+    }, 100);
 }
+
+
+
+
+
+
 
 
 function renderPagination() {

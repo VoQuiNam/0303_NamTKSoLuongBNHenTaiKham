@@ -24,6 +24,8 @@ builder.Services.AddScoped<I0303LayPhieuNhapKhoInGop, S0303LayPhieuNhapKhoInGop>
 builder.Services.AddDbContext<Context0303>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddHttpClient();
+
 builder.Services.AddHttpContextAccessor();
 
 

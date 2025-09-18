@@ -1,33 +1,35 @@
 ﻿let fullData = [];
+let listDv = [];
 let listNhomDv = [];
 let currentPage = 1;
 let pageSize = 10;
 let lastFilteredTuNgay = null;
 let lastFilteredDenNgay = null;
 const fixedColumns = [
-    { title: 'STT', width: '50px' },
-    { title: 'Mã BN/Mã đợt', width: '100px' },
-    { title: 'Họ và tên', width: '120px' },
-    { title: 'Năm sinh', width: '80px' },
-    { title: 'Mã thẻ BHYT', width: '120px' },
-    { title: 'Đối tượng', width: '100px' },
-    { title: 'Ngày thu', width: '100px' },
-    { title: 'Quyển sổ', width: '100px' },
-    { title: 'Số biên lai', width: '100px' },
-    { title: 'Số chứng từ', width: '100px' },
-    { title: 'Miễn giảm', width: '90px' },
-    { title: 'Lý do miễn', width: '120px' },
-    { title: 'Nhập viện nhập miễn', width: '150px' },
-    { title: 'Ghi chú miễn', width: '150px' },
-    { title: 'Nợ', width: '80px' },
-    { title: 'Số tiền', width: '100px' }
+    { title: 'STT' },
+    { title: 'Mã BN/Mã đợt' },
+    { title: 'Họ và tên' },
+    { title: 'Năm sinh' },
+    { title: 'Mã thẻ BHYT' },
+    { title: 'Đối tượng' },
+    { title: 'Ngày thu' },
+    { title: 'Quyển sổ' },
+    { title: 'Số biên lai' },
+    { title: 'Số chứng từ' },
+    { title: 'Miễn giảm' },
+    { title: 'Lý do miễn' },
+    { title: 'Nhập viện nhập miễn' },
+    { title: 'Ghi chú miễn' },
+    { title: 'Nợ' },
+    { title: 'Số tiền' }
 ];
 
 const fixedEndColumns = [
-    { title: 'Hủy', width: '90px' },
-    { title: 'Hoàn', width: '90px' },
-    { title: 'Ngày Hủy/Hoàn', width: '120px' }
+    { title: 'Hủy' },
+    { title: 'Hoàn' },
+    { title: 'Ngày Hủy/Hoàn' }
 ];
+
 
 
 function validateDateRange(tuNgay, denNgay) {
@@ -157,137 +159,133 @@ function formatDateDisplay(dateString) {
     return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
 }
 
-function formatDateDisplay(dateString) {
-    const date = new Date(dateString);
-    if (isNaN(date)) return '';
-
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
-
-    return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
-}
-
-function formatSoTien(soTien) {
-    if (soTien === null || soTien === '' || soTien === undefined) return 'Không rõ';
-
-
-    if (typeof soTien === 'string') {
-        soTien = parseHocPhiToNumber(soTien);
-        if (soTien === null || isNaN(soTien)) {
-            return '<span class="text-danger">Sai định dạng</span>';
-        }
-    }
-
-    return new Intl.NumberFormat('en-US', {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
-    }).format(soTien);
-}
-
-function parseHocPhiToNumber(str) {
-    if (!str) return null;
-    return parseFloat(str.replace(/,/g, ''));
-}
-
 
 async function loadJsonData() {
     try {
-        const nhomDvRes = await fetch('/dist/data/json/DM_NhomDichVuKyThuat.json').then(r => r.json());
+        const [dvRes, nhomDvRes] = await Promise.all([
+            fetch('/bao_cao_thu_tong_hop_dv_theo_khoa_phong/dich-vu-ky-thuat/all').then(r => r.json()),
+            fetch('/bao_cao_thu_tong_hop_dv_theo_khoa_phong/nhom-dich-vu/all').then(r => r.json()),
+        ]);
+
+        listDv = dvRes;
         listNhomDv = nhomDvRes;
-        renderHeader();
+
+        renderHeader(); // gọi sau khi đã gán dữ liệu
+
+
+
     } catch (err) {
         console.error("❌ Lỗi tải JSON:", err);
     }
 }
 
-function renderHeader() {
-    const thead = document.querySelector('table thead');
-    thead.innerHTML = '';
+    function renderHeader() {
+        const thead = document.querySelector('table thead');
+        thead.innerHTML = '';
 
-  
-    const totalCols = fixedColumns.length + listNhomDv.length + fixedEndColumns.length + 2;
 
-  
-    let row1 = `<tr>`;
-    row1 += fixedColumns.map(col =>
-        `<th rowspan="2" style="width:${col.width}; z-index:30; background-color:#f8f8f8; border:1px solid #ddd;">${col.title}</th>`
-    ).join('');
+        const totalCols = fixedColumns.length + listNhomDv.length + fixedEndColumns.length + 2;
 
-    row1 += `<th colspan="${listNhomDv.length + 2}" style="text-align:center; position:sticky; top:0; z-index:30; background-color:#f8f8f8; border:1px solid #ddd; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);">Thông tin chi tiết</th>`;
-    row1 += fixedEndColumns.map(col =>
-        `<th rowspan="2" style="width:${col.width}; position:sticky; top:0; z-index:30; background-color:#f8f8f8; border:1px solid #ddd; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);">${col.title}</th>`
-    ).join('');
-    row1 += `</tr>`;
 
-    let row2 = `<tr>`;
-    row2 += `<th style="position:sticky; z-index:20; background-color:#f8f8f8; border:1px solid #ddd; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);">Thuốc</th>`;
-    row2 += listNhomDv.map(nhom =>
-        `<th style="width:150px; position:sticky; z-index:20; background-color:#f8f8f8; border:1px solid #ddd; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);">${nhom.ten}</th>`
-    ).join('');
-    row2 += `<th style="position:sticky; z-index:20; background-color:#f8f8f8; border:1px solid #ddd; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);">Tổng cộng</th>`;
-    row2 += `</tr>`;
+        let row1 = `<tr>`;
+        // fixedColumns: chỉnh luôn z-index cho 4 cột đầu
+        row1 += fixedColumns.map((col, idx) =>
+            `<th rowspan="2" style="z-index:${idx <= 3 ? 100 : 30}; position:sticky; top:0; background-color:#f8f8f8; border:1px solid #ddd;">${col.title}</th>`
+        ).join('');
 
-    let row3 = `<tr>`;
 
-   
-    let colIndex = 0;
+        row1 += `<th colspan="${listNhomDv.length + 2}" style="text-align:center; position:sticky; top:0; z-index:30; background-color:#f8f8f8; border:1px solid #ddd; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);">Thông tin chi tiết</th>`;
+        row1 += fixedEndColumns.map(col =>
+            `<th rowspan="2" style="position:sticky; top:0; z-index:30; background-color:#f8f8f8; border:1px solid #ddd; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);">${col.title}</th>`
+        ).join('');
 
-   
-    for (let i = 0; i < fixedColumns.length; i++) {
-        row3 += `<th style="position:sticky; z-index:10; background-color:#f8f8f8; border:1px solid #ddd; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);">${colIndex === 0 ? 'A' : colIndex}</th>`;
-        colIndex++;
-    }
+        row1 += `</tr>`;
 
-    row3 += `<th style="position:sticky; z-index:10; background-color:#f8f8f8; border:1px solid #ddd; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);">${colIndex}</th>`;
-    colIndex++;
+        let row2 = `<tr>`;
+        row2 += `<th style="position:sticky; z-index:20; background-color:#f8f8f8; border:1px solid #ddd; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);">Thuốc</th>`;
+        row2 += listNhomDv.map(nhom =>
+            `<th style="width:150px; position:sticky; z-index:20; background-color:#f8f8f8; border:1px solid #ddd; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);">${nhom.ten}</th>`
+        ).join('');
+        row2 += `<th style="position:sticky; z-index:20; background-color:#f8f8f8; border:1px solid #ddd; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);">Tổng cộng</th>`;
+        row2 += `</tr>`;
 
-    for (let i = 0; i < listNhomDv.length; i++) {
+        let row3 = `<tr>`;
+
+
+        let colIndex = 0;
+
+
+        for (let i = 0; i < fixedColumns.length; i++) {
+            row3 += `<th style="position:sticky; z-index:${i <= 3 ? 100 : 10}; background-color:#f8f8f8; border:1px solid #ddd; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);">${colIndex === 0 ? 'A' : colIndex}</th>`;
+            colIndex++;
+        }
+
+
         row3 += `<th style="position:sticky; z-index:10; background-color:#f8f8f8; border:1px solid #ddd; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);">${colIndex}</th>`;
         colIndex++;
-    }
 
-    row3 += `<th style="position:sticky; z-index:10; background-color:#f8f8f8; border:1px solid #ddd; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);">${colIndex}</th>`;
-    colIndex++;
+        for (let i = 0; i < listNhomDv.length; i++) {
+            row3 += `<th style="position:sticky; z-index:10; background-color:#f8f8f8; border:1px solid #ddd; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);">${colIndex}</th>`;
+            colIndex++;
+        }
 
-    for (let i = 0; i < fixedEndColumns.length; i++) {
         row3 += `<th style="position:sticky; z-index:10; background-color:#f8f8f8; border:1px solid #ddd; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);">${colIndex}</th>`;
         colIndex++;
+
+        for (let i = 0; i < fixedEndColumns.length; i++) {
+            row3 += `<th style="position:sticky; z-index:10; background-color:#f8f8f8; border:1px solid #ddd; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);">${colIndex}</th>`;
+            colIndex++;
+        }
+
+        row3 += `</tr>`;
+
+        thead.innerHTML = row1 + row2 + row3;
+
+
+        setTimeout(() => {
+            const row1Height = thead.querySelector('tr:nth-child(1)').offsetHeight;
+            const row2Height = thead.querySelector('tr:nth-child(2)').offsetHeight;
+
+            thead.style.setProperty('--row1-height', row1Height + 'px');
+            thead.style.setProperty('--row2-height', row2Height + 'px');
+
+            // Hàng 2: luôn đẩy xuống dưới row1
+            thead.querySelectorAll('tr:nth-child(2) th').forEach(th => {
+                th.style.top = `${row1Height}px`;
+            });
+
+            // Hàng 3: chỉnh theo điều kiện
+            thead.querySelectorAll('tr:nth-child(3) th').forEach((th, idx) => {
+                const isSpecial =
+                    idx === 0 ||                  // cột A
+                    (idx >= 1 && idx <= 15) ||    // cột 1 → 15
+                    (idx >= 29 && idx <= 31);     // cột 29 → 31
+
+                th.style.top = isSpecial
+                    ? `${row1Height + row2Height - 1}px`
+                    : `${row1Height + row2Height}px`;
+
+                th.style.zIndex = idx <= 3 ? 100 : 10; // 👉 4 cột đầu tiên z-index 100
+            });
+        }, 0);
+
+
+
+
     }
 
-    row3 += `</tr>`;
+function showLoading() {
+    document.getElementById('loadingSpinner').style.display = 'block';
+}
 
-    thead.innerHTML = row1 + row2 + row3;
-
-   
-    setTimeout(() => {
-        const row1Height = thead.querySelector('tr:nth-child(1)').offsetHeight;
-        const row2Height = thead.querySelector('tr:nth-child(2)').offsetHeight;
-
-        thead.style.setProperty('--row1-height', row1Height + 'px');
-        thead.style.setProperty('--row2-height', row2Height + 'px');
-
-        thead.querySelectorAll('tr:nth-child(2) th').forEach(th => {
-            th.style.top = `${row1Height}px`;
-        });
-
-        thead.querySelectorAll('tr:nth-child(3) th').forEach(th => {
-            th.style.top = `${row1Height + row2Height}px`;
-        });
-    }, 0);
-
-
-
+function hideLoading() {
+    document.getElementById('loadingSpinner').style.display = 'none';
 }
 
 function handleFilter() {
     $('.btnFilterBidv').off('click').on('click', function (e) {
         e.preventDefault();
-
+        showLoading();
         setTimeout(function () {
             try {
 
@@ -298,6 +296,8 @@ function handleFilter() {
 
                 if (!tuNgayRaw || !denNgayRaw) {
                     toastr.error("Vui lòng chọn đầy đủ Từ ngày và Đến ngày");
+                    hideLoading(); // Ẩn loading nếu có lỗi
+
                     return;
                 }
 
@@ -328,23 +328,30 @@ function handleFilter() {
                     data: {
                         tuNgay,
                         denNgay,
-                        idChiNhanh: window._idcn || 0,
-                        idNhomDichVu: 0,
-                        idDichVuKyThuat: 0
+                        idChiNhanh: window._idcn || 0
+                        //idNhomDichVu: 0,
+                        //idDichVuKyThuat: 0
+                    },
+                    beforeSend: function () {
+                        // Hiển thị loading trước khi gửi request
+                        showLoading();
                     },
                     success: function (response) {
 
-
+                        console.log('data: ', response);
                         if (response.success) {
                             fullData = response.data || [];
+                            console.log("📊 Dữ liệu trả về:", fullData);
 
-                           
-                            fullData.forEach(item => {
-                                const nhomdichvu = listNhomDv.find(p => p.id === item.idNhomDichVu);
-                                item.tenNhomDV = nhomdichvu?.ten || "Không rõ nhóm dịch vụ";
-                            });
+                            //fullData.forEach(item => {
+                            //    const nhomdichvu = listNhomDv.find(p => p.id === item.idNhomDichVu);
+                            //    const dichvu = listDv.find(k => k.id === item.idDichVuKyThuat);
 
-                            console.log("✅ Dữ liệu sau khi xử lý thêm tên nhóm dịch vụ:", fullData); 
+                            //    item.tenNhomDV = nhomdichvu?.ten || "Không rõ nhóm dịch vụ";
+                            //    item.tenDV = dichvu?.ten || "Không rõ dịch vụ";
+
+
+                            //});
 
                             currentPage = 1;
                             pageSize = parseInt($('#pageSizeSelect').val()) || 10;
@@ -363,6 +370,9 @@ function handleFilter() {
                     error: function (xhr) {
 
                         toastr.error("❌ Lỗi kết nối: " + xhr.responseText);
+                    }, complete: function () {
+                        // Ẩn loading khi request hoàn thành (dù thành công hay thất bại)
+                        hideLoading();
                     }
                 });
 
@@ -373,17 +383,6 @@ function handleFilter() {
         }, 100);
     });
 }
-
-function randomDecimal(min, max) {
-    return (Math.random() * (max - min) + min).toFixed(0);
-}
-
-
-function formatSoTienOrDash(value) {
-    if (!value || Number(value) === 0) return '-';
-    return formatSoTien(value);
-}
-
 
 function calculateTotals(data) {
     let totalMienGiam = 0;
@@ -410,104 +409,249 @@ function calculateTotals(data) {
     return { totalMienGiam, totalNo, totalSoTien, totalThuoc, totalChiTietNhom };
 }
 
-function renderTable() {
-    const tbody = $('#tableBody');
-    tbody.html('');
+    function renderTable() {
+        const tbody = $('#tableBody');
+        const tfoot = document.querySelector(".table-wrapper-scroll tfoot");
+        tbody.html('');
+        tfoot.innerHTML = '';
 
-    if (!fullData || fullData.length === 0) {
-        const totalCols = fixedColumns.length + listNhomDv.length + fixedEndColumns.length + 2;
-        tbody.html(`
-            <tr>
-                <td colspan="50" style="text-align:center; vertical-align:middle; border: 1px solid #ccc; padding: 6px 8px; background-color: #fff;">
-                    Không có dữ liệu
-                </td>
-            </tr>
-        `);
-        return;
+        showLoading();
+
+        setTimeout(() => {
+            try {
+                if (!fullData || fullData.length === 0) {
+                    tbody.html(`
+                        <tr>
+                            <td colspan="50" style="text-align:center; vertical-align:middle; border: 1px solid #ccc; padding: 6px 8px; background-color: #fff;">
+                                Không có dữ liệu phù hợp
+                            </td>
+                        </tr>
+                    `);
+                    $('#paginationContainer').text(`Trang 0/0 – Tổng 0 bản ghi`);
+                    return;
+                }
+
+                // --- Gom nhóm theo SoBienLai + SoChungTu ---
+                const grouped = {};
+                fullData.forEach(item => {
+                    const key = `${item.soBienLai}_${item.soChungTu}`;
+                    if (!grouped[key]) {
+                        grouped[key] = {
+                            ...item,
+                            dichvu: {}
+                        };
+                    }
+                    const nhomId = item.idNhomDVKT;
+                    const val = Number(item.soTienChiTiet) || 0;
+                    if (nhomId) {
+                        grouped[key].dichvu[nhomId] = (grouped[key].dichvu[nhomId] || 0) + val;
+                    }
+                });
+
+                const allGroups = Object.values(grouped);
+
+                // --- Pagination ---
+                const totalRecords = allGroups.length;
+                const totalPages = Math.max(1, Math.ceil(totalRecords / pageSize));
+                if (currentPage > totalPages) currentPage = totalPages;
+
+                const startIndex = (currentPage - 1) * pageSize;
+                const pageData = allGroups.slice(startIndex, startIndex + pageSize);
+
+                $('#paginationContainer').text(`Trang ${currentPage}/${totalPages} – Tổng ${totalRecords} bản ghi`);
+
+                // --- Render table ---
+                let html = '';
+                pageData.forEach((item, index) => {
+                    let row = `<tr>`;
+                    row += `<td class="text-center">${startIndex + index + 1}</td>`;
+                    row += `<td class="text-center">${item.maBN || ''}</td>`;
+                    row += `<td class="text-start">${item.hoTen || ''}</td>`;
+                    row += `<td class="text-center">${item.namSinh || ''}</td>`;
+                    row += `<td class="text-center">${item.maTheBHYT || ''}</td>`;
+                    row += `<td class="text-start">${item.doiTuong || ''}</td>`;
+                    row += `<td class="text-center">${item.ngayThu ? formatDateDisplay(item.ngayThu) : ''}</td>`;
+                    row += `<td class="text-center">${item.quyenSo || ''}</td>`;
+                    row += `<td class="text-center">${item.soBienLai || ''}</td>`;
+                    row += `<td class="text-center">${item.soChungTu || ''}</td>`;
+                    row += `<td class="text-end">${formatSoTien(item.mienGiam)}</td>`;
+                    row += `<td class="text-end">${item.lyDoMien || ''}</td>`;
+                    row += `<td class="text-end">${item.nhapVienNhapMien || ''}</td>`;
+                    row += `<td class="text-end">${item.ghiChuMien || ''}</td>`;
+                    row += `<td class="text-end">${formatSoTien(item.no)}</td>`;
+                    row += `<td class="text-end">${formatSoTien(item.soTien)}</td>`; // tổng tiền thực tế
+                    row += `<td class="text-end">${formatSoTien(item.thuoc)}</td>`;
+
+                    // chi tiết nhóm dịch vụ
+                    listNhomDv.forEach(nhom => {
+                        const val = item.dichvu[nhom.id] || 0;
+                        row += `<td class="text-end">${formatSoTien(val)}</td>`;
+                    });
+
+                    // tổng chi tiết = tổng tiền thực tế
+                    row += `<td class="text-end fw-bold">${formatSoTien(item.soTien)}</td>`;
+
+                    row += `<td class="text-end">${item.huy || '-'}</td>`;
+                    row += `<td class="text-end">${item.hoan || '-'}</td>`;
+                    row += `<td class="text-end">${item.ngayHuyHoan || '-'}</td>`;
+                    row += `</tr>`;
+
+                    html += row;
+                });
+
+                tbody.html(html);
+
+                // --- Footer tổng cộng ---
+                const totals = {
+                    totalMienGiam: 0,
+                    totalNo: 0,
+                    totalSoTien: 0,
+                    totalThuoc: 0,
+                    totalChiTietNhom: {},
+                    totalTong: 0
+                };
+
+                allGroups.forEach(item => {
+                    totals.totalMienGiam += Number(item.mienGiam) || 0;
+                    totals.totalNo += Number(item.no) || 0;
+                    totals.totalSoTien += Number(item.soTien) || 0;
+                    totals.totalThuoc += Number(item.thuoc) || 0;
+                    listNhomDv.forEach(nhom => {
+                        totals.totalChiTietNhom[nhom.id] = (totals.totalChiTietNhom[nhom.id] || 0) + (item.dichvu[nhom.id] || 0);
+                    });
+                    totals.totalTong += Number(item.soTien) || 0; // tổng = soTien
+                });
+
+                let totalRow = `<tr style="font-weight:bold; background:#f2f2f2;">`;
+                totalRow += `<td colspan="10" style="text-align:center;">Tổng cộng</td>`;
+                totalRow += `<td class="text-end">${formatSoTien(totals.totalMienGiam)}</td>`;
+                totalRow += `<td class="text-end">-</td>`;
+                totalRow += `<td class="text-end">-</td>`;
+                totalRow += `<td class="text-end">-</td>`;
+                totalRow += `<td class="text-end">${formatSoTien(totals.totalNo)}</td>`;
+                totalRow += `<td class="text-end">${formatSoTien(totals.totalSoTien)}</td>`;
+                totalRow += `<td class="text-end">${formatSoTien(totals.totalThuoc)}</td>`;
+
+                listNhomDv.forEach(nhom => {
+                    totalRow += `<td class="text-end">${formatSoTien(totals.totalChiTietNhom[nhom.id] || 0)}</td>`;
+                });
+
+                totalRow += `<td class="text-end">${formatSoTien(totals.totalTong)}</td>`;
+                totalRow += `<td class="text-end">-</td>`;
+                totalRow += `<td class="text-end">-</td>`;
+                totalRow += `<td class="text-end">-</td>`;
+                totalRow += `</tr>`;
+
+                tfoot.innerHTML = totalRow;
+
+            } catch (error) {
+                console.error('Lỗi khi render table:', error);
+                tbody.html(`
+                    <tr>
+                        <td colspan="50" style="text-align:center; vertical-align:middle; border: 1px solid #ccc; padding: 6px 8px; background-color: #fff; color: red;">
+                            Đã xảy ra lỗi khi tải dữ liệu
+                        </td>
+                    </tr>
+                `);
+            } finally {
+                hideLoading();
+            }
+        }, 100);
     }
 
-    const startIndex = (currentPage - 1) * pageSize;
-    const pageData = fullData.slice(startIndex, startIndex + pageSize);
 
-    let html = '';
+function formatDateDisplay(dateString) {
+    const date = new Date(dateString);
+    if (isNaN(date)) return '';
 
-    pageData.forEach((item, index) => {
-        if (item.thuoc === undefined || item.thuoc === null) {
-            item.thuoc = 0;
-        }
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
 
-        let row = `<tr>`;
-        row += `<td class="text-center">${startIndex + index + 1}</td>`;
-        row += `<td class="text-center">${item.maBN || ''}</td>`;
-        row += `<td class="text-start">${item.hoTen || ''}</td>`;
-        row += `<td class="text-center">${item.namSinh || ''}</td>`;
-        row += `<td class="text-center">${item.maTheBHYT || ''}</td>`;
-        row += `<td class="text-start">${item.doiTuong || ''}</td>`;
-        row += `<td class="text-center">${item.ngayThu ? formatDateDisplay(item.ngayThu) : ''}</td>`;
-        row += `<td class="text-center">${item.quyenSo || ''}</td>`;
-        row += `<td class="text-center">${item.soBienLai || ''}</td>`;
-        row += `<td class="text-center">${item.soChungTu || ''}</td>`;
-        row += `<td class="text-end">${formatSoTienOrDash(item.mienGiam)}</td>`;
-        row += `<td class="text-end">${item.lyDoMien || ''}</td>`;
-        row += `<td class="text-end">${item.nhapVienNhapMien || ''}</td>`;
-        row += `<td class="text-end">${item.ghiChuMien || ''}</td>`;
-        row += `<td class="text-end">${formatSoTienOrDash(item.no)}</td>`;
-        row += `<td class="text-end">${formatSoTienOrDash(item.soTien)}</td>`;
-        row += `<td class="text-end">${formatSoTienOrDash(item.thuoc)}</td>`;
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
 
-        let sumChiTiet = Number(item.thuoc) || 0;
-
-        listNhomDv.forEach(nhom => {
-            if (item.idNhomDichVu === nhom.id) {
-                const val = Number(item.soTienChiTiet) || 0;
-                row += `<td class="text-end">${formatSoTienOrDash(val)}</td>`;
-                sumChiTiet += val;
-            } else {
-                row += `<td class="text-end">-</td>`;
-            }
-        });
-
-        row += `<td class="text-end">${formatSoTienOrDash(sumChiTiet)}</td>`;
-
-        row += `<td class="text-end">${item.huy || '-'}</td>`;
-        row += `<td class="text-end">${item.hoan || '-'}</td>`;
-        row += `<td class="text-end">${item.ngayHuyHoan || '-'}</td>`;
-        row += `</tr>`;
-
-        html += row;
-    });
-
-    const totals = calculateTotals(fullData);
-    let totalChiTietSum = totals.totalThuoc;
-    listNhomDv.forEach(nhom => {
-        totalChiTietSum += totals.totalChiTietNhom[nhom.id];
-    });
-
-    let totalRow = `<tr style="font-weight:bold; background:#f2f2f2;">`;
-    totalRow += `<td colspan="10" style="text-align:center;">Tổng cộng</td>`;
-    totalRow += `<td class="text-end">${formatSoTienOrDash(totals.totalMienGiam)}</td>`;
-    totalRow += `<td class="text-end">-</td>`;
-    totalRow += `<td class="text-end">-</td>`;
-    totalRow += `<td class="text-end">-</td>`;
-    totalRow += `<td class="text-end">${formatSoTienOrDash(totals.totalNo)}</td>`;
-    totalRow += `<td class="text-end">${formatSoTienOrDash(totals.totalSoTien)}</td>`;
-    totalRow += `<td class="text-end">${formatSoTienOrDash(totals.totalThuoc)}</td>`;
-
-    listNhomDv.forEach(nhom => {
-        totalRow += `<td class="text-end">${formatSoTienOrDash(totals.totalChiTietNhom[nhom.id])}</td>`;
-    });
-
-    totalRow += `<td class="text-end">${formatSoTienOrDash(totalChiTietSum)}</td>`;
-
-    totalRow += `<td class="text-end">-</td>`;
-    totalRow += `<td class="text-end">-</td>`;
-    totalRow += `<td class="text-end">-</td>`;
-    totalRow += `</tr>`;
-
-    html += totalRow;
-
-    tbody.html(html);
+    return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
 }
+
+
+function formatSoTien(soTien) {
+    if (soTien === null || soTien === '' || soTien === undefined) return 'Không rõ';
+
+
+    if (typeof soTien === 'string') {
+        soTien = parseHocPhiToNumber(soTien);
+        if (soTien === null || isNaN(soTien)) {
+            return '<span class="text-danger">Sai định dạng</span>';
+        }
+    }
+
+    return new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    }).format(soTien);
+}
+
+
+function renderPagination() {
+    const pagination = $('#pagination');
+    pagination.empty();
+
+    // --- Sử dụng số bản ghi đã gom nhóm ---
+    const grouped = {};
+    fullData.forEach(item => {
+        const key = `${item.soBienLai}_${item.soChungTu}`;
+        if (!grouped[key]) grouped[key] = item;
+    });
+    const allGroups = Object.values(grouped);
+
+    const totalRecords = allGroups.length;
+    const totalPages = Math.max(1, Math.ceil(totalRecords / pageSize));
+    if (currentPage > totalPages) currentPage = totalPages;
+
+    $('#paginationContainer').text(`Trang ${currentPage}/${totalPages} – Tổng ${totalRecords} bản ghi`);
+
+    pagination.append(`
+        <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+            <a class="page-link" href="#" data-page="${Math.max(1, currentPage - 1)}">Trước</a>
+        </li>
+    `);
+
+    const visibleCount = 3;
+    let startPage = Math.max(1, currentPage - 1);
+    let endPage = Math.min(totalPages, startPage + visibleCount - 1);
+
+    if (endPage - startPage + 1 < visibleCount) {
+        startPage = Math.max(1, endPage - visibleCount + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+        pagination.append(`
+            <li class="page-item ${i === currentPage ? 'active' : ''}">
+                <a class="page-link" href="#" data-page="${i}">${i}</a>
+            </li>
+        `);
+    }
+
+    pagination.append(`
+        <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+            <a class="page-link" href="#" data-page="${Math.min(totalPages, currentPage + 1)}">Sau</a>
+        </li>
+    `);
+
+    pagination.find('a.page-link').on('click', function (e) {
+        e.preventDefault();
+        const page = parseInt($(this).data('page'));
+        if (!isNaN(page) && page !== currentPage) {
+            currentPage = page;
+            renderTable();
+            renderPagination();
+        }
+    });
+}
+
+
 function handleExportPDF() {
     $(".btnExportPDFMobile").off("click").on("click", function () {
         exportPDFHandler(this, "Mobile");
@@ -517,6 +661,20 @@ function handleExportPDF() {
         exportPDFHandler(this, "Desktop");
     });
 }
+
+
+$(document).on('change', '#pageSizeSelect', function () {
+    pageSize = parseInt($(this).val()) || 10;
+    currentPage = 1;
+
+    if (fullData && fullData.length > 0) {
+        renderTable();
+        renderPagination();
+    } else {
+        toastr.error("Vui lòng lọc dữ liệu trước khi thay đổi số dòng hiển thị.");
+    }
+});
+
 
 function exportPDFHandler(btn, viewType) {
     if (!btn.dataset.originalHTML) {
@@ -561,12 +719,12 @@ function exportPDFHandler(btn, viewType) {
 
 
     const idNhomDichVu = 0;
+    const idDichVuKyThuat = 0;
 
     let url = `/bao_cao_thu_vien_phi_truc_tiep/export/pdf?`;
     url += `tuNgay=${formattedTuNgay}&`;
     url += `denNgay=${formattedDenNgay}&`;
     url += `idChiNhanh=${idChiNhanh}&`;
-    url += `idNhomDichVu=${idNhomDichVu}&`;
     url = url.replace(/&$/, "");
 
     fetch(url, {
@@ -587,7 +745,7 @@ function exportPDFHandler(btn, viewType) {
             const blobUrl = window.URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = blobUrl;
-            a.download = `DanhSachThuVienPhiTrucTiep_${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '')}.pdf`;
+            a.download = `BaoCaoThuVienPhiTrucTiep.pdf`;
             document.body.appendChild(a);
             a.click();
             a.remove();
@@ -621,7 +779,7 @@ function handleExportExcel() {
             const denNgay = formatDateForServer(denNgayRaw);
             const idcn = window._idcn || 0;
 
-
+            console.log('idcn: ', idcn);
 
 
 
@@ -648,7 +806,7 @@ function handleExportExcel() {
             btn.disabled = true;
 
             try {
-                let url = `/bao_cao_thu_vien_phi_truc_tiep/check-and-export?tuNgay=${tuNgay}&denNgay=${denNgay}&idcn=${idcn}&idNhomDichVu=0`;
+                let url = `/bao_cao_thu_vien_phi_truc_tiep/check-and-export?tuNgay=${tuNgay}&denNgay=${denNgay}&idcn=${idcn}`;
 
                 const response = await fetch(url);
                 if (!response.ok) {
@@ -665,7 +823,7 @@ function handleExportExcel() {
                 const blobUrl = window.URL.createObjectURL(blob);
                 const a = document.createElement("a");
                 a.href = blobUrl;
-                a.download = `DanhSachThuVienPhiTrucTiep_${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '')}.xlsx`;
+                a.download = `BaoCaoThuVienPhiTrucTiep.xlsx`;
                 document.body.appendChild(a);
                 a.click();
                 a.remove();
@@ -684,68 +842,6 @@ function handleExportExcel() {
 }
 
 
-function renderPagination() {
-    const pagination = $('#pagination');
-    pagination.empty();
-
-    const totalRecords = fullData.length;
-    const pages = Math.max(1, Math.ceil(totalRecords / pageSize));
-
-    if (currentPage > pages) currentPage = pages;
-
-    $('#paginationContainer').text(`Trang ${currentPage}/${pages} – Tổng ${totalRecords} bản ghi`);
-
-    pagination.append(`
-        <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-            <a class="page-link" href="#" data-page="${Math.max(1, currentPage - 1)}">Trước</a>
-        </li>
-    `);
-
-    const visibleCount = 3;
-    let startPage = Math.max(1, currentPage - 1);
-    let endPage = Math.min(pages, startPage + visibleCount - 1);
-
-    if (endPage - startPage + 1 < visibleCount) {
-        startPage = Math.max(1, endPage - visibleCount + 1);
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-        pagination.append(`
-            <li class="page-item ${i === currentPage ? 'active' : ''}">
-                <a class="page-link" href="#" data-page="${i}">${i}</a>
-            </li>
-        `);
-    }
-
-    pagination.append(`
-        <li class="page-item ${currentPage === pages ? 'disabled' : ''}">
-            <a class="page-link" href="#" data-page="${Math.min(pages, currentPage + 1)}">Sau</a>
-        </li>
-    `);
-
-    pagination.find('a.page-link').on('click', function (e) {
-        e.preventDefault();
-        const page = parseInt($(this).data('page'));
-        if (!isNaN(page) && page !== currentPage) {
-            currentPage = page;
-            renderTable();
-            renderPagination();
-        }
-    });
-}
-
-
-$(document).on('change', '#pageSizeSelect', function () {
-    pageSize = parseInt($(this).val()) || 10;
-    currentPage = 1;
-
-    if (fullData && fullData.length > 0) {
-        renderTable();
-        renderPagination();
-    } else {
-        toastr.error("Vui lòng lọc dữ liệu trước khi thay đổi số dòng hiển thị.");
-    }
-});
 
 document.addEventListener('DOMContentLoaded', async () => {
     initDatePicker();

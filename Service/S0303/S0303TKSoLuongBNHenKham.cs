@@ -59,57 +59,50 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service
                 if (System.IO.File.Exists(logoPath))
                 {
                     ws.Range("A1:B4").Merge();
-                    ws.Column(1).Width = 14;
-                    ws.Column(2).Width = 5;
-
-                    var img = ws.AddPicture(logoPath)
-             .MoveTo(ws.Cell("A1"), 0, 10)
-             .WithPlacement(XLPicturePlacement.FreeFloating)
-             .Scale(0.2);
-
+                    ws.Column(1).Width = 20;
+                    ws.Column(2).Width = 20;
+                    ws.AddPicture(logoPath)
+                        .MoveTo(ws.Cell("A1"), 0, 5)
+                        .WithPlacement(XLPicturePlacement.FreeFloating)
+                        .Scale(0.2);
                 }
 
+                // 4. Thông tin header
                 string tenCoQuan = thongTinDoanhNghiep.TenCoQuanChuyenMon;
                 string tenCSKCB = thongTinDoanhNghiep.TenCSKCB;
                 bool hienTenCSKCB = !string.Equals(tenCoQuan.Trim(), tenCSKCB.Trim(), StringComparison.OrdinalIgnoreCase);
                 string diaChi = thongTinDoanhNghiep.DiaChi;
                 string dienThoai = thongTinDoanhNghiep.DienThoai;
 
-                ws.Range("C1:O1").Merge().Value = tenCoQuan;
-                ws.Range("C1:O1").Style.Font.FontName = "Times New Roman";
-                ws.Range("C1:O1").Style.Font.FontSize = 10;
-                ws.Range("C1:O1").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
-                ws.Row(1).Height = 25;
+                //ws.Range("C1:O1").Merge().Value = tenCoQuan;
+                //ws.Range("C1:O1").Style.Font.FontName = "Times New Roman";
+                //ws.Range("C1:O1").Style.Font.FontSize = 10;
+                //ws.Range("C1:O1").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
 
                 if (hienTenCSKCB)
                 {
-                    ws.Range("C2:O2").Merge().Value = tenCSKCB;
-                    ws.Range("C2:O2").Style.Font.FontName = "Times New Roman";
-                    ws.Range("C2:O2").Style.Font.FontSize = 10;
-                    ws.Range("C2:O2").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
-                    ws.Row(2).Height = 20;
+                    ws.Range("C1:O1").Merge().Value = tenCSKCB;
+                    ws.Range("C1:O1").Style.Font.FontName = "Times New Roman";
+                    ws.Range("C1:O1").Style.Font.FontSize = 10;
+                    ws.Range("C1:O1").Style.Font.Bold = true;
+                    ws.Range("C1:O1").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
                 }
 
-                ws.Range("C3:O3").Merge().Value = diaChi;
-                ws.Range("C3:O3").Style.Font.FontName = "Times New Roman";
-                ws.Range("C3:O3").Style.Font.FontSize = 10;
-                ws.Range("C3:O3").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
-                ws.Row(3).Height = 20;
+                ws.Range("C2:O2").Merge().Value = diaChi;
+                ws.Range("C3:O3").Merge().Value = $"Điện thoại: {dienThoai}";
 
+                var rangeTitle = ws.Range("A6:M6");
+                rangeTitle.Merge();
+                rangeTitle.Value = "BẢNG THỐNG KÊ SỐ LƯỢNG BN TÁI KHÁM";
+                rangeTitle.Style.Font.FontSize = 24;
+                rangeTitle.Style.Font.Bold = true;
+                rangeTitle.Style.Font.FontName = "Times New Roman";
+                rangeTitle.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                rangeTitle.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
 
-                ws.Range("C4:O4").Merge().Value = $"Điện thoại: {dienThoai}";
-                ws.Range("C4:O4").Style.Font.FontName = "Times New Roman";
-                ws.Range("C4:O4").Style.Font.FontSize = 10;
-                ws.Range("C4:O4").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
-                ws.Row(4).Height = 20;
+                // Row height
+                ws.Row(6).Height = 40; // tăng chút cho font to
 
-                ws.Range("A6:M6").Merge().Value = "BẢNG THỐNG KÊ SỐ LƯỢNG BN TÁI KHÁM";
-                ws.Range("A6:M6").Style.Font.Bold = true;
-                ws.Range("A6:M6").Style.Font.FontSize = 24;
-                ws.Range("A6:M6").Style.Font.FontName = "Times New Roman";
-                ws.Range("A6:M6").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                ws.Range("A6:M6").Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-                ws.Row(6).Height = 40;
 
                 string thoiGianThongKe = tuNgay.HasValue && denNgay.HasValue
                     ? $"Từ ngày {tuNgay.Value:dd/MM/yyyy} đến ngày {denNgay.Value:dd/MM/yyyy}"
@@ -176,8 +169,12 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service
                 }
 
                 ws.Columns().AdjustToContents();
-                ws.Rows().Height = 20;
-                ws.Style.Font.FontSize = 11;
+                //ws.Rows().Height = 20;
+                //ws.Style.Font.FontSize = 11;
+                for (int r = 10; r <= row; r++)
+                {
+                    ws.Row(r).Height = 20;
+                }
 
                 int footerRow = row + 2;
                 string[] nguoiKy = { "THỦ TRƯỞNG ĐƠN VỊ", "THỦ QUỸ", "KẾ TOÁN", "NGƯỜI LẬP BẢNG" };
@@ -220,7 +217,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service
             int idCN = idChiNhanh ?? 0;
 
             return await _localDb.M0303TKSoLuongBNHenKhamSTOs
-                .FromSqlInterpolated($"EXEC S0303_TKSoLuongBNHenTaiKham @TuNgay = {tuNgayStr}, @DenNgay = {denNgayStr}, @IDCN = {idCN}")
+                .FromSqlInterpolated($"EXEC S0305_TKSoLuongBNHenTaiKham @TuNgay = {tuNgayStr}, @DenNgay = {denNgayStr}, @IDCN = {idCN}")
                 .ToListAsync();
         }
 
@@ -289,7 +286,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service
                     : null;
 
                 var data = await _localDb.Set<M0303TKSoLuongBNHenKhamSTO>()
-    .FromSqlRaw("EXEC S0303_TKSoLuongBNHenTaiKham @TuNgay, @DenNgay, @IDCN",
+    .FromSqlRaw("EXEC S0305_TKSoLuongBNHenTaiKham @TuNgay, @DenNgay, @IDCN",
         new SqlParameter("@TuNgay", parsedTuNgay ?? (object)DBNull.Value),
         new SqlParameter("@DenNgay", parsedDenNgay ?? (object)DBNull.Value),
         new SqlParameter("@IDCN", idChiNhanh))

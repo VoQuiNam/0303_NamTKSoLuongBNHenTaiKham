@@ -49,12 +49,11 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
 
         [HttpPost("tk/FilterByDay")]
         public async Task<IActionResult> FilterByDay(string tuNgay, string denNgay,
-    int idChiNhanh,
-    int idNhomDichVu)
+    int idChiNhanh)
         {
             try
             {
-                var result = await _service.FilterBaoCaoTongHopThuVienPhiTrucTiepAsync(tuNgay, denNgay, idChiNhanh, idNhomDichVu);
+                var result = await _service.FilterBaoCaoTongHopThuVienPhiTrucTiepAsync(tuNgay, denNgay, idChiNhanh);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -63,16 +62,33 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
             }
         }
 
+        [HttpGet("nhom-dich-vu/all")]
+        public async Task<List<M0303NhomDichVuKyThuat>> LayNhomDichVu()
+        {
+            try
+            {
+                var nhomDVKT = await _service.GetNhomDVKT();
+                return nhomDVKT;
+            }
+            catch (Exception ex)
+            {
+                throw;
+
+            }
+
+        }
+
+
         [HttpGet("export/pdf")]
         public async Task<IActionResult> ExportToPDF(
   [FromQuery] DateTime? tuNgay,
   [FromQuery] DateTime? denNgay,
-  [FromQuery] int? idChiNhanh,
-  [FromQuery] int idNhomDichVu = 0)
+  [FromQuery] int? idChiNhanh
+  )
         {
             try
             {
-                return await _service.ExportToPDF(tuNgay, denNgay, idChiNhanh, idNhomDichVu);
+                return await _service.ExportToPDF(tuNgay, denNgay, idChiNhanh);
             }
             catch (Exception ex)
             {
@@ -81,18 +97,18 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
         }
 
         [HttpGet("check-and-export")]
-        public async Task<IActionResult> CheckAndExport([FromQuery] DateTime? tuNgay, [FromQuery] DateTime? denNgay, [FromQuery] int? idcn, [FromQuery] int idNhomDichVu = 0)
+        public async Task<IActionResult> CheckAndExport([FromQuery] DateTime? tuNgay, [FromQuery] DateTime? denNgay, [FromQuery] int? idcn)
         {
             try
             {
-                var list = await _service.GetBNHenKhamAsync(tuNgay, denNgay, idcn, idNhomDichVu);
+                var list = await _service.GetBNHenKhamAsync(tuNgay, denNgay, idcn);
 
                 if (!list.Any())
                 {
                     return Ok(new { hasData = false, message = "Không có dữ liệu trong khoảng ngày đã chọn" });
                 }
 
-                var result = await _service.ExportExcel(tuNgay, denNgay, idcn, idNhomDichVu);
+                var result = await _service.ExportExcel(tuNgay, denNgay, idcn);
                 return result;
             }
             catch (Exception ex)

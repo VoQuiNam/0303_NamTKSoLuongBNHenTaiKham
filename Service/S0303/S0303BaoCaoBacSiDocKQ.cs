@@ -103,6 +103,8 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                 if (!data.Any())
                     return new BadRequestObjectResult("Không có dữ liệu để xuất PDF");
 
+               
+
             
                 var logoPath = Path.Combine(_env.WebRootPath, "dist", "img", "logo.png");
 

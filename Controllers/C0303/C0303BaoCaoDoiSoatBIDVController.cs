@@ -95,5 +95,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
                 return StatusCode(500, $"Lỗi khi tạo Excel: {ex.Message}");
             }
         }
+
+
     }
 }

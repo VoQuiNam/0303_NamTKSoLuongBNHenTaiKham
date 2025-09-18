@@ -1,0 +1,472 @@
+[
+  {
+    "id": 43,
+    "ma": "SinhHoa_CobasPro",
+    "ten": "Cobas pro L1",
+    "maloaicls": "XN",
+    "idphong": null,
+    "idchinhanh": 2,
+    "viettat": "CPL",
+    "active": true
+  },
+  {
+    "id": 10048,
+    "ma": null,
+    "ten": "CT Scanner 02",
+    "maloaicls": "C",
+    "idphong": null,
+    "idchinhanh": 2,
+    "viettat": "CS0",
+    "active": true
+  },
+  {
+    "id": 48,
+    "ma": "TuNhap_DienGiai_ISE5000_1",
+    "ten": "Điện giải ISE5000 1 L3",
+    "maloaicls": "XN",
+    "idphong": null,
+    "idchinhanh": 2,
+    "viettat": "DGI1L",
+    "active": true
+  },
+  {
+    "id": 38,
+    "ma": "TuNhap_DienGiai_ISE5000 2",
+    "ten": "Điện giải ISE5000 L1 2",
+    "maloaicls": "XN",
+    "idphong": null,
+    "idchinhanh": 2,
+    "viettat": "DGIL2",
+    "active": true
+  },
+  {
+    "id": 50,
+    "ma": "TuNhap_ACL_TOP550_CTS_2",
+    "ten": "Đông máu ACL TOP550 2 L3",
+    "maloaicls": "XN",
+    "idphong": null,
+    "idchinhanh": 2,
+    "viettat": "DMAT2L",
+    "active": true
+  },
+  {
+    "id": 37,
+    "ma": "TuNhap_ACL_TOP550_CTS",
+    "ten": "Đông máu ACL TOP550 L1",
+    "maloaicls": "XN",
+    "idphong": null,
+    "idchinhanh": 2,
+    "viettat": "DMATL",
+    "active": true
+  },
+  {
+    "id": 2,
+    "ma": "DRX-P1",
+    "ten": "DRX-P1 - X-ray 01",
+    "maloaicls": "X",
+    "idphong": null,
+    "idchinhanh": 2,
+    "viettat": "DX0",
+    "active": true
+  },
+  {
+    "id": 19,
+    "ma": "DRX-P2",
+    "ten": "DRX-P1 - X-ray 02",
+    "maloaicls": "X",
+    "idphong": null,
+    "idchinhanh": 2,
+    "viettat": "DX0",
+    "active": true
+  },
+  {
+    "id": 35,
+    "ma": "TuNhap_HuyetHoc_BeckmanDXH600_1",
+    "ten": "Huyết học Beckman DXH600 L1 1",
+    "maloaicls": "XN",
+    "idphong": null,
+    "idchinhanh": 2,
+    "viettat": "HHBDL1",
+    "active": true
+  },
+  {
+    "id": 45,
+    "ma": "TuNhap_HuyetHoc_BeckmanDXH600_2",
+    "ten": "Huyết học Beckman DXH600 L1 2",
+    "maloaicls": "XN",
+    "idphong": null,
+    "idchinhanh": 2,
+    "viettat": "HHBDL2",
+    "active": true
+  },
+  {
+    "id": 51,
+    "ma": "TuNhap_HuyetHoc_BeckmanDXH800_1",
+    "ten": "Huyết học Beckman DXH800 1 L3",
+    "maloaicls": "XN",
+    "idphong": null,
+    "idchinhanh": 2,
+    "viettat": "HHBD1L",
+    "active": true
+  },
+  {
+    "id": 53,
+    "ma": "TuNhap_KhiMau_GEM3000",
+    "ten": "Khí máu Gem3000 L3",
+    "maloaicls": "XN",
+    "idphong": null,
+    "idchinhanh": 2,
+    "viettat": "KMGL",
+    "active": true
+  },
+  {
+    "id": 27,
+    "ma": "NK.2.77122.G774482",
+    "ten": "Máy chụp Xquang Runyes",
+    "maloaicls": "X",
+    "idphong": null,
+    "idchinhanh": 2,
+    "viettat": "MCXR",
+    "active": true
+  },
+  {
+    "id": 8,
+    "ma": "NK.2.77122.G77448",
+    "ten": "Máy chụp Xquang Runyes",
+    "maloaicls": "X",
+    "idphong": null,
+    "idchinhanh": 1,
+    "viettat": "MCXR",
+    "active": true
+  },
+  {
+    "id": 9,
+    "ma": "KK.2.77122.081895",
+    "ten": "Máy điện tim 3 kênh",
+    "maloaicls": "T",
+    "idphong": null,
+    "idchinhanh": 2,
+    "viettat": "MDT3K",
+    "active": true
+  },
+  {
+    "id": 10,
+    "ma": "NS.2.77122.6A2205",
+    "ten": "Máy nội soi Tai Mũi Họng",
+    "maloaicls": "N",
+    "idphong": null,
+    "idchinhanh": 1,
+    "viettat": "MNSTMH",
+    "active": true
+  },
+  {
+    "id": 20,
+    "ma": "NS1",
+    "ten": "Máy nội soi Tai Mũi Họng",
+    "maloaicls": "N",
+    "idphong": null,
+    "idchinhanh": 2,
+    "viettat": "MNSTMH",
+    "active": true
+  },
+  {
+    "id": 7,
+    "ma": "NS.2.77122.7113072",
+    "ten": "Máy nội soi tiêu hóa (7113072)",
+    "maloaicls": "N",
+    "idphong": null,
+    "idchinhanh": 1,
+    "viettat": "MNSTH",
+    "active": true
+  },
+  {
+    "id": 6,
+    "ma": "NS.2.77122.7140566",
+    "ten": "Máy nội soi tiêu hóa (7140566)",
+    "maloaicls": "N",
+    "idphong": null,
+    "idchinhanh": 1,
+    "viettat": "MNSTH",
+    "active": true
+  },
+  {
+    "id": 21,
+    "ma": "NS2",
+    "ten": "Máy nội soi tiêu hóa (7140566)",
+    "maloaicls": "N",
+    "idphong": null,
+    "idchinhanh": 2,
+    "viettat": "MNSTH",
+    "active": true
+  },
+  {
+    "id": 24,
+    "ma": "XN.2.77122.1260742",
+    "ten": "Máy phân tích huyết học tự động",
+    "maloaicls": "XN",
+    "idphong": null,
+    "idchinhanh": 2,
+    "viettat": "MPTHHTD",
+    "active": true
+  },
+  {
+    "id": 5,
+    "ma": "XN.2.77122.126074",
+    "ten": "Máy phân tích huyết học tự động",
+    "maloaicls": "XN",
+    "idphong": null,
+    "idchinhanh": 1,
+    "viettat": "MPTHHTD",
+    "active": true
+  },
+  {
+    "id": 4,
+    "ma": "XN.2.77122.002B7A",
+    "ten": "Máy phân tích nước tiểu 120 test/giờ",
+    "maloaicls": "XN",
+    "idphong": null,
+    "idchinhanh": 1,
+    "viettat": "MPTNT1T",
+    "active": true
+  },
+  {
+    "id": 23,
+    "ma": "XN.2.77122.002B7A2",
+    "ten": "Máy phân tích nước tiểu 120 test/giờ",
+    "maloaicls": "XN",
+    "idphong": null,
+    "idchinhanh": 2,
+    "viettat": "MPTNT1T",
+    "active": true
+  },
+  {
+    "id": 11,
+    "ma": "SA.2.77122.801111",
+    "ten": "Máy siêu âm ",
+    "maloaicls": "U",
+    "idphong": null,
+    "idchinhanh": 1,
+    "viettat": "MSA",
+    "active": true
+  },
+  {
+    "id": 14,
+    "ma": "SA.3.77122.002677",
+    "ten": "Máy siêu âm DC-30",
+    "maloaicls": "U",
+    "idphong": null,
+    "idchinhanh": 1,
+    "viettat": "MSAD",
+    "active": true
+  },
+  {
+    "id": 33,
+    "ma": "SA.3.77122.0026772",
+    "ten": "Máy siêu âm DC-30",
+    "maloaicls": "U",
+    "idphong": null,
+    "idchinhanh": 2,
+    "viettat": "MSAD",
+    "active": true
+  },
+  {
+    "id": 17,
+    "ma": "SA1",
+    "ten": "Máy siêu âm Doppler màu 4D",
+    "maloaicls": "U",
+    "idphong": null,
+    "idchinhanh": 2,
+    "viettat": "MSADM4",
+    "active": true
+  },
+  {
+    "id": 1,
+    "ma": "SA.2.77122.802742",
+    "ten": "Máy siêu âm Doppler màu 4D",
+    "maloaicls": "U",
+    "idphong": null,
+    "idchinhanh": 1,
+    "viettat": "MSADM4",
+    "active": true
+  },
+  {
+    "id": 18,
+    "ma": "SA2",
+    "ten": "Máy siêu âm Doppler màu 6D",
+    "maloaicls": "U",
+    "idphong": null,
+    "idchinhanh": 2,
+    "viettat": "MSADM6",
+    "active": true
+  },
+  {
+    "id": 15,
+    "ma": "XN.3.77122.IR2OY193401",
+    "ten": "Máy xét nghiệm miễn dịch",
+    "maloaicls": "XN",
+    "idphong": null,
+    "idchinhanh": 1,
+    "viettat": "MXNMD",
+    "active": true
+  },
+  {
+    "id": 34,
+    "ma": "XN.3.77122.IR2OY1934012",
+    "ten": "Máy xét nghiệm miễn dịch",
+    "maloaicls": "XN",
+    "idphong": null,
+    "idchinhanh": 2,
+    "viettat": "MXNMD",
+    "active": true
+  },
+  {
+    "id": 22,
+    "ma": "XN.2.77122.0028982",
+    "ten": "Máy xét nghiệm sinh hóa tự động",
+    "maloaicls": "XN",
+    "idphong": null,
+    "idchinhanh": 2,
+    "viettat": "MXNSHTD",
+    "active": true
+  },
+  {
+    "id": 3,
+    "ma": "XN.2.77122.002898",
+    "ten": "Máy xét nghiệm sinh hóa tự động",
+    "maloaicls": "XN",
+    "idphong": null,
+    "idchinhanh": 1,
+    "viettat": "MXNSHTD",
+    "active": true
+  },
+  {
+    "id": 13,
+    "ma": "",
+    "ten": "Máy XN Khác",
+    "maloaicls": "XN",
+    "idphong": null,
+    "idchinhanh": 1,
+    "viettat": "MXK",
+    "active": true
+  },
+  {
+    "id": 32,
+    "ma": "2",
+    "ten": "Máy XN Khác",
+    "maloaicls": "XN",
+    "idphong": null,
+    "idchinhanh": 2,
+    "viettat": "MXK",
+    "active": true
+  },
+  {
+    "id": 39,
+    "ma": "TuNhap_MienDich_I200sr",
+    "ten": "Miễn dịch I200 SR L1",
+    "maloaicls": "XN",
+    "idphong": null,
+    "idchinhanh": 2,
+    "viettat": "MDISL",
+    "active": true
+  },
+  {
+    "id": 41,
+    "ma": "DxI800",
+    "ten": "Miễn dịch Unicel DxI 800 L1",
+    "maloaicls": "XN",
+    "idphong": null,
+    "idchinhanh": 2,
+    "viettat": "MDUD8L",
+    "active": true
+  },
+  {
+    "id": 52,
+    "ma": "TuNhap_NhomMau_Wadiana_2",
+    "ten": "Nhóm máu Wadiana 2 L3",
+    "maloaicls": "XN",
+    "idphong": null,
+    "idchinhanh": 2,
+    "viettat": "NMW2L",
+    "active": true
+  },
+  {
+    "id": 46,
+    "ma": "TuNhap_NhomMau_Wadiana",
+    "ten": "Nhóm máu Wadiana L1",
+    "maloaicls": "XN",
+    "idphong": null,
+    "idchinhanh": 2,
+    "viettat": "NMWL",
+    "active": true
+  },
+  {
+    "id": 47,
+    "ma": "TuNhap_NuocTieu_IchemVelocity",
+    "ten": "Nước tiểu IchemVelocity L3",
+    "maloaicls": "XN",
+    "idphong": null,
+    "idchinhanh": 2,
+    "viettat": "NTIL",
+    "active": true
+  },
+  {
+    "id": 10047,
+    "ma": "TuNhap_NuocTieu_LabUReaderPlus",
+    "ten": "Nước tiểu LabUReaderPlus",
+    "maloaicls": "XN",
+    "idphong": null,
+    "idchinhanh": 2,
+    "viettat": "NTL",
+    "active": true
+  },
+  {
+    "id": 42,
+    "ma": "AU480",
+    "ten": "Sinh hoá AU480 L1",
+    "maloaicls": "XN",
+    "idphong": null,
+    "idchinhanh": 2,
+    "viettat": "SHAL",
+    "active": true
+  },
+  {
+    "id": 49,
+    "ma": "AU680",
+    "ten": "Sinh hoá AU680 L3",
+    "maloaicls": "XN",
+    "idphong": null,
+    "idchinhanh": 2,
+    "viettat": "SHAL",
+    "active": true
+  },
+  {
+    "id": 40,
+    "ma": ".",
+    "ten": "Test nhanh",
+    "maloaicls": "XN",
+    "idphong": null,
+    "idchinhanh": 2,
+    "viettat": "TN",
+    "active": true
+  },
+  {
+    "id": 12,
+    "ma": "",
+    "ten": "Test nhanh",
+    "maloaicls": "XN",
+    "idphong": null,
+    "idchinhanh": 1,
+    "viettat": "TN",
+    "active": true
+  },
+  {
+    "id": 44,
+    "ma": "NuocTieu_LabUReaderPlus",
+    "ten": "Xét nghiệm nước tiểu LabUReaderPlus L1",
+    "maloaicls": "XN",
+    "idphong": null,
+    "idchinhanh": 2,
+    "viettat": "XNNTLL",
+    "active": false
+  }
+]

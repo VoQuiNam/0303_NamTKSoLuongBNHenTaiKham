@@ -4,11 +4,88 @@
 @model List<M0303BaoCaoBacSiDocKQSTO>
 
 <head>
-    <link href="~/dist/css/CSS0303/CSS0303BaoCaoBacSiDocKQ.css" rel="stylesheet" />
-    <link href="~/dist/css/CSS0303/CSS0303TKSoLuongBNHenTaiKham.css" rel="stylesheet" />
+    <link href="~/dist/css/CSS0303/CSS0303BaoCaoThuTongHopDichVuTheoKhoaPhong.css" rel="stylesheet" />
     <link href="~/dist/lib/bootstrap-datepicker-1.10.0/dist/css/bootstrap-datepicker.min.css" rel="stylesheet" />
     <link href="~/dist/lib/toastr/toastr.min.css" rel="stylesheet" />
 </head>
+
+
+<style>
+    .table-wrapper-scroll th,
+    .table-wrapper-scroll td {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Quan trọng: Cố định layout bảng */
+    .table-wrapper-scroll table {
+        table-layout: fixed;
+    }
+
+    /* Đặt chiều rộng chính xác cho 2 cột đầu */
+    .table-wrapper-scroll th:nth-child(1),
+    .table-wrapper-scroll td:nth-child(1) {
+        width: 60px; /* STT */
+        min-width: 60px;
+        max-width: 60px;
+    }
+
+    .table-wrapper-scroll th:nth-child(2),
+    .table-wrapper-scroll td:nth-child(2) {
+        width: 75px; /* hoặc giá trị nhỏ hơn, ví dụ: 200px */
+        min-width: 75px; /* nếu muốn có chiều rộng tối thiểu */
+        max-width: 1800px; /* hoặc giá trị phù hợp */
+    }
+
+    /* Cố định 2 cột đầu */
+    .table-wrapper-scroll th:nth-child(1),
+    .table-wrapper-scroll td:nth-child(1) {
+        position: sticky;
+        left: 0;
+        z-index: 101;
+        background-color: white;
+    }
+
+    .table-wrapper-scroll th:nth-child(2),
+    .table-wrapper-scroll td:nth-child(2) {
+        position: sticky;
+        left: 60px; /* = width(cột1) */
+        /* z-index: 100; */
+        background-color: white;
+    }
+
+    /* Header cố định */
+    .table-wrapper-scroll th:nth-child(-n+2) {
+        position: sticky;
+        top: 0;
+        z-index: 223;
+        background-color: #f2f2f2;
+    }
+
+    /* Đặt lại left cho header */
+    .table-wrapper-scroll th:nth-child(1) {
+        left: 0;
+    }
+
+    .table-wrapper-scroll th:nth-child(2) {
+        left: 60px;
+    }
+
+    /* Border và hover */
+    .table-wrapper-scroll th:nth-child(-n+2),
+    .table-wrapper-scroll td:nth-child(-n+2) {
+        border-right: 1px solid #ccc !important;
+    }
+
+    .table-wrapper-scroll tr:hover td:nth-child(-n+2) {
+        background-color: #bae7ff !important;
+    }
+
+    .table-wrapper-scroll tr.selected td:nth-child(-n+2) {
+        background-color: #bae7ff !important;
+    }
+</style>
 
 
 <div class="card p-1">
@@ -119,8 +196,8 @@
                 <p>Đang tải dữ liệu...</p>
             </div>
 
-            <div class="table-wrapper">
-                <table style="width:100%; margin: 0; table-layout: fixed; min-width: max-content;" cellpadding="8">
+            <div class="table-wrapper-scroll">
+                <table class="custom-table" cellpadding="8">
                     <thead class="table-secondary">
                         <tr>
                             <th class="text-center" style="width:10%;">STT</th>
@@ -131,6 +208,7 @@
                     <tbody id="tableBody">
                        
                     </tbody>
+                    <tfoot></tfoot>
                 </table>
             </div>
 
@@ -169,6 +247,20 @@
 
 }
 
+
+
+<script>
+            // Thêm sự kiện click cho từng dòng
+    document.querySelector(".table-wrapper-scroll tbody").addEventListener("click", function (e) {
+        const row = e.target.closest("tr");
+        if (!row) return;
+
+        // Bỏ chọn các dòng khác
+        this.querySelectorAll("tr").forEach(r => r.classList.remove("selected"));
+        // Chọn dòng hiện tại
+        row.classList.add("selected");
+    });
+</script>
 
 
 

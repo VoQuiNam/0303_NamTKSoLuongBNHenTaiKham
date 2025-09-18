@@ -150,58 +150,70 @@ function renderTable() {
     const tbody = $('#tableBody');
     tbody.empty();
 
-    if (!fullData || fullData.length === 0) {
-        tbody.append(`<tr><td colspan="16" class="text-center text-muted">Không có dữ liệu phù hợp.</td></tr>`);
-        return;
-    }
+    // Hiển thị loading
+    showLoading();
 
-    fullData.sort((a, b) => new Date(a.ngayGioGiaoDich) - new Date(b.ngayGioGiaoDich));
+    setTimeout(() => {
+        try {
+            if (!fullData || fullData.length === 0) {
+                tbody.append(`<tr><td colspan="16" class="text-center text-muted">Không có dữ liệu phù hợp.</td></tr>`);
+                return;
+            }
 
-    const startIndex = (currentPage - 1) * pageSize;
-    const pageData = fullData.slice(startIndex, startIndex + pageSize);
+            fullData.sort((a, b) => new Date(a.ngayGioGiaoDich) - new Date(b.ngayGioGiaoDich));
 
-    let tongBVUBAll = 0;
-    let tongBIDVAll = 0;
-    fullData.forEach(item => {
-        tongBVUBAll += item.bvuB_SoTien || 0;
-        tongBIDVAll += item.bidV_SoTien || 0;
-    });
+            const startIndex = (currentPage - 1) * pageSize;
+            const pageData = fullData.slice(startIndex, startIndex + pageSize);
 
-   
-    pageData.forEach((item, index) => {
-        const row = `
-            <tr>
-                <td class="text-center">${startIndex + index + 1}</td>
-                <td class="text-center">${item.maYTe || ''}</td>
-                <td class="text-center">${item.maDot || ''}</td>
-                <td class="text-start">${item.hoTenBenhNhan || ''}</td>
-                <td class="text-center">${item.soDienThoai || ''}</td>
-                <td class="text-end">${formatSoTien(item.soTienTrenBL)}</td>
-                <td class="text-center">${item.soBL || ''}</td>
-                <td class="text-end">${formatSoTien(item.soTienTrenHD)}</td>
-                <td class="text-center">${item.soHD || ''}</td>
-                <td class="text-end">${formatSoTien(item.tongSoTien)}</td>
-                <td class="text-center">${formatDateDisplay(item.ngayGioGiaoDich) || ''}</td>
-                <td class="text-start">${item.userThanhToan || ''}</td>
-                <td class="text-end">${formatSoTien(item.bvuB_SoTien)}</td>
-                <td class="text-center">${item.bvuB_TrangThai || 'Chưa có'}</td>
-                <td class="text-end">${formatSoTien(item.bidV_SoTien)}</td>
-                <td class="text-center">${item.bidV_TrangThai || 'Chưa có'}</td>
+            let tongBVUBAll = 0;
+            let tongBIDVAll = 0;
+            fullData.forEach(item => {
+                tongBVUBAll += item.bvuB_SoTien || 0;
+                tongBIDVAll += item.bidV_SoTien || 0;
+            });
+
+            pageData.forEach((item, index) => {
+                const row = `
+                <tr>
+                    <td class="text-center">${startIndex + index + 1}</td>
+                    <td class="text-center">${item.maYTe || ''}</td>
+                    <td class="text-center">${item.maDot || ''}</td>
+                    <td class="text-start">${item.hoTenBenhNhan || ''}</td>
+                    <td class="text-center">${item.soDienThoai || ''}</td>
+                    <td class="text-end">${formatSoTien(item.soTienTrenBL)}</td>
+                    <td class="text-center">${item.soBL || ''}</td>
+                    <td class="text-end">${formatSoTien(item.soTienTrenHD)}</td>
+                    <td class="text-center">${item.soHD || ''}</td>
+                    <td class="text-end">${formatSoTien(item.tongSoTien)}</td>
+                    <td class="text-center">${formatDateDisplay(item.ngayGioGiaoDich) || ''}</td>
+                    <td class="text-start">${item.userThanhToan || ''}</td>
+                    <td class="text-end">${formatSoTien(item.bvuB_SoTien)}</td>
+                    <td class="text-center">${item.bvuB_TrangThai || 'Chưa có'}</td>
+                    <td class="text-end">${formatSoTien(item.bidV_SoTien)}</td>
+                    <td class="text-center">${item.bidV_TrangThai || 'Chưa có'}</td>
+                </tr>
+            `;
+                tbody.append(row);
+            });
+
+            const totalRow = `
+            <tr class="fw-bold">
+                <td colspan="12" class="text-end fw-bold">Tổng cộng:</td>
+                <td class="text-end fw-bold">${formatSoTien(tongBVUBAll)}</td>
+                <td></td>
+                <td class="text-end fw-bold">${formatSoTien(tongBIDVAll)}</td>
+                <td></td>
             </tr>
         `;
-        tbody.append(row);
-    });
-
-    const totalRow = `
-        <tr class="fw-bold">
-            <td colspan="12" class="text-end fw-bold">Tổng cộng (tất cả trang):</td>
-            <td class="text-end fw-bold">${formatSoTien(tongBVUBAll)}</td>
-            <td></td>
-            <td class="text-end fw-bold">${formatSoTien(tongBIDVAll)}</td>
-            <td></td>
-        </tr>
-    `;
-    tbody.append(totalRow);
+            document.querySelector(".table-wrapper-scroll tfoot").innerHTML = totalRow;
+        } catch (error) {
+            console.error('Lỗi khi render table:', error);
+            tbody.append(`<tr><td colspan="16" class="text-center text-danger">Đã xảy ra lỗi khi tải dữ liệu.</td></tr>`);
+        } finally {
+            // Luôn ẩn loading khi hoàn thành
+            hideLoading();
+        }
+    }, 100);
 }
 
 
@@ -269,29 +281,42 @@ $(document).on('change', '#pageSizeSelect', function () {
 });
 
 
+function showLoading() {
+    document.getElementById('loadingSpinner').style.display = 'block';
+}
+
+function hideLoading() {
+    document.getElementById('loadingSpinner').style.display = 'none';
+}
+
+
 function handleFilter() {
     $('.btnFilterBidv').off('click').on('click', function (e) {
         e.preventDefault();
 
+        showLoading();
+
         setTimeout(function () {
             const idChiNhanh = window._idcn;
+            
 
 
             const tuNgayRaw = $('#tuNgayDesktop').val() || $('#tuNgayMobile').val();
             const denNgayRaw = $('#denNgayDesktop').val() || $('#denNgayMobile').val();
 
+
+
             if (!tuNgayRaw || !denNgayRaw) {
                 toastr.error("Vui lòng chọn đầy đủ Từ ngày và Đến ngày");
+                hideLoading(); // Ẩn loading nếu có lỗi
                 return;
             }
-
-
-
 
             const tuNgayDate = new Date(tuNgayRaw.split('-').reverse().join('-'));
             const denNgayDate = new Date(denNgayRaw.split('-').reverse().join('-'));
 
             if (tuNgayDate > denNgayDate) {
+                console.warn("⚠ Từ ngày lớn hơn đến ngày, tự động đổi lại");
                 $('#tuNgayDesktop').val(denNgayRaw);
                 $('#tuNgayDesktop').datepicker('update', denNgayRaw);
 
@@ -299,45 +324,68 @@ function handleFilter() {
                 $('#tuNgayMobile').datepicker('update', denNgayRaw);
             }
 
-
             const tuNgay = formatDateForServer($('#tuNgayDesktop').val() || $('#tuNgayMobile').val());
             const denNgay = formatDateForServer($('#denNgayDesktop').val() || $('#denNgayMobile').val());
 
+            console.log("✅ Ngày gửi lên server:", { tuNgay, denNgay });
+
             if (!validateDateRange(tuNgay, denNgay)) {
+                console.error("❌ validateDateRange trả về false");
+                hideLoading(); // Ẩn loading nếu có lỗi
                 return;
             }
 
+            console.log("🚀 Gửi request AJAX:", {
+                url: '/bao_cao_doi_soat_bidv/tk/FilterByDay',
+                data: { tuNgay, denNgay, idChiNhanh }
+            });
 
             $.ajax({
-
                 url: '/bao_cao_doi_soat_bidv/tk/FilterByDay',
                 type: 'POST',
                 data: { tuNgay, denNgay, idChiNhanh },
+                beforeSend: function () {
+                    // Hiển thị loading trước khi gửi request
+                    showLoading();
+                },
                 success: function (response) {
+                    console.log("✅ Response từ server:", response);
+
                     if (response.success) {
+                        console.log("✅ Dữ liệu nhận được:", response.data);
                         updateTable(response.data);
 
                         doanhNghiepInfo = response.thongTinDoanhNghiep || null;
+                        console.log("✅ Thông tin doanh nghiệp:", doanhNghiepInfo);
+
                         if (doanhNghiepInfo) {
                             $('#tenCSKCB').text("🏥 " + doanhNghiepInfo.TenCSKCB);
                             $('#diaChiCSKCB').text("📍 " + doanhNghiepInfo.DiaChi);
                             $('#dienThoaiCSKCB').text("📞 " + doanhNghiepInfo.DienThoai);
                         }
+
                         lastFilteredTuNgay = tuNgayRaw;
                         lastFilteredDenNgay = denNgayRaw;
+
                         toastr.success("Lọc dữ liệu thành công!");
                     } else {
+                        console.error("❌ Server trả về success = false:", response.error);
                         toastr.error("Lỗi: " + (response.error || "Lỗi khi lọc dữ liệu"));
                     }
                 },
                 error: function (xhr) {
+                    console.error("❌ AJAX error:", xhr);
                     toastr.error("❌ Lỗi kết nối: " + xhr.responseText);
+                },
+                complete: function () {
+                    // Ẩn loading khi request hoàn thành (dù thành công hay thất bại)
+                    hideLoading();
                 }
             });
         }, 100);
     });
-
 }
+
 
 
 function validateDateRange(tuNgay, denNgay) {
@@ -536,7 +584,7 @@ function formatSoTien(soTien) {
             return '<span class="text-danger">Sai định dạng</span>';
         }
     }
-    const formatter = new Intl.NumberFormat('vi-VN', {
+    const formatter = new Intl.NumberFormat('en-US', {
         minimumFractionDigits: 0,
         maximumFractionDigits: 20
     });
@@ -548,8 +596,9 @@ function formatSoTien(soTien) {
 
 document.addEventListener('DOMContentLoaded', function () {
     initDatePicker();
-    renderTable();
     handleFilter();
+    renderTable();
+
     handleExportExcel();
     handleExportPDF();
 });

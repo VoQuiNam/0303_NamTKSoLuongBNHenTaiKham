@@ -2,8 +2,8 @@
 {
     public class M0303DichVuKyThuat
     {
-        public int id { get; set; }
-        public int idNhomDichVu { get; set; }
+        public long? id { get; set; }
+        public long? idNhomDichVu { get; set; }
         public string ten { get; set; }
     }
 }

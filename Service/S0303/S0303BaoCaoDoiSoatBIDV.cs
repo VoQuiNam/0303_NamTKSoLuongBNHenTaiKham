@@ -108,64 +108,59 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                 if (System.IO.File.Exists(logoPath))
                 {
                     ws.Range("A1:B4").Merge();
-                    ws.Column(1).Width = 25;
-                    ws.Column(2).Width = 25;
-
-                    var img = ws.AddPicture(logoPath)
-                                .MoveTo(ws.Cell("A1"), -10, 10)
-                                .WithPlacement(XLPicturePlacement.FreeFloating)
-                                .Scale(0.3);
+                    ws.Column(1).Width = 20;
+                    ws.Column(2).Width = 15;
+                    ws.AddPicture(logoPath)
+                        .MoveTo(ws.Cell("A1"), 15, 5)
+                        .WithPlacement(XLPicturePlacement.FreeFloating)
+                        .Scale(0.2);
                 }
 
+                // 4. Thông tin header
                 string tenCoQuan = thongTinDoanhNghiep.TenCoQuanChuyenMon;
                 string tenCSKCB = thongTinDoanhNghiep.TenCSKCB;
                 bool hienTenCSKCB = !string.Equals(tenCoQuan.Trim(), tenCSKCB.Trim(), StringComparison.OrdinalIgnoreCase);
                 string diaChi = thongTinDoanhNghiep.DiaChi;
                 string dienThoai = thongTinDoanhNghiep.DienThoai;
 
-                ws.Range("C1:O1").Merge().Value = tenCoQuan;
-                ws.Range("C1:O1").Style.Font.FontName = "Times New Roman";
-                ws.Range("C1:O1").Style.Font.FontSize = 10;
-                ws.Range("C1:O1").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
-                ws.Row(1).Height = 25;
+                //ws.Range("C1:O1").Merge().Value = tenCoQuan;
+                //ws.Range("C1:O1").Style.Font.FontName = "Times New Roman";
+                //ws.Range("C1:O1").Style.Font.FontSize = 10;
+                //ws.Range("C1:O1").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
 
                 if (hienTenCSKCB)
                 {
-                    ws.Range("C2:O2").Merge().Value = tenCSKCB;
-                    ws.Range("C2:O2").Style.Font.FontName = "Times New Roman";
-                    ws.Range("C2:O2").Style.Font.FontSize = 10;
-                    ws.Range("C2:O2").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
-                    ws.Row(2).Height = 20;
+                    ws.Range("C1:O1").Merge().Value = tenCSKCB;
+                    ws.Range("C1:O1").Style.Font.FontName = "Times New Roman";
+                    ws.Range("C1:O1").Style.Font.FontSize = 10;
+                    ws.Range("C1:O1").Style.Font.Bold = true;
+                    ws.Range("C1:O1").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
                 }
 
-                ws.Range("C3:O3").Merge().Value = diaChi;
-                ws.Range("C3:O3").Style.Font.FontName = "Times New Roman";
-                ws.Range("C3:O3").Style.Font.FontSize = 10;
-                ws.Range("C3:O3").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
-                ws.Row(3).Height = 20;
+                ws.Range("C2:O2").Merge().Value = diaChi;
+                ws.Range("C3:O3").Merge().Value = $"Điện thoại: {dienThoai}";
 
-                ws.Range("C4:O4").Merge().Value = $"Điện thoại: {dienThoai}";
-                ws.Range("C4:O4").Style.Font.FontName = "Times New Roman";
-                ws.Range("C4:O4").Style.Font.FontSize = 10;
-                ws.Range("C4:O4").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
-                ws.Row(4).Height = 20;
 
-                ws.Range("A6:P6").Merge().Value = "BẢNG BÁO CÁO ĐỐI SOÁT BIDV";
-                ws.Range("A6:P6").Style.Font.Bold = true;
-                ws.Range("A6:P6").Style.Font.FontSize = 24;
-                ws.Range("A6:P6").Style.Font.FontName = "Times New Roman";
-                ws.Range("A6:P6").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                ws.Range("A6:P6").Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-                ws.Row(6).Height = 40;
+                var rangeTitle = ws.Range("A6:M6");
+                rangeTitle.Merge();
+                rangeTitle.Value = "BẢNG BÁO CÁO ĐỐI SOÁT BIDV";
+                rangeTitle.Style.Font.FontSize = 24;
+                rangeTitle.Style.Font.Bold = true;
+                rangeTitle.Style.Font.FontName = "Times New Roman";
+                rangeTitle.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                rangeTitle.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+                // Row height
+                ws.Row(6).Height = 40; // tăng chút cho font to
 
                 string thoiGianThongKe = tuNgay.HasValue && denNgay.HasValue
-                    ? $"Từ ngày {tuNgay.Value:dd/MM/yyyy} đến ngày {denNgay.Value:dd/MM/yyyy}"
-                    : "Toàn bộ thời gian";
+                     ? $"Từ ngày {tuNgay.Value:dd/MM/yyyy} đến ngày {denNgay.Value:dd/MM/yyyy}"
+                     : "Toàn bộ thời gian";
 
-                ws.Range("A7:P7").Merge().Value = thoiGianThongKe;
-                ws.Range("A7:P7").Style.Font.Bold = true;
-                ws.Range("A7:P7").Style.Font.FontSize = 12;
-                ws.Range("A7:P7").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                ws.Range("A7:M7").Merge().Value = thoiGianThongKe;
+                ws.Range("A7:M7").Style.Font.Bold = true;
+                ws.Range("A7:M7").Style.Font.FontSize = 12;
+                ws.Range("A7:M7").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                 ws.Row(7).Height = 20;
 
                 string[] mainHeaders = {
@@ -174,7 +169,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
             "Ngày giờ giao dịch", "User thanh toán"
         };
 
-                double[] columnWidths = { 7, 9, 11, 26, 15, 16, 9, 16, 9, 16, 23, 18, 16, 13, 16, 13 };
+                double[] columnWidths = { 7, 9, 14, 26, 15, 16, 9, 16, 9, 16, 23, 18, 16, 13, 16, 13 };
                 for (int i = 0; i < columnWidths.Length; i++) ws.Column(i + 1).Width = columnWidths[i];
 
                 var headerRow1 = ws.Row(9);

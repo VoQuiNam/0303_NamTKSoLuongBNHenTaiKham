@@ -64,7 +64,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
             container.Page(page =>
             {
                 page.Size(PageSizes.A4.Landscape());
-                page.Margin(15);
+                page.Margin(20);
                 page.DefaultTextStyle(x => x.FontFamily("Times New Roman").FontSize(10));
 
 

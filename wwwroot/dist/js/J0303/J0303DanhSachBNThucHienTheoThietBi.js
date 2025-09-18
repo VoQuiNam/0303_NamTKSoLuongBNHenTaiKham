@@ -154,27 +154,34 @@ async function loadJsonData() {
 }
 
 
+function showLoading() {
+    document.getElementById('loadingSpinner').style.display = 'block';
+}
+
+function hideLoading() {
+    document.getElementById('loadingSpinner').style.display = 'none';
+}
+
 function handleFilter() {
     $('.btnFilterBidv').off('click').on('click', function (e) {
         e.preventDefault();
 
+        // Hiển thị loading khi bắt đầu lọc
+        showLoading();
+
         setTimeout(function () {
             try {
-
                 const tuNgayRaw = $('#tuNgayDesktop').val() || $('#tuNgayMobile').val();
                 const denNgayRaw = $('#denNgayDesktop').val() || $('#denNgayMobile').val();
 
-               
-
                 if (!tuNgayRaw || !denNgayRaw) {
                     toastr.error("Vui lòng chọn đầy đủ Từ ngày và Đến ngày");
+                    hideLoading(); // Ẩn loading nếu có lỗi
                     return;
                 }
 
                 const tuNgayDate = new Date(tuNgayRaw.split('-').reverse().join('-'));
                 const denNgayDate = new Date(denNgayRaw.split('-').reverse().join('-'));
-
-               
 
                 if (tuNgayDate > denNgayDate) {
                     console.warn("Cảnh báo: Từ ngày > Đến ngày, đang tự động hoán đổi");
@@ -182,16 +189,11 @@ function handleFilter() {
                     $('#tuNgayDesktop').datepicker('update', denNgayRaw);
                     $('#tuNgayMobile').val(denNgayRaw);
                     $('#tuNgayMobile').datepicker('update', denNgayRaw);
-
-                    tuNgayRaw = denNgayRaw;
                 }
 
                 const tuNgay = formatDateForServer(tuNgayRaw);
                 const denNgay = formatDateForServer(denNgayRaw);
 
-              
-
-               
                 $.ajax({
                     url: '/danh_sach_bn_thuc_hien_theo_thiet_bi/tk/FilterByDay',
                     type: 'POST',
@@ -202,25 +204,24 @@ function handleFilter() {
                         idNhomDichVu: 0,
                         idDichVuKyThuat: 0
                     },
+                    beforeSend: function () {
+                        // Hiển thị loading trước khi gửi request
+                        showLoading();
+                    },
                     success: function (response) {
-                       
-
                         if (response.success) {
                             fullData = response.data || [];
-                        
+
                             fullData.forEach(item => {
                                 const nhomdichvu = listNhomDv.find(p => p.id === item.idNhomDichVu);
                                 const dichvu = listDv.find(k => k.id === item.idDichVuKyThuat);
 
                                 item.tenNhomDV = nhomdichvu?.ten || "Không rõ nhóm dịch vụ";
                                 item.tenDV = dichvu?.ten || "Không rõ dịch vụ";
-
-                         
                             });
 
                             currentPage = 1;
                             pageSize = parseInt($('#pageSizeSelect').val()) || 10;
-                           
 
                             renderTable();
                             renderPagination();
@@ -228,19 +229,22 @@ function handleFilter() {
                             lastFilteredDenNgay = denNgayRaw;
                             toastr.success("Lọc dữ liệu thành công!");
                         } else {
-                            
                             toastr.error("Lỗi: " + (response.error || "Không lấy được dữ liệu"));
                         }
                     },
                     error: function (xhr) {
-                        
                         toastr.error("❌ Lỗi kết nối: " + xhr.responseText);
+                    },
+                    complete: function () {
+                        // Ẩn loading khi request hoàn thành
+                        hideLoading();
                     }
                 });
 
             } catch (err) {
                 console.error("❌ Lỗi trong setTimeout:", err);
                 console.error("Stack trace:", err.stack);
+                hideLoading(); // Ẩn loading nếu có lỗi
             }
         }, 100);
     });
@@ -248,97 +252,117 @@ function handleFilter() {
 
 function renderTable() {
     const tbody = $('#tableBody');
+    const tfoot = document.querySelector(".table-wrapper-scroll tfoot");
     tbody.empty();
+    tfoot.innerHTML = ''; // Xóa footer trước
 
-    if (!fullData || fullData.length === 0) {
-        tbody.append('<tr><td colspan="29" class="text-center">Không có dữ liệu</td></tr>');
-        return;
-    }
+    // Hiển thị loading
+    showLoading();
 
-    const start = (currentPage - 1) * pageSize;
-    const end = start + pageSize;
-    const pageData = fullData.slice(start, end);
+    setTimeout(() => {
+        try {
+            if (!fullData || fullData.length === 0) {
+                tbody.append('<tr><td colspan="29" class="text-center">Không có dữ liệu</td></tr>');
+                return; // Thoát khỏi hàm nếu không có dữ liệu
+            }
 
-    let totalSoLuong = 0;
-    let totalDoanhThu = 0;
-    let totalBaoHiem = 0;
-    let totalDaThanhToan = 0;
-    let totalChuaThanhToan = 0;
+            const start = (currentPage - 1) * pageSize;
+            const end = start + pageSize;
+            const pageData = fullData.slice(start, end);
 
-    fullData.forEach(item => {
-        totalSoLuong += item.soLuong ? parseFloat(item.soLuong) : 0;
-        totalDoanhThu += item.doanhThu ? parseFloat(item.doanhThu) : 0;
-        totalBaoHiem += item.baoHiem ? parseFloat(item.baoHiem) : 0;
-        totalDaThanhToan += item.daThanhToan ? parseFloat(item.daThanhToan) : 0;
-        totalChuaThanhToan += item.chuaThanhToan ? parseFloat(item.chuaThanhToan) : 0;
-    });
+            let totalSoLuong = 0;
+            let totalDoanhThu = 0;
+            let totalBaoHiem = 0;
+            let totalDaThanhToan = 0;
+            let totalChuaThanhToan = 0;
+
+            fullData.forEach(item => {
+                totalSoLuong += item.soLuong ? parseFloat(item.soLuong) : 0;
+                totalDoanhThu += item.doanhThu ? parseFloat(item.doanhThu) : 0;
+                totalBaoHiem += item.baoHiem ? parseFloat(item.baoHiem) : 0;
+                totalDaThanhToan += item.daThanhToan ? parseFloat(item.daThanhToan) : 0;
+                totalChuaThanhToan += item.chuaThanhToan ? parseFloat(item.chuaThanhToan) : 0;
+            });
+
+            pageData.forEach((item, index) => {
+                const ngayYC = item.ngayYC ? formatDateDisplay(item.ngayYC) : '';
+                const ngayTH = item.ngayTH ? formatDateDisplay(item.ngayTH) : '';
+
+                const doanhThu = item.doanhThu ? parseFloat(item.doanhThu) : 0;
+                const baoHiem = item.baoHiem ? parseFloat(item.baoHiem) : 0;
+                const daThanhToan = item.daThanhToan ? parseFloat(item.daThanhToan) : 0;
+                const chuaThanhToan = item.chuaThanhToan ? parseFloat(item.chuaThanhToan) : 0;
+
+                console.log('data: ', item);
 
 
-    pageData.forEach((item, index) => {
-        const ngayYC = item.ngayYC ? formatDateDisplay(item.ngayYC) : '';
-        const ngayTH = item.ngayTH ? formatDateDisplay(item.ngayTH) : '';
+                const row = `
+                  <tr>
+                    <td class="text-center">${start + index + 1}</td>
+                    <td class="text-center">${item.maYT || ''}</td>
+                    <td class="text-center">${item.soHS || ''}</td>
+                    <td class="text-center">${item.soBA || ''}</td>
+                    <td class="text-start">${item.icd || ''}</td>
+                    <td class="text-start">${item.hoTen || ''}</td>
+                    <td class="text-start">${item.gioiTinh || ''}</td>
+                    <td class="text-center">${item.soBHYT || ''}</td>
+                    <td class="text-start">${item.kcbbd || ''}</td>
+                    <td class="text-center">${item.dt === true ? 'X' : ''}</td>
+                    <td class="text-start">${item.doiTuong || ''}</td>
+                    <td class="text-start">${item.tinhTrang || ''}</td>
+                    <td class="text-start">${item.noiChiDinh || ''}</td>
+                    <td class="text-start">${item.bacSi || ''}</td>
+                    <td class="text-start">${item.tenNhomDichVu || ''}</td>
+                    <td class="text-start">${item.tenDichVuKyThuat || ''}</td>
+                    <td class="text-center">${item.soLuong || '0'}</td>
+                    <td class="text-center">${ngayYC}</td>
+                    <td class="text-center">${ngayTH}</td>
+                    <td class="text-center">${item.quyenSo || ''}</td>
+                    <td class="text-center">${item.soBL || ''}</td>
+                    <td class="text-center">${item.chungTu || ''}</td>
+                    <td class="text-start">${item.tenThietBi || ''}</td>
+                    <td class="text-end">${doanhThu > 0 ? formatSoTien(doanhThu) : '-'}</td>
+                    <td class="text-end">${baoHiem > 0 ? formatSoTien(baoHiem) : '-'}</td>
+                    <td class="text-end">${daThanhToan > 0 ? formatSoTien(daThanhToan) : '-'}</td>
+                    <td class="text-end">${chuaThanhToan > 0 ? formatSoTien(chuaThanhToan) : '-'}</td>
+                    <td class="text-center">${item.huyHoan ? 'X' : ''}</td>
+                    <td class="text-center">${item.trangThaiThanhToan ? 'X' : ''}</td>
 
-        const doanhThu = item.doanhThu ? parseFloat(item.doanhThu) : 0;
-        const baoHiem = item.baoHiem ? parseFloat(item.baoHiem) : 0;
-        const daThanhToan = item.daThanhToan ? parseFloat(item.daThanhToan) : 0;
-        const chuaThanhToan = item.chuaThanhToan ? parseFloat(item.chuaThanhToan) : 0;
+                  </tr>
+                `;
+                tbody.append(row);
+            });
 
-        const row = `
-          <tr>
-            <td class="text-center">${start + index + 1}</td>
-            <td class="text-center">${item.maYT || ''}</td>
-            <td class="text-center">${item.soHS || ''}</td>
-            <td class="text-center">${item.soBA || ''}</td>
-            <td class="text-center">${item.icd || ''}</td>
-            <td class="text-start">${item.hoTen || ''}</td>
-            <td class="text-start">${item.gioiTinh || ''}</td>
-            <td class="text-center">${item.soBHYT || ''}</td>
-            <td class="text-start">${item.kcbbd || ''}</td>
-            <td class="text-center">${item.dt === true ? 'X' : ''}</td>
-            <td class="text-start">${item.doiTuong || ''}</td>
-            <td class="text-start">${item.tinhTrang || ''}</td>
-            <td class="text-start">${item.noiChiDinh || ''}</td>
-            <td class="text-start">${item.bacSi || ''}</td>
-            <td class="text-start">${item.tenNhomDV || ''}</td>
-            <td class="text-start">${item.tenDV || ''}</td>
-            <td class="text-center">${item.soLuong || '0'}</td>
-            <td class="text-center">${ngayYC}</td>
-            <td class="text-center">${ngayTH}</td>
-            <td class="text-center">${item.quyenSo || ''}</td>
-            <td class="text-center">${item.soBL || ''}</td>
-            <td class="text-center">${item.chungTu || ''}</td>
-            <td class="text-start">${item.tenThietBi || ''}</td>
-            <td class="text-end">${doanhThu > 0 ? formatSoTien(doanhThu) : '-'}</td>
-<td class="text-end">${baoHiem > 0 ? formatSoTien(baoHiem) : '-'}</td>
-<td class="text-end">${daThanhToan > 0 ? formatSoTien(daThanhToan) : '-'}</td>
-<td class="text-end">${chuaThanhToan > 0 ? formatSoTien(chuaThanhToan) : '-'}</td>
-
-            <td class="text-center">${item.huyHoan === true ? 'X' : ''}</td>
-            <td class="text-center">${item.trangThaiThanhToan === true ? 'X' : ''}</td>
+            // CHỈ HIỂN THỊ TỔNG CỘNG KHI CÓ DỮ LIỆU
+            const totalRow = `
+          <tr style="font-weight:bold; background:#f2f2f2;">
+            <td colspan="16" class="text-center">Tổng cộng</td>
+            <td class="text-center">${totalSoLuong}</td> <!-- cột Số lượng -->
+            <td></td> <!-- Ngày YC -->
+            <td></td> <!-- Ngày TH -->
+            <td></td> <!-- Quyển -->
+            <td></td> <!-- Số BL -->
+            <td></td> <!-- Chứng từ -->
+            <td></td> <!-- Thiết bị -->
+            <td class="text-end">${formatSoTien(totalDoanhThu)}</td> <!-- Doanh thu -->
+            <td class="text-end">${formatSoTien(totalBaoHiem)}</td> <!-- Bảo hiểm -->
+            <td class="text-end">${formatSoTien(totalDaThanhToan)}</td> <!-- Đã TT -->
+            <td class="text-end">${formatSoTien(totalChuaThanhToan)}</td> <!-- Chưa TT -->
+            <td></td> <!-- Hủy hoàn -->
+            <td></td> <!-- Đã thanh toán -->
           </tr>
         `;
-        tbody.append(row);
-    });
 
-    const totalRow = `
-      <tr style="font-weight:bold; background:#f2f2f2;">
-        <td colspan="16" class="text-center">Tổng cộng</td>
-        <td class="text-end">${totalSoLuong}</td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td class="text-end">${formatSoTien(totalDoanhThu)}</td>
-        <td class="text-end">${formatSoTien(totalBaoHiem)}</td>
-        <td class="text-end">${formatSoTien(totalDaThanhToan)}</td>
-        <td class="text-end">${formatSoTien(totalChuaThanhToan)}</td>
-        <td></td>
-        <td></td
-      </tr>
-    `;
-    tbody.append(totalRow);
+            tfoot.innerHTML = totalRow;
+
+        } catch (error) {
+            console.error('Lỗi khi render table:', error);
+            tbody.append('<tr><td colspan="29" class="text-center text-danger">Đã xảy ra lỗi khi tải dữ liệu</td></tr>');
+        } finally {
+            // Luôn ẩn loading khi hoàn thành
+            hideLoading();
+        }
+    }, 100);
 }
 
 
@@ -522,7 +546,7 @@ function exportPDFHandler(btn, viewType) {
             const blobUrl = window.URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = blobUrl;
-            a.download = `DanhSachBNThucHienTheoThietBi_${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '')}.pdf`;
+            a.download = `DanhSachBNThucHienTheoThietBi.pdf`;
             document.body.appendChild(a);
             a.click();
             a.remove();
@@ -600,7 +624,7 @@ function handleExportExcel() {
                 const blobUrl = window.URL.createObjectURL(blob);
                 const a = document.createElement("a");
                 a.href = blobUrl;
-                a.download = `DanhSachBNThucHienTheoThietBi_${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '')}.xlsx`;
+                a.download = `DanhSachBNThucHienTheoThietBi.xlsx`;
                 document.body.appendChild(a);
                 a.click();
                 a.remove();

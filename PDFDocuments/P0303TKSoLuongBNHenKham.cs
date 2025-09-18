@@ -42,7 +42,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
             container.Page(page =>
             {
                 page.Size(PageSizes.A4.Landscape());
-                page.Margin(15);
+                page.Margin(20);
                 page.PageColor(Colors.White);
                 page.DefaultTextStyle(x => x.FontFamily("Times New Roman").FontSize(10).FontColor(Colors.Black));
 
@@ -135,26 +135,27 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                         int stt = 1;
                         foreach (var item in _data)
                         {
-                            void AddDataCell(string text, bool center = false)
+                            void AddDataCell(string text, bool center = false, bool left = false)
                             {
                                 var cell = table.Cell().Border(1).BorderColor(Colors.Grey.Lighten1)
                                     .PaddingVertical(2).PaddingHorizontal(3)
                                     .AlignMiddle().Text(text ?? "").FontSize(8).WrapAnywhere();
 
                                 if (center) cell.AlignCenter();
+                                if (left) cell.AlignLeft();
                             }
 
                             AddDataCell(stt++.ToString(), true);
                             AddDataCell(item.MaYTe ?? "", true);
                             AddDataCell(item.HoVaTen ?? "");
                             AddDataCell(item.NamSinh?.ToString() ?? "", true);
-                            AddDataCell(item.GioiTinh ?? "", true);
+                            AddDataCell(item.GioiTinh ?? "", left: true);
                             AddDataCell(item.QuocTich ?? "");
                             AddDataCell(item.CCCD_PASSPORT ?? "");
                             AddDataCell(item.SDT ?? "");
                             AddDataCell(item.NgayHenKham?.ToString("dd-MM-yyyy") ?? "", true);
                             AddDataCell(item.BacSiHenKham ?? "");
-                            AddDataCell(item.NhacHen ?? "", true);
+                            AddDataCell(item.NhacHen ?? "", left: true);
                             AddDataCell(item.GhiChu ?? "");
 
                         }

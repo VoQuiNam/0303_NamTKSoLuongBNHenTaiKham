@@ -23,6 +23,16 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Models.M0303
 
         public DbSet<M0303BaoCaoTongHopThuVienPhiTrucTiepSTO> M0303BaoCaoTongHopThuVienPhiTrucTiepSTOs { get; set; }
 
+        public DbSet<M0303BaoCaoThuTongHopDichVuTheoKhoaPhongSTO> M0303BaoCaoThuTongHopDichVuTheoKhoaPhongSTOs { get; set; }
+
+        public DbSet<M0303LayPhieuNhapKhoInGopSTO> M0303LayPhieuNhapKhoInGopSTOs { get; set; }
+
+        // SỬA LẠI TÊN DBSET CHO ĐÚNG
+        public DbSet<M0303PhieuNhapKhoSTO> M0303PhieuNhapKhoSTOs { get; set; }
+
+        public DbSet<M0303NhomDichVuKyThuat> NhomDichVuKyThuat { get; set; }
+        public DbSet<M0303Phong> PhongBuong { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
            
@@ -31,6 +41,13 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Models.M0303
             modelBuilder.Entity<M0303BaoCaoBacSiDocKQSTO>().HasNoKey();
             modelBuilder.Entity<M0303DanhSachBNThucHienTheoThietBiSTO>().HasNoKey();
             modelBuilder.Entity<M0303BaoCaoTongHopThuVienPhiTrucTiepSTO>().HasNoKey();
+            modelBuilder.Entity<M0303BaoCaoThuTongHopDichVuTheoKhoaPhongSTO>().HasNoKey();
+            modelBuilder.Entity<M0303BaoCaoTongHopThuVienPhiTrucTiepSTO>().HasNoKey();
+            modelBuilder.Entity<M0303PhieuNhapKhoSTO>().HasNoKey();
+
+            modelBuilder.Entity<M0303NhomDichVuKyThuat>().HasNoKey();
+            modelBuilder.Entity<M0303Phong>().HasNoKey();
+
         }
 
         public bool TestConnection()

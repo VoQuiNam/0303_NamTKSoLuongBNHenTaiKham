@@ -146,39 +146,62 @@ function updateTable(data) {
     renderPagination();
 }
 
+function showLoading() {
+    document.getElementById('loadingSpinner').style.display = 'block';
+}
+
+function hideLoading() {
+    document.getElementById('loadingSpinner').style.display = 'none';
+}
+
 function renderTable() {
     const tbody = $('#tableBody');
     tbody.empty();
 
-    if (!fullData || fullData.length === 0) {
-        tbody.append(`<tr><td colspan="12" class="text-center text-muted">Không có dữ liệu phù hợp.</td></tr>`);
-        return;
-    }
+    // Hiển thị loading
+    showLoading();
 
-    fullData.sort((a, b) => new Date(a.ngayHenKham) - new Date(b.ngayHenKham));
+    // Sử dụng setTimeout để đảm bảo UI được cập nhật
+    setTimeout(() => {
+        try {
+            if (!fullData || fullData.length === 0) {
+                tbody.append(`<tr><td colspan="12" class="text-center text-muted">Không có dữ liệu phù hợp.</td></tr>`);
+                hideLoading(); // Ẩn loading khi không có dữ liệu
+                return;
+            }
 
-    const startIndex = (currentPage - 1) * pageSize;
-    const pageData = fullData.slice(startIndex, startIndex + pageSize);
+            fullData.sort((a, b) => new Date(a.ngayHenKham) - new Date(b.ngayHenKham));
 
-    pageData.forEach((item, index) => {
-        const row = `
-            <tr>
-                <td class="text-center" style="width: 50px;">${startIndex + index + 1}</td>
-                <td class="text-center">${item.maYTe}</td>
-                <td class="text-start" style="max-width: 180px;">${item.hoVaTen}</td>
-                <td class="text-center">${item.namSinh}</td>
-                <td class="text-start">${item.gioiTinh}</td>
-                <td class="text-start">${item.quocTich}</td>
-                <td class="text-center" style="max-width: 140px;">${item.cccD_PASSPORT}</td>
-                <td class="text-center" style="max-width: 120px;">${item.sdt}</td>
-                <td class="text-center">${formatDateDisplay(item.ngayHenKham)}</td>
-                <td class="text-start" style="max-width: 150px;">${item.bacSiHenKham}</td>
-                <td class="text-start">${item.nhacHen}</td>
-                <td class="text-start" style="max-width: 150px;">${item.ghiChu}</td>
-            </tr>
-        `;
-        tbody.append(row);
-    });
+            const startIndex = (currentPage - 1) * pageSize;
+            const pageData = fullData.slice(startIndex, startIndex + pageSize);
+
+            pageData.forEach((item, index) => {
+                const row = `
+                    <tr>
+                        <td class="text-center">${startIndex + index + 1}</td>
+                        <td class="text-center">${item.maYTe}</td>
+                        <td class="text-start">${item.hoVaTen}</td>
+                        <td class="text-center">${item.namSinh}</td>
+                        <td class="text-start">${item.gioiTinh}</td>
+                        <td class="text-start">${item.quocTich}</td>
+                        <td class="text-center">${item.cccD_PASSPORT}</td>
+                        <td class="text-center">${item.sdt}</td>
+                        <td class="text-center">${formatDateDisplay(item.ngayHenKham)}</td>
+                        <td class="text-start">${item.bacSiHenKham}</td>
+                        <td class="text-start">${item.nhacHen}</td>
+                        <td class="text-start">${item.ghiChu}</td>
+                    </tr>
+                `;
+                tbody.append(row);
+            });
+        } catch (error) {
+            console.error('Lỗi khi render table:', error);
+            tbody.append(`<tr><td colspan="12" class="text-center text-danger">Đã xảy ra lỗi khi tải dữ liệu.</td></tr>`);
+        } finally {
+            // Ẩn loading khi hoàn thành (chỉ ẩn nếu chưa ẩn ở trên)
+            hideLoading();
+        }
+    }, 100);
 }
 
 
@@ -254,21 +277,19 @@ function handleFilter() {
     $('.btnFilter').off('click').on('click', function (e) {
         e.preventDefault();
 
+        // Hiển thị loading khi bắt đầu lọc
+        showLoading();
 
         setTimeout(function () {
             const idChiNhanh = window._idcn;
-
-
             const tuNgayRaw = $('#tuNgayDesktop').val() || $('#tuNgayMobile').val();
             const denNgayRaw = $('#denNgayDesktop').val() || $('#denNgayMobile').val();
 
             if (!tuNgayRaw || !denNgayRaw) {
                 toastr.error("Vui lòng chọn đầy đủ Từ ngày và Đến ngày");
+                hideLoading(); // Ẩn loading nếu có lỗi
                 return;
             }
-
-           
-
 
             const tuNgayDate = new Date(tuNgayRaw.split('-').reverse().join('-'));
             const denNgayDate = new Date(denNgayRaw.split('-').reverse().join('-'));
@@ -276,30 +297,29 @@ function handleFilter() {
             if (tuNgayDate > denNgayDate) {
                 $('#tuNgayDesktop').val(denNgayRaw);
                 $('#tuNgayDesktop').datepicker('update', denNgayRaw);
-
                 $('#tuNgayMobile').val(denNgayRaw);
                 $('#tuNgayMobile').datepicker('update', denNgayRaw);
             }
-
 
             const tuNgay = formatDateForServer($('#tuNgayDesktop').val() || $('#tuNgayMobile').val());
             const denNgay = formatDateForServer($('#denNgayDesktop').val() || $('#denNgayMobile').val());
 
             if (!validateDateRange(tuNgay, denNgay)) {
-                return; }
-
-           
-
+                hideLoading(); // Ẩn loading nếu có lỗi
+                return;
+            }
 
             $.ajax({
-                
                 url: '/bao_cao_thong_ke_so_luong_benh_nhan_hen_tai_kham/tk/FilterByDay',
                 type: 'POST',
                 data: { tuNgay, denNgay, idChiNhanh },
+                beforeSend: function () {
+                    // Hiển thị loading trước khi gửi request
+                    showLoading();
+                },
                 success: function (response) {
                     if (response.success) {
                         updateTable(response.data);
-
                         doanhNghiepInfo = response.thongTinDoanhNghiep || null;
                         if (doanhNghiepInfo) {
                             $('#tenCSKCB').text("🏥 " + doanhNghiepInfo.TenCSKCB);
@@ -315,11 +335,14 @@ function handleFilter() {
                 },
                 error: function (xhr) {
                     toastr.error("❌ Lỗi kết nối: " + xhr.responseText);
+                },
+                complete: function () {
+                    // Ẩn loading khi request hoàn thành (dù thành công hay thất bại)
+                    hideLoading();
                 }
             });
         }, 100);
     });
-
 }
 
 
@@ -381,7 +404,7 @@ async function handleExportExcel() {
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
-            a.download = "BaoCaoThongKe.xlsx";
+            a.download = "BaoCaoThongKeSoLuongBenhNhanHenTaiKham.xlsx";
             document.body.appendChild(a);
             a.click();
 
@@ -476,7 +499,7 @@ function exportPDFHandler(btn, viewType) {
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
-            a.download = "DanhSachHenKham.pdf";
+            a.download = "BaoCaoThongKeSoLuongBenhNhanHenTaiKham.pdf";
             document.body.appendChild(a);
             a.click();
             a.remove();

@@ -50,13 +50,11 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
 
         [HttpPost("tk/FilterByDay")]
         public async Task<IActionResult> FilterByDay(string tuNgay, string denNgay,
-    int idChiNhanh,
-    int idNhomDichVu,
-    int idDichVuKyThuat)
+    int idChiNhanh)
         {
             try
             {
-                var result = await _service.FilterDanhSachBNTheoThietBiAsync(tuNgay, denNgay, idChiNhanh, idNhomDichVu, idDichVuKyThuat);
+                var result = await _service.FilterDanhSachBNTheoThietBiAsync(tuNgay, denNgay, idChiNhanh);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -70,13 +68,11 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
         public async Task<IActionResult> ExportToPDF(
      [FromQuery] DateTime? tuNgay,
      [FromQuery] DateTime? denNgay,
-     [FromQuery] int? idChiNhanh,
-     [FromQuery] int idNhomDichVu = 0,
-     [FromQuery] int idDichVuKyThuat = 0)
+     [FromQuery] int? idChiNhanh)
         {
             try
             {
-                return await _service.ExportToPDF(tuNgay, denNgay, idChiNhanh, idNhomDichVu, idDichVuKyThuat);
+                return await _service.ExportToPDF(tuNgay, denNgay, idChiNhanh);
             }
             catch (Exception ex)
             {
@@ -87,19 +83,18 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
 
 
         [HttpGet("check-and-export")]
-        public async Task<IActionResult> CheckAndExport([FromQuery] DateTime? tuNgay, [FromQuery] DateTime? denNgay, [FromQuery] int? idcn, [FromQuery] int idNhomDichVu = 0,
-[FromQuery] int idDichVuKyThuat = 0)
+        public async Task<IActionResult> CheckAndExport([FromQuery] DateTime? tuNgay, [FromQuery] DateTime? denNgay, [FromQuery] int? idcn)
         {
             try
             {
-                var list = await _service.GetBNHenKhamAsync(tuNgay, denNgay, idcn, idNhomDichVu, idDichVuKyThuat);
+                var list = await _service.GetBNHenKhamAsync(tuNgay, denNgay, idcn);
 
                 if (!list.Any())
                 {
                     return Ok(new { hasData = false, message = "Không có dữ liệu trong khoảng ngày đã chọn" });
                 }
 
-                var result = await _service.ExportExcel(tuNgay, denNgay, idcn, idNhomDichVu, idDichVuKyThuat);
+                var result = await _service.ExportExcel(tuNgay, denNgay, idcn);
                 return result;
             }
             catch (Exception ex)
@@ -107,7 +102,6 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
                 return StatusCode(500, new { error = $"Lỗi khi tạo Excel: {ex.Message}" });
             }
         }
-
 
     }
 }

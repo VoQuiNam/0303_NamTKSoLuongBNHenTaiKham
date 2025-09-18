@@ -6,10 +6,96 @@
 @using Nam_ThongKeSoLuongBNHenTaiKham.Models.M0303
 @model List<M0303DanhSachBNThucHienTheoThietBiSTO>
 <head>
-    <link href="~/dist/css/CSS0303/CSS0303TKSoLuongBNHenTaiKham.css" rel="stylesheet" />
+    <link href="~/dist/css/CSS0303/CSS0303DanhSachBNThucHienTheoThietBi.css" rel="stylesheet" />
     <link href="~/dist/lib/bootstrap-datepicker-1.10.0/dist/css/bootstrap-datepicker.min.css" rel="stylesheet" />
     <link href="~/dist/lib/toastr/toastr.min.css" rel="stylesheet" />
 </head>
+
+<style>
+
+    .table-wrapper-scroll th,
+    .table-wrapper-scroll td {
+        white-space: nowrap; /* giữ nội dung không xuống dòng */
+    }
+
+        /* Cố định 4 cột đầu tiên */
+        .table-wrapper-scroll th:nth-child(1),
+        .table-wrapper-scroll td:nth-child(1) {
+            position: sticky;
+            left: 0;
+            z-index: 2;
+            background-color: white;
+            min-width: 65px; /* Cố định chiều rộng cột 1 */
+        }
+
+        .table-wrapper-scroll th:nth-child(2),
+        .table-wrapper-scroll td:nth-child(2) {
+            position: sticky;
+            left: 65px; /* Chiều rộng của cột 1 */
+            z-index: 2;
+            background-color: white;
+            min-width: 75px; /* Cố định chiều rộng cột 2 */
+        }
+
+        .table-wrapper-scroll th:nth-child(3),
+        .table-wrapper-scroll td:nth-child(3) {
+            position: sticky;
+            left: 140px; /* Tổng chiều rộng cột 1 + 2 */
+            z-index: 2;
+            background-color: white;
+            min-width: 110px; /* Cố định chiều rộng cột 3 */
+        }
+
+        .table-wrapper-scroll th:nth-child(4),
+        .table-wrapper-scroll td:nth-child(4) {
+            position: sticky;
+            left: 250px; /* Tổng chiều rộng cột 1 + 2 + 3 */
+            z-index: 2;
+            background-color: white;
+            min-width: 150px; /* Cố định chiều rộng cột 4 */
+        }
+
+        /* Đặc biệt xử lý cho header - cố định cả top và left */
+        .table-wrapper-scroll th:nth-child(-n+4) {
+            position: sticky;
+            top: 0;
+            z-index: 5; /* Cao hơn để hiển thị trên cả header và nội dung */
+            background-color: #f2f2f2;
+        }
+
+        /* Đặt lại left cho header để khớp với các cột dữ liệu */
+        .table-wrapper-scroll th:nth-child(1) {
+            left: 0;
+        }
+
+        .table-wrapper-scroll th:nth-child(2) {
+            left: 65px;
+        }
+
+        .table-wrapper-scroll th:nth-child(3) {
+            left: 140px;
+        }
+
+        .table-wrapper-scroll th:nth-child(4) {
+            left: 250px;
+        }
+
+        /* Đảm bảo các cột cố định có border đầy đủ */
+        .table-wrapper-scroll th:nth-child(-n+4),
+        .table-wrapper-scroll td:nth-child(-n+4) {
+            border-right: 1px solid #ccc !important;
+        }
+
+    /* Tăng cường độ ưu tiên cho background */
+    .table-wrapper-scroll tr:hover td:nth-child(-n+4) {
+        background-color: #bae7ff !important;
+    }
+
+    .table-wrapper-scroll tr.selected td:nth-child(-n+4) {
+        background-color: #bae7ff !important;
+    }
+
+</style>
 
 <div class="card p-1">
     <div class="container_goiKham">
@@ -95,44 +181,46 @@
             </div>
 
 
-            <div class="table-wrapper">
-                <table style="width:100%; margin: 0; table-layout: fixed; min-width: 1800px;" cellpadding="8">
+            <div class="table-wrapper-scroll">
+                <table class ="custom-table" cellpadding="8">
                     <thead>
                         <tr>
-                            <th style="width:50px;">STT</th>
-                            <th style="width: 107px;">Mã YT</th>
-                            <th style="width: 110px;">Số HS</th>
-                            <th style="width: 110px;">Số BA</th>
-                            <th style="width:70px;">ICD</th>
-                            <th style="width:160px;">Họ và tên</th>
-                            <th style="width:70px;">Giới tính</th>
-                            <th style="width: 118px;">Số BHYT</th>
-                            <th style="width:120px;">KCBBĐ</th>
-                            <th style="width:70px;">ĐT</th>
-                            <th style="width: 87px;">Đối Tượng</th>
-                            <th style="width: 68px;">TT</th>
-                            <th style="width:100px;">Nơi Chỉ Định</th>
-                            <th style="width: 137px;">Bác sỹ</th>
-                            <th style="width:90px;">Nhóm DV</th>
-                            <th style="width:100px;">Dịch vụ</th>
-                            <th style="width: 65px;">Số lượng</th>
-                            <th style="width: 96px;">Ngày YC</th>
-                            <th style="width: 96px;">Ngày TH</th>
-                            <th style="width: 117px;">Quyển</th>
-                            <th style="width: 114px;">Số BL</th>
-                            <th style="width: 115px;">Chứng từ</th>
-                            <th style="width:120px;">Thiết bị</th>
-                            <th style="width: 98px;">Doanh thu</th>
-                            <th style="width: 98px;">Bảo hiểm</th>
-                            <th style="width: 98px;">Đã thanh toán</th>
-                            <th style="width: 98px;">Chưa thanh toán</th>
-                            <th style="width:70px;">Hủy hoàn</th>
-                            <th style="width:90px;">Đã thanh toán</th>
+                            <th>STT</th>
+                            <th>Mã YT</th>
+                            <th>Số HS</th>
+                            <th>Số BA</th>
+                            <th>ICD</th>
+                            <th>Họ và tên</th>
+                            <th>Giới tính</th>
+                            <th>Số BHYT</th>
+                            <th>KCBBĐ</th>
+                            <th>ĐT</th>
+                            <th>Đối Tượng</th>
+                            <th>TT</th>
+                            <th>Nơi Chỉ Định</th>
+                            <th>Bác sỹ</th>
+                            <th>Nhóm DV</th>
+                            <th>Dịch vụ</th>
+                            <th>Số lượng</th>
+                            <th>Ngày YC</th>
+                            <th>Ngày TH</th>
+                            <th>Quyển</th>
+                            <th>Số BL</th>
+                            <th>Chứng từ</th>
+                            <th>Thiết bị</th>
+                            <th>Doanh thu</th>
+                            <th>Bảo hiểm</th>
+                            <th>Đã thanh toán</th>
+                            <th>Chưa thanh toán</th>
+                            <th>Hủy hoàn</th>
+                            <th>Trạng thái TT</th>
                         </tr>
                     </thead>
+
                     <tbody id="tableBody">
                      
                     </tbody>
+                    <tfoot></tfoot>
                 </table>
             </div>
 
@@ -172,6 +260,20 @@
 
 }
 
+
+
+<script>
+            // Thêm sự kiện click cho từng dòng
+    document.querySelector(".table-wrapper-scroll tbody").addEventListener("click", function (e) {
+        const row = e.target.closest("tr");
+        if (!row) return;
+
+        // Bỏ chọn các dòng khác
+        this.querySelectorAll("tr").forEach(r => r.classList.remove("selected"));
+        // Chọn dòng hiện tại
+        row.classList.add("selected");
+    });
+</script>
 
 
 

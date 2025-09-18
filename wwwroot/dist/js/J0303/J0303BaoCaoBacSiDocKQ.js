@@ -1,10 +1,10 @@
-﻿let listPhong = [];  
-let listKhoa = [];   
+﻿let listPhong = [];
+let listKhoa = [];
 let fullData = [];
 let currentPage = 1;
 let pageSize = 20;
-let phongIndex = 1; 
-let khoaSttGlobal = 1; 
+let phongIndex = 1;
+let khoaSttGlobal = 1;
 let lastFilteredTuNgay = null;
 let lastFilteredDenNgay = null;
 
@@ -161,13 +161,13 @@ function renderTable() {
                 return sum + ((item.thuPhi || 0) + (item.bhyt || 0) + (item.no || 0) + (item.mienGiam || 0));
             }, 0);
 
-          
+
         });
 
         khoa.tongSoCa = Object.values(khoa.phongGroups)
             .reduce((sum, phong) => sum + phong.tongSoCa, 0);
 
-      
+
     });
 
 
@@ -211,7 +211,7 @@ function renderTable() {
 
 
     pagedData.forEach(({ khoa, phong, item }) => {
-    
+
         if (lastKhoa !== khoa) {
             tbody.append(`
                 <tr class="fw-bold" style="background-color: #f8f9fa;">
@@ -225,7 +225,7 @@ function renderTable() {
             lastPhong = null;
         }
 
-        
+
         if (lastPhong !== phong) {
             tbody.append(`
                 <tr class="fw-bold">
@@ -238,7 +238,7 @@ function renderTable() {
             lastPhong = phong;
         }
 
-        
+
         tbody.append(`
             <tr>
                 <td style="border-right: 1px solid #dee2e6; text-align: center; width: 40px;">
@@ -358,19 +358,19 @@ function handleFilter() {
                     $('#tuNgayMobile').datepicker('update', denNgayRaw);
                 }
 
-             
+
                 const tuNgay = formatDateForServer($('#tuNgayDesktop').val() || $('#tuNgayMobile').val());
                 const denNgay = formatDateForServer($('#denNgayDesktop').val() || $('#denNgayMobile').val());
 
-                
+
                 let idKhoa = parseInt($("#selectedKhoaId").val());
                 let idPhong = parseInt($("#selectedPhongId").val());
 
-          
+
                 if (isNaN(idKhoa)) idKhoa = 0;
                 if (isNaN(idPhong)) idPhong = 0;
 
-              
+
 
                 $.ajax({
                     url: '/bao_cao_bac_si_doc_kq/tk/FilterByDay',
@@ -380,7 +380,7 @@ function handleFilter() {
                         if (response.success) {
                             fullData = response.data || [];
 
-                           
+
                             fullData.forEach(item => {
                                 const phong = listPhong.find(p => p.id === item.idPhong);
                                 const khoa = listKhoa.find(k => k.id === item.idKhoa);
@@ -389,11 +389,11 @@ function handleFilter() {
                                 item.tenKhoa = khoa?.ten || "Không rõ khoa";
                             });
 
-                            
+
 
                             currentPage = 1;
                             pageSize = parseInt($('#pageSizeSelect').val()) || 10;
-                            khoaStt = 1; 
+                            khoaStt = 1;
                             renderTable();
                             renderPagination();
                             lastFilteredTuNgay = tuNgayRaw;
@@ -572,7 +572,7 @@ async function handleExportExcel() {
         const selectPhongEl = document.getElementById("selectedPhongId");
         const idChiNhanh = window._idcn;
 
-       
+
 
         if (!tuNgayRaw || !denNgayRaw) {
             toastr.error("Vui lòng chọn đầy đủ Từ ngày và Đến ngày trước khi xuất Excel.");
@@ -613,26 +613,26 @@ async function handleExportExcel() {
 
 
             if (!exportResponse.ok) {
-                
+
                 const errorText = await exportResponse.text();
 
-                
+
                 try {
                     const errorData = JSON.parse(errorText);
                     if (errorData.message) {
                         throw new Error(errorData.message);
                     }
                 } catch (e) {
-                   
+
                     throw new Error(errorText || "Lỗi không xác định");
                 }
             }
 
-           
+
             const contentType = exportResponse.headers.get('content-type');
 
             if (contentType && contentType.includes('application/json')) {
-              
+
                 const responseData = await exportResponse.json();
                 if (!responseData.hasData) {
                     toastr.error(responseData.message || "Không có dữ liệu trong khoảng ngày đã chọn.");
@@ -640,7 +640,7 @@ async function handleExportExcel() {
                 }
             } else if (contentType && (contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') ||
                 contentType.includes('application/octet-stream'))) {
-              
+
                 const blob = await exportResponse.blob();
 
                 if (blob.size === 0) {
@@ -683,7 +683,7 @@ function exportPDFHandler(btn, viewType) {
     const tuNgay = document.getElementById(viewType === "Mobile" ? "tuNgayMobile" : "tuNgayDesktop").value;
     const denNgay = document.getElementById(viewType === "Mobile" ? "denNgayMobile" : "denNgayDesktop").value;
 
-   
+
     const idKhoa = document.getElementById("selectedKhoaId").value || 0;
     const idPhong = document.getElementById("selectedPhongId").value || 0;
 
@@ -777,7 +777,7 @@ $('#searchPhong').on('input', function () {
 
 
 document.addEventListener('DOMContentLoaded', function () {
-      $.getJSON("/dist/data/json/DM_Khoa.json", function (data) {
+    $.getJSON("/dist/data/json/DM_Khoa.json", function (data) {
         listKhoa = data.map(n => {
             let alias = n.viettat && n.viettat.trim() !== ""
                 ? n.viettat.toUpperCase()
@@ -785,7 +785,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return { ...n, alias };
         });
 
-   
+
         $.getJSON("/dist/data/json/DM_PhongBuong.json", function (dataPB) {
             listPhong = dataPB.map(n => {
                 let alias = n.viettat && n.viettat.trim() !== ""
@@ -810,10 +810,10 @@ document.addEventListener('DOMContentLoaded', function () {
                         $("#selectedPhongId").val("");
                     }
 
-                 
+
                     phongDropdown.renderDropdown("", listPhong.filter(p => p.idKhoa === id));
 
-                   
+
                     setTimeout(() => {
                         $("#searchPhong").focus();
                     }, 100);
@@ -838,7 +838,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             });
 
-       
+
             $("#searchKhoa, #searchPhong").on("input", function () {
                 const khoaVal = $("#searchKhoa").val().trim();
                 const phongVal = $("#searchPhong").val().trim();
@@ -848,7 +848,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             });
 
-       
+
         });
     });
     initDatePicker();

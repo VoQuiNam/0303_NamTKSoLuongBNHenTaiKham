@@ -10,16 +10,18 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
         private readonly Context0303 _localDb;
         private readonly IWebHostEnvironment _env;
         private readonly I0303BaoCaoThuTongHopDichVuTheoKhoaPhong _service;
+        private readonly ILogger<C0303BaoCaoThuTongHopDichVuTheoKhoaPhongController> _logger;
 
-        public C0303BaoCaoThuTongHopDichVuTheoKhoaPhongController(Context0303 localDb, IWebHostEnvironment env, I0303BaoCaoThuTongHopDichVuTheoKhoaPhong service
-           /*, IMemoryCachingServices memoryCache*/)
+        public C0303BaoCaoThuTongHopDichVuTheoKhoaPhongController(
+            Context0303 localDb, 
+            IWebHostEnvironment env, 
+            I0303BaoCaoThuTongHopDichVuTheoKhoaPhong service,
+            ILogger<C0303BaoCaoThuTongHopDichVuTheoKhoaPhongController> logger)
         {
             _localDb = localDb;
             _env = env;
             _service = service;
-
-
-            //_memoryCache = memoryCache;
+            _logger = logger;
         }
 
         public IActionResult V0303BaoCaoThuTongHopDichVuTheoKhoaPhongPage()
@@ -32,6 +34,8 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
         {
             try
             {
+                Console.WriteLine($"TuNgay={tuNgay}, DenNgay={denNgay}, IDCN={idChiNhanh}, IDDVKT={idDichVuKyThuat}, IDPhong={idPhong}");
+
                 var result = await _service.FilterByDayAsync(tuNgay, denNgay, idChiNhanh, idDichVuKyThuat, idPhong);
                 return Ok(result);
             }
@@ -63,7 +67,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
 
         [HttpGet("check-and-export")]
         public async Task<IActionResult> CheckAndExport([FromQuery] DateTime? tuNgay, [FromQuery] DateTime? denNgay, [FromQuery] int? idcn, [FromQuery] int idPhong, [FromQuery] int idDichVuKyThuat = 0,
-[FromQuery] int idNhomDichVu = 0)
+        [FromQuery] int idNhomDichVu = 0)
         {
             try
             {
@@ -81,6 +85,54 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
             {
                 return StatusCode(500, new { error = $"Lỗi khi tạo Excel: {ex.Message}" });
             }
+        }
+
+        [HttpGet("nhom-dich-vu/all")]
+        public async Task<List<M0303NhomDichVuKyThuat>> LayNhomDichVu()
+        {
+            try
+            {
+                var nhomDVKT = await _service.GetNhomDVKT();
+                return nhomDVKT;
+            }
+            catch (Exception ex)
+            {
+                throw;
+              
+            }
+
+        }
+
+        [HttpGet("phong-buong/all")]
+        public async Task<List<M0303Phong>> GetDSPhongBuong()
+        {
+            try
+            {
+                var dsPhongBuong = await _service.GetDSPhongBuong();
+                return dsPhongBuong;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+        }
+
+
+        [HttpGet("dich-vu-ky-thuat/all")]
+        public async Task<List<M0303DichVuKyThuat>> GetDSDichVuKyThuat()
+        {
+            try
+            {
+                var dsDVuKT = await _service.GetDSDichVuKyThuat();
+                return dsDVuKT;
+
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
         }
 
 
