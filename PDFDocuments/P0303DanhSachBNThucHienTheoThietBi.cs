@@ -93,7 +93,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                 {
                     headerCol.Item().Row(row =>
                     {
-                        row.ConstantColumn(60).Column(col =>
+                        row.ConstantColumn(45).Column(col =>
                         {
                             if (File.Exists(_logoPath))
                                 col.Item().Height(36).Image(_logoPath, ImageScaling.FitHeight);

@@ -7,6 +7,9 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
     [Route("bao_cao_thu_tong_hop_dv_theo_khoa_phong")]
     public class C0303BaoCaoThuTongHopDichVuTheoKhoaPhongController : Controller
     {
+        //private string _maChucNang = "/bao_cao_thu_tong_hop_dv_theo_khoa_phong";
+        //private IMemoryCachingServices _memoryCache;
+
         private readonly Context0303 _localDb;
         private readonly IWebHostEnvironment _env;
         private readonly I0303BaoCaoThuTongHopDichVuTheoKhoaPhong _service;
@@ -16,7 +19,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
             Context0303 localDb, 
             IWebHostEnvironment env, 
             I0303BaoCaoThuTongHopDichVuTheoKhoaPhong service,
-            ILogger<C0303BaoCaoThuTongHopDichVuTheoKhoaPhongController> logger)
+            ILogger<C0303BaoCaoThuTongHopDichVuTheoKhoaPhongController> logger /*, IMemoryCachingServices memoryCache*/)
         {
             _localDb = localDb;
             _env = env;
@@ -26,6 +29,23 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
 
         public IActionResult V0303BaoCaoThuTongHopDichVuTheoKhoaPhongPage()
         {
+            //var quyenVaiTro = await _memoryCache.getQuyenVaiTro(_maChucNang);
+            //if (quyenVaiTro == null)
+            //{
+            //    return RedirectToAction("NotFound", "Home");
+            //}
+            //ViewBag.quyenVaiTro = quyenVaiTro;
+            //ViewData["Title"] = CommonServices.toEmptyData(quyenVaiTro);
+            ViewBag.quyenVaiTro = new
+            {
+                Them = true,
+                Sua = true,
+                Xoa = true,
+                Xuat = true,
+                CaNhan = true,
+                Xem = true,
+            };
+
             return View("~/Views/V0303/V0303BaoCaoThuTongHopDichVuTheoKhoaPhong/V0303BaoCaoThuTongHopDichVuTheoKhoaPhongPage.cshtml");
         }
 

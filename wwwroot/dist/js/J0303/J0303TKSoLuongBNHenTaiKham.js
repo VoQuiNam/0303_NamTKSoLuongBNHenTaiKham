@@ -158,15 +158,15 @@ function renderTable() {
     const tbody = $('#tableBody');
     tbody.empty();
 
-    // Hiển thị loading
+   
     showLoading();
 
-    // Sử dụng setTimeout để đảm bảo UI được cập nhật
+   
     setTimeout(() => {
         try {
             if (!fullData || fullData.length === 0) {
                 tbody.append(`<tr><td colspan="12" class="text-center text-muted">Không có dữ liệu phù hợp.</td></tr>`);
-                hideLoading(); // Ẩn loading khi không có dữ liệu
+                hideLoading();
                 return;
             }
 
@@ -198,7 +198,7 @@ function renderTable() {
             console.error('Lỗi khi render table:', error);
             tbody.append(`<tr><td colspan="12" class="text-center text-danger">Đã xảy ra lỗi khi tải dữ liệu.</td></tr>`);
         } finally {
-            // Ẩn loading khi hoàn thành (chỉ ẩn nếu chưa ẩn ở trên)
+         
             hideLoading();
         }
     }, 100);
@@ -277,7 +277,7 @@ function handleFilter() {
     $('.btnFilter').off('click').on('click', function (e) {
         e.preventDefault();
 
-        // Hiển thị loading khi bắt đầu lọc
+   
         showLoading();
 
         setTimeout(function () {
@@ -287,7 +287,7 @@ function handleFilter() {
 
             if (!tuNgayRaw || !denNgayRaw) {
                 toastr.error("Vui lòng chọn đầy đủ Từ ngày và Đến ngày");
-                hideLoading(); // Ẩn loading nếu có lỗi
+                hideLoading(); 
                 return;
             }
 
@@ -305,7 +305,7 @@ function handleFilter() {
             const denNgay = formatDateForServer($('#denNgayDesktop').val() || $('#denNgayMobile').val());
 
             if (!validateDateRange(tuNgay, denNgay)) {
-                hideLoading(); // Ẩn loading nếu có lỗi
+                hideLoading();
                 return;
             }
 
@@ -314,7 +314,6 @@ function handleFilter() {
                 type: 'POST',
                 data: { tuNgay, denNgay, idChiNhanh },
                 beforeSend: function () {
-                    // Hiển thị loading trước khi gửi request
                     showLoading();
                 },
                 success: function (response) {
@@ -337,7 +336,6 @@ function handleFilter() {
                     toastr.error("❌ Lỗi kết nối: " + xhr.responseText);
                 },
                 complete: function () {
-                    // Ẩn loading khi request hoàn thành (dù thành công hay thất bại)
                     hideLoading();
                 }
             });

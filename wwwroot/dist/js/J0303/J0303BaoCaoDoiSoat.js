@@ -150,7 +150,7 @@ function renderTable() {
     const tbody = $('#tableBody');
     tbody.empty();
 
-    // Hiển thị loading
+
     showLoading();
 
     setTimeout(() => {
@@ -210,7 +210,6 @@ function renderTable() {
             console.error('Lỗi khi render table:', error);
             tbody.append(`<tr><td colspan="16" class="text-center text-danger">Đã xảy ra lỗi khi tải dữ liệu.</td></tr>`);
         } finally {
-            // Luôn ẩn loading khi hoàn thành
             hideLoading();
         }
     }, 100);
@@ -308,7 +307,7 @@ function handleFilter() {
 
             if (!tuNgayRaw || !denNgayRaw) {
                 toastr.error("Vui lòng chọn đầy đủ Từ ngày và Đến ngày");
-                hideLoading(); // Ẩn loading nếu có lỗi
+                hideLoading(); 
                 return;
             }
 
@@ -331,7 +330,7 @@ function handleFilter() {
 
             if (!validateDateRange(tuNgay, denNgay)) {
                 console.error("❌ validateDateRange trả về false");
-                hideLoading(); // Ẩn loading nếu có lỗi
+                hideLoading();
                 return;
             }
 
@@ -345,7 +344,7 @@ function handleFilter() {
                 type: 'POST',
                 data: { tuNgay, denNgay, idChiNhanh },
                 beforeSend: function () {
-                    // Hiển thị loading trước khi gửi request
+                    
                     showLoading();
                 },
                 success: function (response) {
@@ -378,7 +377,6 @@ function handleFilter() {
                     toastr.error("❌ Lỗi kết nối: " + xhr.responseText);
                 },
                 complete: function () {
-                    // Ẩn loading khi request hoàn thành (dù thành công hay thất bại)
                     hideLoading();
                 }
             });

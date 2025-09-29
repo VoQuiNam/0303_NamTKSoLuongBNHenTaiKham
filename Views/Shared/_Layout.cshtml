@@ -58,6 +58,15 @@
                             <a class="nav-link @(currentController == "D0303Nam_TKSoLuongBNHenTaiKham" ? "active" : "")"
                                asp-controller="C0303LayPhieuNhapKhoInGop" asp-action="V0303LayPhieuNhapKhoInGopPage">Lấy phiếu nhập kho in góp</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(currentController == "D0303Nam_TKSoLuongBNHenTaiKham" ? "active" : "")"
+                               asp-controller="C0303importDMHangHoa" asp-action="V0303importDMHangHoaPage">Danh mục hàng hóa</a>
+                        </li>
+
+                         <li class="nav-item">
+                            <a class="nav-link @(currentController == "D0303Nam_TKSoLuongBNHenTaiKham" ? "active" : "")"
+                               asp-controller="C0303importDMDichVuKyThuat" asp-action="V0303importDMDichVuKyThuatPage">Danh mục dịch vụ kỹ thuật</a>
+                        </li>
 
                     </ul>
                 </div>
@@ -71,7 +80,6 @@
         </main>
     </div>
 
-    <script src="@Url.Content("~/dist/js/BienChung.js")"></script>
     <script src="~/dist/lib/Jquery/jquery.min.js"></script>
     <script src="@Url.Content("~/dist/lib/Jquery/jquery.inputmask.js")"></script>
     <script src="~/dist/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

@@ -6,7 +6,6 @@
 @model List<M0303BaoCaoDoiSoatBIDVSTO>
 
 <head>
-    @* <link href="~/dist/css/CSS0303/CSS0303TKSoLuongBNHenTaiKham.css" rel="stylesheet" /> *@
     <link href="~/dist/css/CSS0303/CSS0303BaoCaoDoiSoatBIDV.css" rel="stylesheet" />
     <link href="~/dist/lib/bootstrap-datepicker-1.10.0/dist/css/bootstrap-datepicker.min.css" rel="stylesheet" />
     <link href="~/dist/lib/toastr/toastr.min.css" rel="stylesheet" />
@@ -20,12 +19,10 @@
         text-overflow: ellipsis;
     }
 
-    /* Quan trọng: Cố định layout bảng */
     .table-wrapper-scroll table {
         table-layout: fixed;
     }
 
-    /* Đặt chiều rộng chính xác cho từng cột */
     .table-wrapper-scroll th:nth-child(1),
     .table-wrapper-scroll td:nth-child(1) {
         width: 60px;
@@ -54,7 +51,6 @@
         max-width: 130px;
     }
 
-    /* Cố định 4 cột đầu */
     .table-wrapper-scroll th:nth-child(1),
     .table-wrapper-scroll td:nth-child(1) {
         position: sticky;
@@ -66,7 +62,7 @@
     .table-wrapper-scroll th:nth-child(2),
     .table-wrapper-scroll td:nth-child(2) {
         position: sticky;
-        left: 60px; /* = width(cột1) */
+        left: 60px;
         z-index: 100;
         background-color: white;
     }
@@ -82,20 +78,18 @@
     .table-wrapper-scroll th:nth-child(4),
     .table-wrapper-scroll td:nth-child(4) {
         position: sticky;
-        left: 242px; /* = 60 + 70 + 112 */
+        left: 242px;
         z-index: 100;
         background-color: white;
     }
 
-    /* Header cố định */
     .table-wrapper-scroll th:nth-child(-n+4) {
         position: sticky;
         top: 0;
-        z-index: 101; /* Cao hơn một chút */
+        z-index: 101;
         background-color: #f2f2f2;
     }
 
-    /* Đặt lại left cho header */
     .table-wrapper-scroll th:nth-child(1) {
         left: 0;
     }
@@ -112,7 +106,6 @@
         left: 242px;
     }
 
-    /* Border và hover */
     .table-wrapper-scroll th:nth-child(-n+4),
     .table-wrapper-scroll td:nth-child(-n+4) {
         border-right: 1px solid #ccc !important;
@@ -275,7 +268,7 @@
     <script src="~/dist/lib/bootstrap-datepicker-1.10.0/dist/locales/bootstrap-datepicker.vi.min.js" asp-append-version="true" defer></script>
     <script src="~/dist/js/J0303/J0303BaoCaoDoiSoat.js" asp-append-version="true" defer></script>
     <script src="~/dist/js/J0303/J0303GiaiDoanNgayThangNam.js" asp-append-version="true" defer></script>
-
+    <script src="@Url.Content("~/dist/js/BienChung.js")" defer></script>
 
 }
 
@@ -283,14 +276,11 @@
 
 
     <script>
-            // Thêm sự kiện click cho từng dòng
     document.querySelector(".table-wrapper-scroll tbody").addEventListener("click", function (e) {
         const row = e.target.closest("tr");
         if (!row) return;
 
-        // Bỏ chọn các dòng khác
         this.querySelectorAll("tr").forEach(r => r.classList.remove("selected"));
-        // Chọn dòng hiện tại
         row.classList.add("selected");
     });
     </script>

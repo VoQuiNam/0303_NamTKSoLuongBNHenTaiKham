@@ -58,13 +58,20 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service
                 var logoPath = Path.Combine(_env.WebRootPath, "dist", "img", "logo.png");
                 if (System.IO.File.Exists(logoPath))
                 {
+                    // Merge ô nếu cần
                     ws.Range("A1:B4").Merge();
-                    ws.Column(1).Width = 20;
-                    ws.Column(2).Width = 20;
-                    ws.AddPicture(logoPath)
-                        .MoveTo(ws.Cell("A1"), 0, 5)
+                    ws.Column(1).Width = 15; // Giảm độ rộng cột
+                    ws.Column(2).Width = 15;
+
+                    // Chèn logo và scale nhỏ hơn
+                    var picture = ws.AddPicture(logoPath)
+                        .MoveTo(ws.Cell("A1"), 5, 2)  // Giảm offset (thử nghiệm giá trị)
                         .WithPlacement(XLPicturePlacement.FreeFloating)
-                        .Scale(0.2);
+                        .Scale(0.08); // Scale nhỏ hơn
+
+                    // Hoặc có thể set kích thước trực tiếp (nếu biết trước)
+                    // picture.Height = 50;
+                    // picture.Width = 50;
                 }
 
                 // 4. Thông tin header

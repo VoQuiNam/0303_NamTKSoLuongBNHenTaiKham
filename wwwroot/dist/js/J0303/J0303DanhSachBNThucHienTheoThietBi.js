@@ -166,7 +166,7 @@ function handleFilter() {
     $('.btnFilterBidv').off('click').on('click', function (e) {
         e.preventDefault();
 
-        // Hiển thị loading khi bắt đầu lọc
+       
         showLoading();
 
         setTimeout(function () {
@@ -176,7 +176,7 @@ function handleFilter() {
 
                 if (!tuNgayRaw || !denNgayRaw) {
                     toastr.error("Vui lòng chọn đầy đủ Từ ngày và Đến ngày");
-                    hideLoading(); // Ẩn loading nếu có lỗi
+                    hideLoading();
                     return;
                 }
 
@@ -205,7 +205,7 @@ function handleFilter() {
                         idDichVuKyThuat: 0
                     },
                     beforeSend: function () {
-                        // Hiển thị loading trước khi gửi request
+                  
                         showLoading();
                     },
                     success: function (response) {
@@ -236,7 +236,6 @@ function handleFilter() {
                         toastr.error("❌ Lỗi kết nối: " + xhr.responseText);
                     },
                     complete: function () {
-                        // Ẩn loading khi request hoàn thành
                         hideLoading();
                     }
                 });
@@ -244,7 +243,7 @@ function handleFilter() {
             } catch (err) {
                 console.error("❌ Lỗi trong setTimeout:", err);
                 console.error("Stack trace:", err.stack);
-                hideLoading(); // Ẩn loading nếu có lỗi
+                hideLoading(); 
             }
         }, 100);
     });
@@ -254,16 +253,16 @@ function renderTable() {
     const tbody = $('#tableBody');
     const tfoot = document.querySelector(".table-wrapper-scroll tfoot");
     tbody.empty();
-    tfoot.innerHTML = ''; // Xóa footer trước
+    tfoot.innerHTML = ''; 
 
-    // Hiển thị loading
+   
     showLoading();
 
     setTimeout(() => {
         try {
             if (!fullData || fullData.length === 0) {
                 tbody.append('<tr><td colspan="29" class="text-center">Không có dữ liệu</td></tr>');
-                return; // Thoát khỏi hàm nếu không có dữ liệu
+                return;
             }
 
             const start = (currentPage - 1) * pageSize;
@@ -293,8 +292,7 @@ function renderTable() {
                 const daThanhToan = item.daThanhToan ? parseFloat(item.daThanhToan) : 0;
                 const chuaThanhToan = item.chuaThanhToan ? parseFloat(item.chuaThanhToan) : 0;
 
-                console.log('data: ', item);
-
+                
 
                 const row = `
                   <tr>
@@ -333,7 +331,7 @@ function renderTable() {
                 tbody.append(row);
             });
 
-            // CHỈ HIỂN THỊ TỔNG CỘNG KHI CÓ DỮ LIỆU
+           
             const totalRow = `
           <tr style="font-weight:bold; background:#f2f2f2;">
             <td colspan="16" class="text-center">Tổng cộng</td>
@@ -359,7 +357,7 @@ function renderTable() {
             console.error('Lỗi khi render table:', error);
             tbody.append('<tr><td colspan="29" class="text-center text-danger">Đã xảy ra lỗi khi tải dữ liệu</td></tr>');
         } finally {
-            // Luôn ẩn loading khi hoàn thành
+           
             hideLoading();
         }
     }, 100);

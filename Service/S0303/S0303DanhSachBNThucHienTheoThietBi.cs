@@ -292,11 +292,11 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                 {
                     ws.Range("A1:B4").Merge();
                     ws.Column(1).Width = 20;
-                    ws.Column(2).Width = 50;
+                    ws.Column(2).Width = 20;
                     ws.AddPicture(logoPath)
-                        .MoveTo(ws.Cell("A1"), 25, 5)
+                        .MoveTo(ws.Cell("A1"), 30, 5)
                         .WithPlacement(XLPicturePlacement.FreeFloating)
-                        .Scale(0.2);
+                        .Scale(0.08);
                 }
 
                 // 4. Thông tin header

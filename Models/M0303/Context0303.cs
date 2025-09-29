@@ -27,6 +27,19 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Models.M0303
 
         public DbSet<M0303LayPhieuNhapKhoInGopSTO> M0303LayPhieuNhapKhoInGopSTOs { get; set; }
 
+        public DbSet<M0303importDMHangHoaSTO> M0303importDMHangHoaSTOs { get; set; }
+
+        public DbSet<M0303DM_QuocGia> M0303DM_QuocGias { get; set; }
+        public DbSet<M0303HH_DM_DonViTinh> M0303HH_DM_DonViTinhs { get; set; }
+        public DbSet<M0303HH_DM_DuongDung> M0303HH_DM_DuongDungs { get; set; }
+        public DbSet<M0303HH_DM_HangSanXuat> M0303HH_DM_HangSanXuats { get; set; }
+        public DbSet<M0303HH_DM_NhaThau> M0303HH_DM_NhaThaus { get; set; }
+        public DbSet<M0303HH_DM_HangHoa> M0303HH_DM_HangHoas { get; set; }
+
+
+
+
+
         // SỬA LẠI TÊN DBSET CHO ĐÚNG
         public DbSet<M0303PhieuNhapKhoSTO> M0303PhieuNhapKhoSTOs { get; set; }
 
@@ -44,9 +57,17 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Models.M0303
             modelBuilder.Entity<M0303BaoCaoThuTongHopDichVuTheoKhoaPhongSTO>().HasNoKey();
             modelBuilder.Entity<M0303BaoCaoTongHopThuVienPhiTrucTiepSTO>().HasNoKey();
             modelBuilder.Entity<M0303PhieuNhapKhoSTO>().HasNoKey();
+            modelBuilder.Entity<M0303importDMHangHoaSTO>().HasNoKey();
 
             modelBuilder.Entity<M0303NhomDichVuKyThuat>().HasNoKey();
             modelBuilder.Entity<M0303Phong>().HasNoKey();
+            modelBuilder.Entity<M0303DM_QuocGia>().HasNoKey();
+            modelBuilder.Entity<M0303HH_DM_DonViTinh>().HasNoKey();
+            modelBuilder.Entity<M0303HH_DM_DuongDung>().HasNoKey();
+            modelBuilder.Entity<M0303HH_DM_HangSanXuat>().HasNoKey();
+            modelBuilder.Entity<M0303HH_DM_NhaThau>().HasNoKey();
+            modelBuilder.Entity<M0303HH_DM_HangHoa>().HasNoKey();
+
 
         }
 

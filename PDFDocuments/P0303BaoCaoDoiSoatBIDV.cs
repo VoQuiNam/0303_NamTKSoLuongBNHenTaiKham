@@ -44,7 +44,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                 {
                     headerCol.Item().Row(row =>
                     {
-                        row.ConstantColumn(60).Column(col =>
+                        row.ConstantColumn(50).Column(col =>
                         {
                             if (File.Exists(_logoPath))
                             {

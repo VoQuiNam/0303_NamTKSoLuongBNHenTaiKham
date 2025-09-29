@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Nam_ThongKeSoLuongBNHenTaiKham.Models;
 using Nam_ThongKeSoLuongBNHenTaiKham.Models.M0303;
@@ -19,6 +20,9 @@ builder.Services.AddScoped<I0303DanhSachBNThucHienTheoThietBi, S0303DanhSachBNTh
 builder.Services.AddScoped<I0303BaoCaoTongHopThuVienPhiTrucTiep, S0303BaoCaoTongHopThuVienPhiTrucTiep>();
 builder.Services.AddScoped<I0303BaoCaoThuTongHopDichVuTheoKhoaPhong, S0303BaoCaoThuTongHopDichVuTheoKhoaPhong>();
 builder.Services.AddScoped<I0303LayPhieuNhapKhoInGop, S0303LayPhieuNhapKhoInGop>();
+builder.Services.AddScoped<I0303importDMHangHoa, S0303importDMHangHoa>();
+builder.Services.AddScoped<I0303importDichVuKyThuat, S0303importDMDichVuKyThuat>();
+
 
 
 builder.Services.AddDbContext<Context0303>(options =>

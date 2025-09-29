@@ -64,7 +64,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                 {
                     headerCol.Item().Row(row =>
                     {
-                        row.ConstantColumn(40f).Column(col =>
+                        row.ConstantColumn(35f).Column(col =>
                         {
                             if (File.Exists(_logoPath))
                                 col.Item().Height(25f).Image(_logoPath, ImageScaling.FitHeight);
@@ -199,7 +199,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                         var totalNo = groupedByBienLai.Sum(g => g.First().No ?? 0);
                         var totalSoTien = groupedByBienLai.Sum(g => g.First().SoTien ?? 0);
                         var totalThuoc = groupedByBienLai.Sum(g => g.First().Thuoc ?? 0);
-                        var totalChiTietNhom = nhomDichVuList.ToDictionary(
+                        var totalChiTietNhom = nhomDichVuList.Distinct().ToDictionary(
                             n => n,
                             n => groupedByBienLai.Sum(g => g.Where(x => x.TenNhomDichVu == n).Sum(x => x.SoTienChiTiet ?? 0))
                         );

@@ -21,12 +21,11 @@
         text-overflow: ellipsis;
     }
 
-    /* Quan trọng: Cố định layout bảng */
+
     .table-wrapper-scroll table {
         table-layout: fixed;
     }
 
-    /* Đặt chiều rộng chính xác cho từng cột */
     .table-wrapper-scroll th:nth-child(1),
     .table-wrapper-scroll td:nth-child(1) {
         width: 60px;
@@ -44,7 +43,6 @@
     .table-wrapper-scroll th:nth-child(3),
     .table-wrapper-scroll td:nth-child(3) {
         width: 112px;
-        /*min-width: 112px;*/
         min-width: 180px;
         max-width: 112px;
     }
@@ -56,7 +54,6 @@
         max-width: 77px;
     }
 
-    /* Cố định 4 cột đầu */
     .table-wrapper-scroll th:nth-child(1),
     .table-wrapper-scroll td:nth-child(1) {
         position: sticky;
@@ -68,7 +65,7 @@
     .table-wrapper-scroll th:nth-child(2),
     .table-wrapper-scroll td:nth-child(2) {
         position: sticky;
-        left: 60px; /* = width(cột1) */
+        left: 60px;
         z-index: 100;
         background-color: white;
     }
@@ -76,7 +73,7 @@
     .table-wrapper-scroll th:nth-child(3),
     .table-wrapper-scroll td:nth-child(3) {
         position: sticky;
-        left: 130px; /* = 60 + 70 */
+        left: 130px;
         z-index: 100;
         background-color: white;
     }
@@ -84,20 +81,18 @@
     .table-wrapper-scroll th:nth-child(4),
     .table-wrapper-scroll td:nth-child(4) {
         position: sticky;
-        left: 310px; /* = 60 + 70 + 112 */
+        left: 310px;
         z-index: 100;
         background-color: white;
     }
 
-    /* Header cố định */
     .table-wrapper-scroll th:nth-child(-n+4) {
         position: sticky;
         top: 0;
-        z-index: 101; /* Cao hơn một chút */
+        z-index: 101;
         background-color: #f2f2f2;
     }
 
-    /* Đặt lại left cho header */
     .table-wrapper-scroll th:nth-child(1) {
         left: 0;
     }
@@ -114,7 +109,6 @@
         left: 310px;
     }
 
-    /* Border và hover */
     .table-wrapper-scroll th:nth-child(-n+4),
     .table-wrapper-scroll td:nth-child(-n+4) {
         border-right: 1px solid #ccc !important;
@@ -280,14 +274,10 @@
 
 
 <script>
-            // Thêm sự kiện click cho từng dòng
     document.querySelector(".table-wrapper-scroll tbody").addEventListener("click", function (e) {
         const row = e.target.closest("tr");
         if (!row) return;
-
-        // Bỏ chọn các dòng khác
         this.querySelectorAll("tr").forEach(r => r.classList.remove("selected"));
-        // Chọn dòng hiện tại
         row.classList.add("selected");
     });
 </script>

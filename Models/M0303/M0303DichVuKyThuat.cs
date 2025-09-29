@@ -5,5 +5,7 @@
         public long? id { get; set; }
         public long? idNhomDichVu { get; set; }
         public string ten { get; set; }
+
+        public string viettat { get; set; }
     }
 }

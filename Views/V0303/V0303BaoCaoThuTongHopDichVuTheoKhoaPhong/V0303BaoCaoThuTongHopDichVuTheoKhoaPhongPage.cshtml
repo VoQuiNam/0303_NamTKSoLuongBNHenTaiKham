@@ -7,6 +7,7 @@
     <link href="~/dist/css/CSS0303/CSS0303BaoCaoThuTongHopDichVuTheoKhoaPhong.css" rel="stylesheet" />
     <link href="~/dist/lib/bootstrap-datepicker-1.10.0/dist/css/bootstrap-datepicker.min.css" rel="stylesheet" />
     <link href="~/dist/lib/toastr/toastr.min.css" rel="stylesheet" />
+    <link href="~/dist/css/CSS0303/tom-select.css" rel="stylesheet" />
 </head>
 
 
@@ -18,27 +19,25 @@
         text-overflow: ellipsis;
     }
 
-    /* Quan trọng: Cố định layout bảng */
     .table-wrapper-scroll table {
         table-layout: fixed;
     }
 
-    /* Đặt chiều rộng chính xác cho 2 cột đầu */
+  
     .table-wrapper-scroll th:nth-child(1),
     .table-wrapper-scroll td:nth-child(1) {
-        width: 60px; /* STT */
+        width: 60px; 
         min-width: 60px;
         max-width: 60px;
     }
 
     .table-wrapper-scroll th:nth-child(2),
     .table-wrapper-scroll td:nth-child(2) {
-        width: 75px; /* hoặc giá trị nhỏ hơn, ví dụ: 200px */
-        min-width: 75px; /* nếu muốn có chiều rộng tối thiểu */
-        max-width: 1800px; /* hoặc giá trị phù hợp */
+        width: 75px; 
+        min-width: 75px;
+        max-width: 1800px;
     }
 
-    /* Cố định 2 cột đầu */
     .table-wrapper-scroll th:nth-child(1),
     .table-wrapper-scroll td:nth-child(1) {
         position: sticky;
@@ -50,12 +49,11 @@
     .table-wrapper-scroll th:nth-child(2),
     .table-wrapper-scroll td:nth-child(2) {
         position: sticky;
-        left: 60px; /* = width(cột1) */
-        /* z-index: 100; */
+        left: 60px;
         background-color: white;
     }
 
-    /* Header cố định */
+
     .table-wrapper-scroll th:nth-child(-n+2) {
         position: sticky;
         top: 0;
@@ -63,7 +61,7 @@
         background-color: #f2f2f2;
     }
 
-    /* Đặt lại left cho header */
+
     .table-wrapper-scroll th:nth-child(1) {
         left: 0;
     }
@@ -72,7 +70,7 @@
         left: 60px;
     }
 
-    /* Border và hover */
+
     .table-wrapper-scroll th:nth-child(-n+2),
     .table-wrapper-scroll td:nth-child(-n+2) {
         border-right: 1px solid #ccc !important;
@@ -85,6 +83,68 @@
     .table-wrapper-scroll tr.selected td:nth-child(-n+2) {
         background-color: #bae7ff !important;
     }
+
+
+    .ts-control {
+        display: flex !important;
+        align-items: center !important;
+        flex-wrap: nowrap !important;
+        height: auto !important;
+        min-height: 38px !important;
+    }
+
+        .ts-control input {
+            flex: 1 !important;
+            min-width: 0 !important;
+            height: auto !important;
+            line-height: normal !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            caret-color: auto !important;
+        }
+
+
+    .ts-dropdown {
+        z-index: 1055 !important;
+    }
+
+
+    .ts-control input:not(:focus) {
+        caret-color: transparent !important;
+    }
+
+
+    .ts-dropdown .option:hover {
+        background-color: #0d6efd !important;
+        color: #fff !important;
+    }
+
+    .ts-dropdown .option.selected {
+        background-color: #cfe2ff !important;
+        color: #084298 !important;
+    }
+
+
+    .ts-dropdown .option.active {
+        background-color: #0d6efd !important; 
+        color: #fff !important;
+    }
+
+
+    .ts-dropdown .highlight {
+        background: yellow !important;
+        color: black !important; 
+        border-radius: 2px; 
+    }
+
+    .item {
+        font-size: 14px;
+    }
+
+    select#selectGiaiDoan {
+        font-size: 14px;
+    }
+
 </style>
 
 
@@ -146,30 +206,23 @@
                     <span class="text-danger"></span>
                 </div>
 
-                <!-- Dropdown Phòng buồng -->
-                <div style="width: 100%; padding:0;">
+      
+                <div style="width: 100%; padding:0; margin-top: 5px; margin-bottom: 5px;">
                     <label class="form-label">Nhóm dịch vụ</label>
                     <div style="position: relative;">
-                        <input type="text" id="nhomDichVuInput" class="form-control" placeholder="Nhóm dịch vụ" autocomplete="off" />
+                        <select id="nhomDichVuSelect" class="tom-select-test" placeholder="Chọn nhóm dịch vụ" autocomplete="off">
+                            <option value="0">Tất cả</option>
+                            <!-- Các option sẽ được thêm bằng JavaScript -->
+                        </select>
 
-                        <!-- Hidden inputs -->
-                        <input type="hidden" name="DichVu.Id" id="nhomDichVuIdHidden" />
-                        <input type="hidden" name="DichVu.Ma" id="nhomDichVuMaHidden" />
-                        <input type="hidden" name="DichVu.Ten" id="nhomDichVuTenHidden" />
-                        <input type="hidden" name="DichVu.VietTat" id="nhomDichVuVietTatHidden" />
-
-                        <!-- Dropdown -->
-                        <div id="nhomDichVuDropdown"
-                             class="dropdown-menu show"
-                             style="display: none; position: absolute; width: 100%; z-index: 1055;
-                        max-height: 200px; overflow-y: auto; font-size: 1rem;
-                        background: white; border: 1px solid #ccc;
-                        box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
-                            <!-- Render bằng JS -->
-                        </div>
+                        <!-- Hidden inputs để lưu thông tin -->
+                        <input type="hidden" name="DichVu.Id" id="nhomDichVuIdHidden" value="0" />
+                        <input type="hidden" name="DichVu.Ma" id="nhomDichVuMaHidden" value="" />
+                        <input type="hidden" name="DichVu.Ten" id="nhomDichVuTenHidden" value="Tất cả" />
+                        <input type="hidden" name="DichVu.VietTat" id="nhomDichVuVietTatHidden" value="" />
                     </div>
+                   
                 </div>
-
 
                 <label style="padding:0;">
                     <button class="btnFilterBacSi btn btn-outline-primary mb-3" style="margin: 2px !important;">
@@ -179,10 +232,10 @@
             </div>
 
             <div class="row export-buttons">
-                <button id="btnExportPDFGoiKham" class="btnExportPDFDesktop btn btn-outline-danger mb-3">
+                <button id="btnExportPDFGoiKham" class="btnExportPDFDesktop btn btn-outline-danger mb-3" @(ViewBag.quyenvaitro.Xuat ? "" : "disabled")>
                     Xuất PDF
                 </button>
-                <button id="btnExportExcelGoiKham" class="btnExportExcel btn btn-outline-success mb-3">
+                <button id="btnExportExcelGoiKham" class="btnExportExcel btn btn-outline-success mb-3" @(ViewBag.quyenvaitro.Xuat ? "" : "disabled")>
                     Xuất Excel
                 </button>
             </div>
@@ -239,25 +292,23 @@
 
 @section Scripts {
     <script src="~/dist/lib/toastr/toastr.min.js" asp-append-version="true" defer></script>
+    <script src="~/dist/lib/tom-select/dist/js/tom-select.complete.min.js"></script>
     <script src="~/dist/lib/bootstrap-datepicker-1.10.0/dist/js/bootstrap-datepicker.min.js" asp-append-version="true" defer></script>
     <script src="~/dist/lib/bootstrap-datepicker-1.10.0/dist/locales/bootstrap-datepicker.vi.min.js" asp-append-version="true" defer></script>
     <script src="~/dist/js/J0303/J0303BaoCaoThuTongHopDichVuTheoKhoaPhong.js" asp-append-version="true" defer></script>
     <script src="~/dist/js/J0303/J0303GiaiDoanNgayThangNam.js" asp-append-version="true" defer></script>
-
-
+    <script src="@Url.Content("~/dist/js/BienChung.js")" defer></script>
 }
 
 
 
 <script>
-            // Thêm sự kiện click cho từng dòng
     document.querySelector(".table-wrapper-scroll tbody").addEventListener("click", function (e) {
         const row = e.target.closest("tr");
         if (!row) return;
 
-        // Bỏ chọn các dòng khác
+        
         this.querySelectorAll("tr").forEach(r => r.classList.remove("selected"));
-        // Chọn dòng hiện tại
         row.classList.add("selected");
     });
 </script>

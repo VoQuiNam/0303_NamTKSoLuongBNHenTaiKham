@@ -170,7 +170,7 @@ async function loadJsonData() {
         listDv = dvRes;
         listNhomDv = nhomDvRes;
 
-        renderHeader(); // gọi sau khi đã gán dữ liệu
+        renderHeader(); 
 
 
 
@@ -188,7 +188,7 @@ async function loadJsonData() {
 
 
         let row1 = `<tr>`;
-        // fixedColumns: chỉnh luôn z-index cho 4 cột đầu
+      
         row1 += fixedColumns.map((col, idx) =>
             `<th rowspan="2" style="z-index:${idx <= 3 ? 100 : 30}; position:sticky; top:0; background-color:#f8f8f8; border:1px solid #ddd;">${col.title}</th>`
         ).join('');
@@ -249,23 +249,23 @@ async function loadJsonData() {
             thead.style.setProperty('--row1-height', row1Height + 'px');
             thead.style.setProperty('--row2-height', row2Height + 'px');
 
-            // Hàng 2: luôn đẩy xuống dưới row1
+          
             thead.querySelectorAll('tr:nth-child(2) th').forEach(th => {
                 th.style.top = `${row1Height}px`;
             });
 
-            // Hàng 3: chỉnh theo điều kiện
+           
             thead.querySelectorAll('tr:nth-child(3) th').forEach((th, idx) => {
                 const isSpecial =
-                    idx === 0 ||                  // cột A
-                    (idx >= 1 && idx <= 15) ||    // cột 1 → 15
-                    (idx >= 29 && idx <= 31);     // cột 29 → 31
+                    idx === 0 ||                 
+                    (idx >= 1 && idx <= 15) ||    
+                    (idx >= 29 && idx <= 31);    
 
                 th.style.top = isSpecial
                     ? `${row1Height + row2Height - 1}px`
                     : `${row1Height + row2Height}px`;
 
-                th.style.zIndex = idx <= 3 ? 100 : 10; // 👉 4 cột đầu tiên z-index 100
+                th.style.zIndex = idx <= 3 ? 100 : 10;
             });
         }, 0);
 
@@ -296,7 +296,7 @@ function handleFilter() {
 
                 if (!tuNgayRaw || !denNgayRaw) {
                     toastr.error("Vui lòng chọn đầy đủ Từ ngày và Đến ngày");
-                    hideLoading(); // Ẩn loading nếu có lỗi
+                    hideLoading(); 
 
                     return;
                 }
@@ -329,11 +329,10 @@ function handleFilter() {
                         tuNgay,
                         denNgay,
                         idChiNhanh: window._idcn || 0
-                        //idNhomDichVu: 0,
-                        //idDichVuKyThuat: 0
+                       
                     },
                     beforeSend: function () {
-                        // Hiển thị loading trước khi gửi request
+                       
                         showLoading();
                     },
                     success: function (response) {
@@ -343,15 +342,7 @@ function handleFilter() {
                             fullData = response.data || [];
                             console.log("📊 Dữ liệu trả về:", fullData);
 
-                            //fullData.forEach(item => {
-                            //    const nhomdichvu = listNhomDv.find(p => p.id === item.idNhomDichVu);
-                            //    const dichvu = listDv.find(k => k.id === item.idDichVuKyThuat);
-
-                            //    item.tenNhomDV = nhomdichvu?.ten || "Không rõ nhóm dịch vụ";
-                            //    item.tenDV = dichvu?.ten || "Không rõ dịch vụ";
-
-
-                            //});
+                           
 
                             currentPage = 1;
                             pageSize = parseInt($('#pageSizeSelect').val()) || 10;
@@ -371,7 +362,6 @@ function handleFilter() {
 
                         toastr.error("❌ Lỗi kết nối: " + xhr.responseText);
                     }, complete: function () {
-                        // Ẩn loading khi request hoàn thành (dù thành công hay thất bại)
                         hideLoading();
                     }
                 });
@@ -431,7 +421,7 @@ function calculateTotals(data) {
                     return;
                 }
 
-                // --- Gom nhóm theo SoBienLai + SoChungTu ---
+             
                 const grouped = {};
                 fullData.forEach(item => {
                     const key = `${item.soBienLai}_${item.soChungTu}`;
@@ -450,7 +440,7 @@ function calculateTotals(data) {
 
                 const allGroups = Object.values(grouped);
 
-                // --- Pagination ---
+              
                 const totalRecords = allGroups.length;
                 const totalPages = Math.max(1, Math.ceil(totalRecords / pageSize));
                 if (currentPage > totalPages) currentPage = totalPages;
@@ -460,7 +450,7 @@ function calculateTotals(data) {
 
                 $('#paginationContainer').text(`Trang ${currentPage}/${totalPages} – Tổng ${totalRecords} bản ghi`);
 
-                // --- Render table ---
+               
                 let html = '';
                 pageData.forEach((item, index) => {
                     let row = `<tr>`;
@@ -479,16 +469,16 @@ function calculateTotals(data) {
                     row += `<td class="text-end">${item.nhapVienNhapMien || ''}</td>`;
                     row += `<td class="text-end">${item.ghiChuMien || ''}</td>`;
                     row += `<td class="text-end">${formatSoTien(item.no)}</td>`;
-                    row += `<td class="text-end">${formatSoTien(item.soTien)}</td>`; // tổng tiền thực tế
+                    row += `<td class="text-end">${formatSoTien(item.soTien)}</td>`; 
                     row += `<td class="text-end">${formatSoTien(item.thuoc)}</td>`;
 
-                    // chi tiết nhóm dịch vụ
+                   
                     listNhomDv.forEach(nhom => {
                         const val = item.dichvu[nhom.id] || 0;
                         row += `<td class="text-end">${formatSoTien(val)}</td>`;
                     });
 
-                    // tổng chi tiết = tổng tiền thực tế
+                   
                     row += `<td class="text-end fw-bold">${formatSoTien(item.soTien)}</td>`;
 
                     row += `<td class="text-end">${item.huy || '-'}</td>`;
@@ -501,7 +491,7 @@ function calculateTotals(data) {
 
                 tbody.html(html);
 
-                // --- Footer tổng cộng ---
+               
                 const totals = {
                     totalMienGiam: 0,
                     totalNo: 0,
@@ -519,7 +509,7 @@ function calculateTotals(data) {
                     listNhomDv.forEach(nhom => {
                         totals.totalChiTietNhom[nhom.id] = (totals.totalChiTietNhom[nhom.id] || 0) + (item.dichvu[nhom.id] || 0);
                     });
-                    totals.totalTong += Number(item.soTien) || 0; // tổng = soTien
+                    totals.totalTong += Number(item.soTien) || 0;
                 });
 
                 let totalRow = `<tr style="font-weight:bold; background:#f2f2f2;">`;
@@ -598,7 +588,7 @@ function renderPagination() {
     const pagination = $('#pagination');
     pagination.empty();
 
-    // --- Sử dụng số bản ghi đã gom nhóm ---
+   
     const grouped = {};
     fullData.forEach(item => {
         const key = `${item.soBienLai}_${item.soChungTu}`;

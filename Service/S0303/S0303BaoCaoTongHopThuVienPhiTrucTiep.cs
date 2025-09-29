@@ -223,20 +223,20 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                 using var workbook = new XLWorkbook();
                 var ws = workbook.Worksheets.Add("Báo cáo thu viện phí");
 
-                // --- Logo
+                // 5a. Logo
                 var logoPath = Path.Combine(_env.WebRootPath, "dist", "img", "logo.png");
                 if (System.IO.File.Exists(logoPath))
                 {
-                    ws.Range("A1:B4").Merge();
+                    ws.Range("A1:A4").Merge();
                     ws.Column(1).Width = 20;
-                    ws.Column(2).Width = 50;
+                    ws.Column(2).Width = 40;
                     ws.AddPicture(logoPath)
-                        .MoveTo(ws.Cell("A1"), 25, 5)
-                        .WithPlacement(XLPicturePlacement.FreeFloating)
-                        .Scale(0.2);
+                      .MoveTo(ws.Cell("A1"), 20, 5)
+                      .WithPlacement(XLPicturePlacement.FreeFloating)
+                      .Scale(0.08);
                 }
 
-                // --- Thông tin header doanh nghiệp
+                // 5b. Thông tin cơ sở
                 string tenCoQuan = thongTinDoanhNghiep.TenCoQuanChuyenMon;
                 string tenCSKCB = thongTinDoanhNghiep.TenCSKCB;
                 bool hienTenCSKCB = !string.Equals(tenCoQuan.Trim(), tenCSKCB.Trim(), StringComparison.OrdinalIgnoreCase);
@@ -245,15 +245,28 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
 
                 if (hienTenCSKCB)
                 {
-                    ws.Range("C1:O1").Merge().Value = tenCSKCB;
-                    ws.Range("C1:O1").Style.Font.FontName = "Times New Roman";
-                    ws.Range("C1:O1").Style.Font.FontSize = 10;
-                    ws.Range("C1:O1").Style.Font.Bold = true;
-                    ws.Range("C1:O1").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+                    ws.Cell("B1").Value = tenCSKCB;
+                    ws.Cell("B1").Style.Font.FontName = "Times New Roman";
+                    ws.Cell("B1").Style.Font.FontSize = 10;
+                    ws.Cell("B1").Style.Font.Bold = true;
+                    ws.Cell("B1").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+                    ws.Cell("B1").Style.Alignment.Indent = 1;
+                    ws.Row(2).Height = 20;
                 }
 
-                ws.Range("C2:O2").Merge().Value = diaChi;
-                ws.Range("C3:O3").Merge().Value = $"Điện thoại: {dienThoai}";
+                ws.Cell("B2").Value = diaChi;
+                ws.Cell("B2").Style.Font.FontName = "Times New Roman";
+                ws.Cell("B2").Style.Font.FontSize = 10;
+                ws.Cell("B2").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+                ws.Cell("B2").Style.Alignment.Indent = 1;
+                ws.Row(3).Height = 20;
+
+                ws.Cell("B3").Value = $"Điện thoại: {dienThoai}";
+                ws.Cell("B3").Style.Font.FontName = "Times New Roman";
+                ws.Cell("B3").Style.Font.FontSize = 10;
+                ws.Cell("B3").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+                ws.Cell("B3").Style.Alignment.Indent = 1;
+                ws.Row(4).Height = 20;
 
                 // --- Tiêu đề báo cáo
                 var rangeTitle = ws.Range("K6:P6");
@@ -350,7 +363,10 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                 int dataRow = row3 + 1;
                 int stt = 1;
                 decimal totalMienGiam = 0, totalNo = 0, totalSoTien = 0, totalThuoc = 0;
-                Dictionary<string, decimal> tongTheoNhom = nhomDichVuList.ToDictionary(n => n, n => 0m);
+                Dictionary<string, decimal> tongTheoNhom = nhomDichVuList.Distinct().ToDictionary(n => n, n => 0m);
+
+                ws.Column(1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                ws.Column(1).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
 
                 foreach (var blGroup in data.GroupBy(x => new { x.MaBN, x.SoBienLai }))
                 {
@@ -435,7 +451,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
 
                 // --- Điều chỉnh độ rộng
                 ws.Columns().AdjustToContents();
-                ws.Column(1).Width = 5;   // STT
+                ws.Column(1).Width = 15;   // STT
                 ws.Column(2).Width = 15;  // Mã BN/Mã đợt
                 ws.Column(3).Width = 20;  // Họ và tên
                 ws.Column(4).Width = 10;  // Năm sinh

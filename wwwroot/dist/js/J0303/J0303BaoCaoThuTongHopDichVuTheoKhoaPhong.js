@@ -159,43 +159,25 @@ function parseHocPhiToNumber(str) {
 }
 
 
-//async function loadJsonData() {
-//    try {
-//        const nhomPhongRes = await fetch('/dist/data/json/DM_PhongBuong.json').then(r => r.json());
-//        listPhongBuong = nhomPhongRes;
-//        renderHeader();
-//    } catch (err) {
-//        console.error("❌ Lỗi tải JSON:", err);
-//    }
-//}
+
 
 function renderHeader() {
     const thead = document.querySelector('table thead');
     thead.innerHTML = '';
 
-    // Tạo hàng tiêu đề với chỉ các phòng ĐÃ LỌC
     let row = `<tr>`;
-    row += `<th class="text-center">STT</th>`;
-    row += `<th class="text-center"  style="width: 100%;">Dịch vụ</th>`;
+    row += `<th class="text-center col-stt">STT</th>`;
+    row += `<th class="text-center col-dichvu">Dịch vụ</th>`;
 
-    // Thêm cột cho các phòng ĐÃ LỌC
-    if (window.filteredPhongList && window.filteredPhongList.length > 0) {
-        window.filteredPhongList.forEach(phong => {
-            row += `<th class="text-center">${phong.ten}</th>`;
-        });
-    } else {
-        // Nếu không có phòng nào được lọc, hiển thị tất cả (fallback)
-        listPhongBuong.forEach(phong => {
-            row += `<th class="text-center">${phong.ten}</th>`;
-        });
-    }
+    listPhongBuong.forEach(phong => {
+        row += `<th class="text-center col-phong">${phong.ten}</th>`;
+    });
 
-    row += `<th class="text-center">Tổng</th>`;
+    row += `<th class="text-center col-tong">Tổng</th>`;
     row += `</tr>`;
 
     thead.innerHTML = row;
 }
-
 
 $(document).on('change', '#pageSizeSelect', function () {
     pageSize = parseInt($(this).val()) || 10;
@@ -211,7 +193,7 @@ $(document).on('change', '#pageSizeSelect', function () {
 
 document.addEventListener('DOMContentLoaded', async () => {
     await loadJsonData();
-    //loadDichVu();
+    loadDichVu();
     renderTable();
     initDatePicker();
     handleFilter();
@@ -220,200 +202,130 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 document.addEventListener("DOMContentLoaded", loadDichVu);
-/*==================== SỰ KIỆN CHỌN NHÓM DỊCH VỤ ====================*/
-let dichVuData = []; // load từ JSON
-let currentIndex = -1; // item đang được highlight
-let selectedId = 0;    // Ghi nhớ item đã chọn (0 = Tất cả)
 
-const input = document.getElementById("nhomDichVuInput");
-const dropdown = document.getElementById("nhomDichVuDropdown");
+let tomSelectNhomDichVu = null;
 
-// Hidden inputs
-const hiddenId = document.getElementById("nhomDichVuIdHidden");
-const hiddenMa = document.getElementById("nhomDichVuMaHidden");
-const hiddenTen = document.getElementById("nhomDichVuTenHidden");
-const hiddenVietTat = document.getElementById("nhomDichVuVietTatHidden");
+function initTomSelectNhomDichVu() {
+    const selectElement = document.getElementById('nhomDichVuSelect');
 
-// Mặc định: Tất cả
-function setAllDefault() {
-    selectedId = 0;
-    hiddenId.value = 0;
-    hiddenMa.value = "";
-    hiddenTen.value = "Tất cả";
-    hiddenVietTat.value = "";
-    input.value = "Tất cả";
-}
-setAllDefault();
+    if (tomSelectNhomDichVu) {
+        tomSelectNhomDichVu.destroy();
+    }
 
-function renderDropdown(list, selId = null, keyword = "") {
-    dropdown.innerHTML = "";
-    currentIndex = -1;
+    function generateAbbreviation(text) {
+        if (!text || text === 'Tất cả') return '';
 
-    // Luôn chèn "Tất cả" ở đầu
-    const allItem = { id: 0, ma: "", ten: "Tất cả", viettat: "" };
-    const renderList = [allItem, ...list];
+      
+        const words = text.split(' ');
+        let abbreviation = '';
 
-    // Regex không phân biệt hoa/thường
-    const regex = keyword ? new RegExp(`(${keyword})`, "gi") : null;
-
-    renderList.forEach((item, index) => {
-        const div = document.createElement("div");
-        div.className = "dropdown-item d-flex justify-content-between";
-        div.dataset.id = item.id;
-        div.style.cursor = "pointer";
-        div.style.userSelect = "none";
-
-        // Tô màu phần match trong tên
-        let tenHTML = item.ten;
-        if (regex) tenHTML = tenHTML.replace(regex, `<span style="background:yellow;color:black;">$1</span>`);
-
-        // span tên (bên trái)
-        const spanTen = document.createElement("span");
-        spanTen.innerHTML = tenHTML;
-
-        // span viết tắt (bên phải)
-        const spanVT = document.createElement("span");
-        spanVT.style.color = "inherit";
-        if (item.viettat) {
-            let vtHTML = item.viettat;
-            if (regex) vtHTML = vtHTML.replace(regex, `<span style="background:yellow;color:black;">$1</span>`);
-            spanVT.innerHTML = `[${vtHTML}]`;
+        for (const word of words) {
+            if (word.length > 0) {
+                abbreviation += word[0].toUpperCase();
+            }
         }
 
-        div.appendChild(spanTen);
-        div.appendChild(spanVT);
+        return abbreviation;
+    }
 
-        div.addEventListener("click", function () {
-            selectItem(item);
-        });
-        dropdown.appendChild(div);
+    tomSelectNhomDichVu = new TomSelect(selectElement, {
+        valueField: 'id',
+        labelField: 'ten',
+        searchField: ['ten', 'viettat'],
+        placeholder: 'Chọn nhóm dịch vụ',
+        allowEmptyOption: true,
+        create: false,
+        maxOptions: null,
+        render: {
+            option: function (data, escape) {
+  
+                const vietTat = data.ten === 'Tất cả' ? '' : generateAbbreviation(data.ten);
+
+                return `
+                    <div class="d-flex justify-content-between">
+                        <span>${escape(data.ten)}</span>
+                        <span class="text-muted">${vietTat ? '[' + escape(vietTat) + ']' : ''}</span>
+                    </div>
+                `;
+            },
+            item: function (data, escape) {
+                
+                const vietTat = data.ten === 'Tất cả' ? '' : generateAbbreviation(data.ten);
+
+                return `<div>${escape(data.ten)} ${vietTat ? '[' + escape(vietTat) + ']' : ''}</div>`;
+            }
+        },
+        onInitialize: function () {
+           
+            this.setValue('0');
+        },
+        onChange: function (value) {
+            const selectedItem = this.options[value];
+
+            if (selectedItem) {
+                const vietTat = selectedItem.ten === 'Tất cả' ? '' : generateAbbreviation(selectedItem.ten);
+
+                document.getElementById('nhomDichVuIdHidden').value = selectedItem.id || 0;
+                document.getElementById('nhomDichVuMaHidden').value = selectedItem.ma || '';
+                document.getElementById('nhomDichVuTenHidden').value = selectedItem.ten || '';
+                document.getElementById('nhomDichVuVietTatHidden').value = vietTat || '';
+            } else {
+             
+                document.getElementById('nhomDichVuIdHidden').value = 0;
+                document.getElementById('nhomDichVuMaHidden').value = '';
+                document.getElementById('nhomDichVuTenHidden').value = 'Tất cả';
+                document.getElementById('nhomDichVuVietTatHidden').value = '';
+            }
+        }
     });
 
-    dropdown.style.display = renderList.length > 0 ? "block" : "none";
+  
+    tomSelectNhomDichVu.on('type', function (str) {
+    
+    });
+}
 
-    // Nếu có selId (mục đã chọn trước đó) thì highlight nó
-    if (selId !== null) {
-        const idx = renderList.findIndex(x => x.id === selId);
-        if (idx >= 0) {
-            highlightItem(idx);
-        }
+
+function updateTomSelectData(data) {
+    if (tomSelectNhomDichVu) {
+       
+        const currentOptions = tomSelectNhomDichVu.options;
+        Object.keys(currentOptions).forEach(key => {
+            if (key !== '0') {
+                tomSelectNhomDichVu.removeOption(key);
+            }
+        });
+
+       
+        tomSelectNhomDichVu.addOptions(data);
+
+        tomSelectNhomDichVu.refreshOptions();
     }
 }
 
-
-function selectItem(item) {
-    // 👉 Input chỉ hiện tên
-    input.value = item.ten;
-
-    hiddenId.value = item.id;
-    hiddenMa.value = item.ma || "";
-    hiddenTen.value = item.ten || "";
-    hiddenVietTat.value = item.viettat || "";
-
-    // Cập nhật selectedId để lần sau focus sẽ highlight đúng
-    selectedId = item.id;
-
-    dropdown.style.display = "none";
-}
-
-function highlightItem(index) {
-    const items = dropdown.querySelectorAll(".dropdown-item");
-    if (!items.length) return;
-
-    items.forEach(el => {
-        el.style.background = "";
-        el.style.color = "";
-    });
-
-    if (index >= 0 && index < items.length) {
-        items[index].style.background = "#0d6efd"; // đậm hơn
-        items[index].style.color = "#fff";
-        currentIndex = index;
-
-        items[index].scrollIntoView({
-            block: "nearest",
-            behavior: "smooth"
-        });
-    }
-}
 
 async function loadDichVu() {
     try {
         const response = await fetch('/bao_cao_thu_tong_hop_dv_theo_khoa_phong/nhom-dich-vu/all');
-        console.log(response);
-        // Kiểm tra nếu response không ok thì throw error
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        // Chỉ parse JSON một lần
         dichVuData = await response.json();
 
-        // Sắp xếp theo tên
         dichVuData.sort((a, b) => a.ten.localeCompare(b.ten, "vi", { sensitivity: "base" }));
-        renderDropdown(dichVuData, selectedId);
+
+        initTomSelectNhomDichVu();
+
+        updateTomSelectData(dichVuData);
 
     } catch (err) {
         console.error("Lỗi load JSON:", err);
     }
 }
 
-// ==================== THÊM SỰ KIỆN CHO INPUT ====================
-document.addEventListener("DOMContentLoaded", function () {
-    // Sự kiện khi click vào input
-    input.addEventListener("click", function () {
-        renderDropdown(dichVuData, selectedId);
-    });
 
-    // Sự kiện khi focus vào input
-    input.addEventListener("focus", function () {
-        renderDropdown(dichVuData, selectedId);
-    });
-
-    // Sự kiện khi nhập từ khóa tìm kiếm
-    input.addEventListener("input", function () {
-        const keyword = input.value.trim();
-        if (keyword === "") {
-            renderDropdown(dichVuData, selectedId);
-        } else {
-            const filtered = dichVuData.filter(item =>
-                item.ten.toLowerCase().includes(keyword.toLowerCase()) ||
-                (item.viettat && item.viettat.toLowerCase().includes(keyword.toLowerCase()))
-            );
-            renderDropdown(filtered, null, keyword);
-        }
-    });
-
-    // Sự kiện khi click ra ngoài để ẩn dropdown
-    document.addEventListener("click", function (e) {
-        if (!input.contains(e.target) && !dropdown.contains(e.target)) {
-            dropdown.style.display = "none";
-        }
-    });
-
-    // Sự kiện bàn phím (để di chuyển bằng mũi tên)
-    input.addEventListener("keydown", function (e) {
-        const items = dropdown.querySelectorAll(".dropdown-item");
-        if (!items.length) return;
-
-        if (e.key === "ArrowDown") {
-            e.preventDefault();
-            highlightItem((currentIndex + 1) % items.length);
-        } else if (e.key === "ArrowUp") {
-            e.preventDefault();
-            highlightItem((currentIndex - 1 + items.length) % items.length);
-        } else if (e.key === "Enter" && currentIndex >= 0) {
-            e.preventDefault();
-            const selectedItem = items[currentIndex];
-            const itemId = parseInt(selectedItem.dataset.id);
-            const allItem = { id: 0, ma: "", ten: "Tất cả", viettat: "" };
-            const item = [allItem, ...dichVuData].find(x => x.id === itemId);
-            if (item) selectItem(item);
-        }
-    });
-});
-
-// Tải dữ liệu JSON (giả sử được tải trong loadJsonData)
 let listDichVuKyThuat = [];
 let listNhomDichVuKyThuat = [];
 
@@ -447,8 +359,7 @@ function hideLoading() {
 function handleFilter() {
     $('.btnFilterBacSi').off('click').on('click', function (e) {
         e.preventDefault();
-        
-        // Hiển thị loading khi bắt đầu lọc
+
         showLoading();
 
         setTimeout(function () {
@@ -460,7 +371,7 @@ function handleFilter() {
 
                 if (!tuNgayRaw || !denNgayRaw) {
                     toastr.error("Vui lòng chọn đầy đủ Từ ngày và Đến ngày");
-                    hideLoading(); // Ẩn loading nếu có lỗi
+                    hideLoading(); 
                     return;
                 }
 
@@ -485,30 +396,30 @@ function handleFilter() {
                     type: 'POST',
                     data: { tuNgay, denNgay, idChiNhanh, idDichVuKyThuat: idNhomdichvu, idPhong },
                     beforeSend: function () {
-                        // Hiển thị loading trước khi gửi request
+                       
                         showLoading();
                     },
                     success: function (response) {
-                       
+
                         if (response.success) {
                             console.log('id nhom dich vu: ', idNhomdichvu, idPhong);
-                           
+
                             fullData = response.data || [];
                             let filteredPhongIds = [];
 
                             fullData.forEach(item => {
-                                // Chuẩn hóa lại tên field từ server
+                             
                                 item.idDichVuKyThuat = item.idDichVuKyThuat || item.iddvkt;
                                 item.idPhong = item.idPhong || item.idPhongBuong;
 
-                                // Tìm phòng
+                               
                                 const phong = listPhongBuong.find(p => p.id === item.idPhong);
-                                // Tìm dịch vụ kỹ thuật
+                                
                                 const dichVu = listDichVuKyThuat.find(d => d.id === item.idDichVuKyThuat);
-                                // Tìm nhóm DVKT từ dịch vụ
+                               
                                 const nhomDichVu = dichVu ? listNhomDichVuKyThuat.find(n => n.id === dichVu.idNhomDichVu) : null;
 
-                                // Gán lại tên hiển thị
+                               
                                 item.tenPhong = phong?.ten || "Không rõ phòng";
                                 item.tenDichVuKyThuat = dichVu?.ten || "Không rõ dịch vụ";
                                 item.tenNhomDvKyThuat = nhomDichVu?.ten || "Không rõ nhóm dịch vụ";
@@ -519,13 +430,11 @@ function handleFilter() {
                                 }
                             });
 
-                            // Lưu danh sách phòng đã lọc
+                          
                             window.filteredPhongList = listPhongBuong.filter(phong =>
                                 filteredPhongIds.includes(phong.id)
                             );
-
-                            console.log(fullData);
-                            // Reset phân trang + render lại
+                            
                             currentPage = 1;
                             pageSize = parseInt($('#pageSizeSelect').val()) || 10;
                             khoaStt = 1;
@@ -546,13 +455,13 @@ function handleFilter() {
                         toastr.error("❌ Lỗi kết nối: " + xhr.responseText);
                     },
                     complete: function () {
-                        // Ẩn loading khi request hoàn thành
+                       
                         hideLoading();
                     }
                 });
             } catch (err) {
                 console.error("❌ Lỗi trong setTimeout:", err);
-                hideLoading(); // Ẩn loading nếu có lỗi
+                hideLoading();
             }
         }, 100);
     });
@@ -561,113 +470,7 @@ function handleFilter() {
 
 
 
-//function renderTable() {
-//    const tbody = $('#tableBody');
-//    tbody.empty();
 
-//    let selectedNhomDichVuId = parseInt(document.getElementById("nhomDichVuIdHidden").value) || 0;
-//    let filteredNhomDichVuList = listNhomDichVuKyThuat;
-//    if (selectedNhomDichVuId !== 0) {
-//        filteredNhomDichVuList = listNhomDichVuKyThuat.filter(nhom => nhom.id === selectedNhomDichVuId);
-//    }
-
-//    const phongList = window.filteredPhongList || listPhongBuong;
-
-//    // Tính tổng toàn bảng
-//    let tongTatCaGia = 0;
-
-//    filteredNhomDichVuList.forEach(nhomDichVu => {
-//        if (!nhomDichVu.active) return;
-//        // LƯU Ý: không lọc theo dv.active để không bỏ sót DV như "xông họng"
-//        const dichVuInNhom = listDichVuKyThuat.filter(dv => dv.idNhomDichVu === nhomDichVu.id);
-
-//        dichVuInNhom.forEach(dv => {
-//            phongList.forEach(phong => {
-//                const gia = fullData
-//                    .filter(item => item.idDichVuKyThuat === dv.id && item.idPhong === phong.id)
-//                    .reduce((sum, item) => sum + (item.gia || 0), 0);
-//                tongTatCaGia += gia;
-//            });
-//        });
-//    });
-
-//    // Nếu không có dữ liệu
-//    if (tongTatCaGia === 0) {
-//        const colCount = 2 + phongList.length + 1;
-//        tbody.append(`<tr><td colspan="${colCount}" class="text-center text-muted">Không có dữ liệu</td></tr>`);
-//        return;
-//    }
-
-//    // Duyệt qua từng nhóm
-//    filteredNhomDichVuList.forEach((nhomDichVu, index) => {
-//        if (!nhomDichVu.active) return;
-
-//        // KHÔNG lọc theo dv.active => hiển thị tất cả dịch vụ trong nhóm
-//        const dichVuInNhom = listDichVuKyThuat.filter(dv => dv.idNhomDichVu === nhomDichVu.id);
-
-//        // Tính tổng nhóm và tổng theo phòng trong nhóm
-//        let tongNhom = 0;
-//        let tongPhongTrongNhom = {};
-//        phongList.forEach(phong => tongPhongTrongNhom[phong.id] = 0);
-
-//        dichVuInNhom.forEach(dv => {
-//            phongList.forEach(phong => {
-//                const gia = fullData
-//                    .filter(item => item.idDichVuKyThuat === dv.id && item.idPhong === phong.id)
-//                    .reduce((sum, item) => sum + (item.gia || 0), 0);
-//                tongNhom += gia;
-//                tongPhongTrongNhom[phong.id] += gia;
-//            });
-//        });
-
-//        // --- DEBUG LOG: in ra tên các dịch vụ trong nhóm + tổng theo phòng để bạn kiểm tra "xông họng" ---
-//        console.log(`== NHÓM: ${nhomDichVu.ten} (số DV=${dichVuInNhom.length}) - Tổng nhóm: ${tongNhom.toLocaleString()}`);
-//        console.log('  Danh sách dịch vụ (tên):', dichVuInNhom.map(d => d.ten));
-//        for (const [phongId, gia] of Object.entries(tongPhongTrongNhom)) {
-//            console.log(`    Phòng ${phongId}: ${gia.toLocaleString()}`);
-//        }
-//        // --- end debug ---
-
-//        // Render header nhóm + tổng theo phòng
-//        let headerRow = `<tr class="bg-light font-weight-bold">
-//            <td colspan="2" class="text-start ps-2">
-//                ${String(index + 1).padStart(2, '0')}. ${nhomDichVu.ten} (${dichVuInNhom.length})
-//            </td>`;
-//        phongList.forEach(phong => {
-//            headerRow += `<td class="text-end pe-2">${tongPhongTrongNhom[phong.id] > 0 ? formatSoTien(tongPhongTrongNhom[phong.id]) : ''}</td>`;
-//        });
-//        headerRow += `<td class="text-end pe-2">${tongNhom > 0 ? formatSoTien(tongNhom) : ''}</td></tr>`;
-//        tbody.append(headerRow);
-
-//        // Hiển thị danh sách dịch vụ trong nhóm (phân trang)
-//        const start = (currentPage - 1) * pageSize;
-//        const end = start + pageSize;
-//        const pageData = dichVuInNhom.slice(start, end);
-
-//        pageData.forEach((dichVu, subIndex) => {
-//            let rowHtml = `<tr>
-//                <td class="text-center">${String(subIndex + 1).padStart(2, '0')}</td>
-//                <td class="text-start ps-2">${dichVu.ten}</td>`;
-//            let tongGia = 0;
-//            phongList.forEach(phong => {
-//                const gia = fullData
-//                    .filter(item => item.idDichVuKyThuat === dichVu.id && item.idPhong === phong.id)
-//                    .reduce((sum, item) => sum + (item.gia || 0), 0);
-//                tongGia += gia;
-//                rowHtml += `<td class="text-end pe-2">${gia > 0 ? formatSoTien(gia) : ''}</td>`;
-//            });
-//            rowHtml += `<td class="text-end pe-2 font-weight-bold">${tongGia > 0 ? formatSoTien(tongGia) : ''}</td></tr>`;
-//            tbody.append(rowHtml);
-//        });
-//    });
-
-//    // Hàng tổng cuối cùng chỉ hiển thị tổng cộng (không cộng từng phòng)
-//    let totalRowHtml = `<tr class="bg-secondary text-white font-weight-bold">
-//        <td colspan="${2 + phongList.length}" class="text-start ps-2">TỔNG CỘNG</td>
-//        <td class="text-end pe-2">${tongTatCaGia > 0 ? formatSoTien(tongTatCaGia) : ''}</td>
-//    </tr>`;
-//    tbody.append(totalRowHtml);
-//}
 
 
 
@@ -721,7 +524,7 @@ function exportPDFHandler(btn, viewType) {
     const idNhomDichVu = parseInt(document.getElementById("nhomDichVuIdHidden").value) || 0;
     const idDichVuKyThuat = 0;
 
-   
+
 
     const url = `/bao_cao_thu_tong_hop_dv_theo_khoa_phong/export/pdf?` +
         `tuNgay=${formattedTuNgay}&denNgay=${formattedDenNgay}&idChiNhanh=${idChiNhanh}` +
@@ -729,7 +532,7 @@ function exportPDFHandler(btn, viewType) {
 
     console.log(url);
 
-   
+
 
     fetch(url, {
         method: "GET",
@@ -878,7 +681,7 @@ function renderTable() {
 
     setTimeout(() => {
         try {
-            const phongList = window.filteredPhongList || listPhongBuong;
+            const phongList = listPhongBuong;
             let selectedNhomDichVuId = parseInt(document.getElementById("nhomDichVuIdHidden").value) || 0;
 
             if (!fullData || fullData.length === 0) {
@@ -1052,7 +855,6 @@ function renderPagination() {
         }
     });
 }
-
 
 
 

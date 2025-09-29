@@ -107,13 +107,16 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                 var logoPath = Path.Combine(_env.WebRootPath, "dist", "img", "logo.png");
                 if (System.IO.File.Exists(logoPath))
                 {
+                    // Merge ô nếu cần
                     ws.Range("A1:B4").Merge();
-                    ws.Column(1).Width = 20;
-                    ws.Column(2).Width = 15;
-                    ws.AddPicture(logoPath)
-                        .MoveTo(ws.Cell("A1"), 15, 5)
+                    ws.Column(1).Width = 0; // Giảm độ rộng cột
+                    ws.Column(2).Width = 0;
+
+                    // Chèn logo và scale nhỏ hơn
+                    var picture = ws.AddPicture(logoPath)
+                        .MoveTo(ws.Cell("A1"), 10, 2)  // Giảm offset (thử nghiệm giá trị)
                         .WithPlacement(XLPicturePlacement.FreeFloating)
-                        .Scale(0.2);
+                        .Scale(0.08); // Scale nhỏ hơn
                 }
 
                 // 4. Thông tin header
@@ -169,7 +172,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
             "Ngày giờ giao dịch", "User thanh toán"
         };
 
-                double[] columnWidths = { 7, 9, 14, 26, 15, 16, 9, 16, 9, 16, 23, 18, 16, 13, 16, 13 };
+                double[] columnWidths = { 4, 7, 14, 26, 15, 16, 9, 16, 9, 16, 23, 18, 16, 13, 16, 13 };
                 for (int i = 0; i < columnWidths.Length; i++) ws.Column(i + 1).Width = columnWidths[i];
 
                 var headerRow1 = ws.Row(9);

@@ -1,10 +1,9 @@
 ﻿namespace Nam_ThongKeSoLuongBNHenTaiKham.Models.M0303
 {
-    public class M0303NhomDichVuKyThuat
+    public class M0303DanhMucMaycls
     {
-        public long? id { get; set; }
+        public int id { get; set; }
         public string ma { get; set; }
         public string ten { get; set; }
-        public string viettat { get; set; }
     }
 }

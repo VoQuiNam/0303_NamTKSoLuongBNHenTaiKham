@@ -7,6 +7,10 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
     [Route("lay_phieu_nhap_kho_in_gop")]
     public class C0303LayPhieuNhapKhoInGopController : Controller
     {
+
+        //private string _maChucNang = "/lay_phieu_nhap_kho_in_gop";
+        //private IMemoryCachingServices _memoryCache;
+
         private readonly Context0303 _localDb;
         private readonly IWebHostEnvironment _env;
         private readonly I0303LayPhieuNhapKhoInGop _service;
@@ -24,6 +28,23 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
 
         public IActionResult V0303LayPhieuNhapKhoInGopPage()
         {
+            //var quyenVaiTro = await _memoryCache.getQuyenVaiTro(_maChucNang);
+            //if (quyenVaiTro == null)
+            //{
+            //    return RedirectToAction("NotFound", "Home");
+            //}
+            //ViewBag.quyenVaiTro = quyenVaiTro;
+            //ViewData["Title"] = CommonServices.toEmptyData(quyenVaiTro);
+            ViewBag.quyenVaiTro = new
+            {
+                Them = true,
+                Sua = true,
+                Xoa = true,
+                Xuat = true,
+                CaNhan = true,
+                Xem = true,
+            };
+
             return View("~/Views/V0303/V0303LayPhieuNhapKhoInGop/V0303LayPhieuNhapKhoInGopPage.cshtml");
         }
 

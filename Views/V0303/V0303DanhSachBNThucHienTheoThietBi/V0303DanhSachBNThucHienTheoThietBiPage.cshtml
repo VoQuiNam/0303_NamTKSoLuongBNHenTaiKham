@@ -15,55 +15,54 @@
 
     .table-wrapper-scroll th,
     .table-wrapper-scroll td {
-        white-space: nowrap; /* giữ nội dung không xuống dòng */
+        white-space: nowrap;
     }
 
-        /* Cố định 4 cột đầu tiên */
         .table-wrapper-scroll th:nth-child(1),
         .table-wrapper-scroll td:nth-child(1) {
             position: sticky;
             left: 0;
             z-index: 2;
             background-color: white;
-            min-width: 65px; /* Cố định chiều rộng cột 1 */
+            min-width: 65px;
         }
 
         .table-wrapper-scroll th:nth-child(2),
         .table-wrapper-scroll td:nth-child(2) {
             position: sticky;
-            left: 65px; /* Chiều rộng của cột 1 */
+            left: 65px;
             z-index: 2;
             background-color: white;
-            min-width: 75px; /* Cố định chiều rộng cột 2 */
+            min-width: 75px;
         }
 
         .table-wrapper-scroll th:nth-child(3),
         .table-wrapper-scroll td:nth-child(3) {
             position: sticky;
-            left: 140px; /* Tổng chiều rộng cột 1 + 2 */
+            left: 140px;
             z-index: 2;
             background-color: white;
-            min-width: 110px; /* Cố định chiều rộng cột 3 */
+            min-width: 110px;
         }
 
         .table-wrapper-scroll th:nth-child(4),
         .table-wrapper-scroll td:nth-child(4) {
             position: sticky;
-            left: 250px; /* Tổng chiều rộng cột 1 + 2 + 3 */
+            left: 250px;
             z-index: 2;
             background-color: white;
-            min-width: 150px; /* Cố định chiều rộng cột 4 */
+            min-width: 150px;
         }
 
-        /* Đặc biệt xử lý cho header - cố định cả top và left */
+      
         .table-wrapper-scroll th:nth-child(-n+4) {
             position: sticky;
             top: 0;
-            z-index: 5; /* Cao hơn để hiển thị trên cả header và nội dung */
+            z-index: 5;
             background-color: #f2f2f2;
         }
 
-        /* Đặt lại left cho header để khớp với các cột dữ liệu */
+  
         .table-wrapper-scroll th:nth-child(1) {
             left: 0;
         }
@@ -80,13 +79,13 @@
             left: 250px;
         }
 
-        /* Đảm bảo các cột cố định có border đầy đủ */
+      
         .table-wrapper-scroll th:nth-child(-n+4),
         .table-wrapper-scroll td:nth-child(-n+4) {
             border-right: 1px solid #ccc !important;
         }
 
-    /* Tăng cường độ ưu tiên cho background */
+  
     .table-wrapper-scroll tr:hover td:nth-child(-n+4) {
         background-color: #bae7ff !important;
     }
@@ -256,21 +255,18 @@
     <script src="~/dist/lib/bootstrap-datepicker-1.10.0/dist/locales/bootstrap-datepicker.vi.min.js" asp-append-version="true" defer></script>
     <script src="~/dist/js/J0303/J0303DanhSachBNThucHienTheoThietBi.js" asp-append-version="true" defer></script>
     <script src="~/dist/js/J0303/J0303GiaiDoanNgayThangNam.js" asp-append-version="true" defer></script>
-   
+    <script src="@Url.Content("~/dist/js/BienChung.js")" defer></script>
 
 }
 
 
 
 <script>
-            // Thêm sự kiện click cho từng dòng
     document.querySelector(".table-wrapper-scroll tbody").addEventListener("click", function (e) {
         const row = e.target.closest("tr");
         if (!row) return;
 
-        // Bỏ chọn các dòng khác
         this.querySelectorAll("tr").forEach(r => r.classList.remove("selected"));
-        // Chọn dòng hiện tại
         row.classList.add("selected");
     });
 </script>

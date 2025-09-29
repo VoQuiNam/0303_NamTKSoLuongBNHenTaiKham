@@ -189,7 +189,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
             int idDichVuKyThuat = 0,
             int idNhomDichVu = 0)
         {
-        
+
 
             string tuNgayStr = tuNgay?.ToString("dd/MM/yyyy") ?? DateTime.Now.ToString("dd/MM/yyyy");
             string denNgayStr = denNgay?.ToString("dd/MM/yyyy") ?? DateTime.Now.ToString("dd/MM/yyyy");
@@ -375,7 +375,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                     ws.AddPicture(logoPath)
                       .MoveTo(ws.Cell("A1"), 20, 5)
                       .WithPlacement(XLPicturePlacement.FreeFloating)
-                      .Scale(0.2);
+                      .Scale(0.08);
                 }
 
                 // 5b. Thông tin cơ sở
@@ -390,8 +390,9 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                     ws.Cell("B1").Value = tenCSKCB;
                     ws.Cell("B1").Style.Font.FontName = "Times New Roman";
                     ws.Cell("B1").Style.Font.FontSize = 10;
+                    ws.Cell("B1").Style.Font.Bold = true;
                     ws.Cell("B1").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
-                    ws.Cell("B1").Style.Alignment.Indent = 10;
+                    ws.Cell("B1").Style.Alignment.Indent = 1;
                     ws.Row(2).Height = 20;
                 }
 
@@ -399,14 +400,14 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                 ws.Cell("B2").Style.Font.FontName = "Times New Roman";
                 ws.Cell("B2").Style.Font.FontSize = 10;
                 ws.Cell("B2").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
-                ws.Cell("B2").Style.Alignment.Indent = 10;
+                ws.Cell("B2").Style.Alignment.Indent = 1;
                 ws.Row(3).Height = 20;
 
                 ws.Cell("B3").Value = $"Điện thoại: {dienThoai}";
                 ws.Cell("B3").Style.Font.FontName = "Times New Roman";
                 ws.Cell("B3").Style.Font.FontSize = 10;
                 ws.Cell("B3").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
-                ws.Cell("B3").Style.Alignment.Indent = 10;
+                ws.Cell("B3").Style.Alignment.Indent = 1;
                 ws.Row(4).Height = 20;
 
                 // 6. Tiêu đề báo cáo
@@ -467,7 +468,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                     tongTatCa += tongNhom;
 
                     // Dòng tên nhóm dịch vụ
-                  
+
                     var nhomRange = ws.Range(row, 1, row, 2); // merge cột 1 + 2
                     nhomRange.Merge();
                     nhomRange.Value = $"{sttNhomDichVu++}. {nhom.ten}"; // hiển thị STT kế bên tên nhóm
@@ -475,7 +476,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                     nhomRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
                     nhomRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
                     nhomRange.Style.Alignment.Indent = 1;
-                    
+
 
                     // Điền tổng theo phòng
                     col = 3;
@@ -554,7 +555,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                 ws.Row(row).Height = 18;
 
                 // 10. Set width cột
-                ws.Column(1).Width = 6;
+                ws.Column(1).Width = 15;
                 ws.Column(2).Width = 80;
 
                 ws.Column(2).Style.Alignment.WrapText = true;

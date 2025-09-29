@@ -10,7 +10,7 @@
 
 
 
-<button value="20726" class="btn btn-icon btn-sm btn-print-phieunhap bg-green-lt btnExportPDFDesktop mt-5" id="btnExportPDFGoiKham" data-bs-toggle="tooltip" data-bs-placement="left" aria-label="In PDF" data-bs-original-title="In PDF">
+<button value="20726" class="btn btn-icon btn-sm btn-print-phieunhap bg-green-lt btnExportPDFDesktop mt-5" id="btnExportPDFGoiKham" data-bs-toggle="tooltip" data-bs-placement="left" aria-label="In PDF" data-bs-original-title="In PDF" @(ViewBag.quyenvaitro.Xuat ? "" : "disabled")>
         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-printer" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
             <path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2"></path>
@@ -26,7 +26,9 @@
     <script src="~/dist/lib/bootstrap-datepicker-1.10.0/dist/locales/bootstrap-datepicker.vi.min.js" asp-append-version="true" defer></script>
     <script src="~/dist/js/J0303/J0303LayPhieuNhapKhoInGop.js" asp-append-version="true" defer></script>
     <script src="~/dist/js/J0303/J0303GiaiDoanNgayThangNam.js" asp-append-version="true" defer></script>
-    
+    <script src="@Url.Content("~/dist/js/BienChung.js")" defer></script>
+
+
 
 }
 

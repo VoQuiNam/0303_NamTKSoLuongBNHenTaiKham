@@ -1,0 +1,100 @@
+﻿<head>
+    <link href="~/dist/lib/bootstrap-datepicker-1.10.0/dist/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+    <link href="~/dist/lib/toastr/toastr.min.css" rel="stylesheet" />
+</head>
+
+<div class="dropdown">
+    <div id="loadingSpinner" class="text-center" style="display: none; margin: 20px 0;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p>Đang import dữ liệu...</p>
+    </div>
+    <button type="button" class="btn btn-success  me-4 mt-5  dropdown-toggle" id="nhapdanhsachBtn" data-bs-toggle="dropdown" aria-expanded="false">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+             class="bi bi-file-earmark-arrow-down" viewBox="0 0 16 16" style="margin-right:4px;">
+            <path d="M8 5a.5.5 0 0 1 .5.5v4.793l1.146-1.147a.5.5 0 0 1
+                 .708.708l-2 2a.5.5 0 0 1-.708
+                 0l-2-2a.5.5 0 0 1 .708-.708L7.5
+                 10.293V5.5A.5.5 0 0 1 8 5z" />
+            <path d="M14 4.5V14a2 2 0 0 1-2
+                 2H4a2 2 0 0 1-2-2V2a2
+                 2 0 0 1 2-2h5.5L14
+                 4.5zM13 4.5L9.5 1H4a1
+                 1 0 0 0-1 1v12a1 1 0 0
+                 0 1 1h8a1 1 0 0 0 1-1v-9z" />
+        </svg>
+        Nhập danh sách
+    </button>
+    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="nhapdanhsachBtn">
+        <div class="px-3 py-2">
+            <label for="excelFile" class="form-label">Chọn file Excel</label>
+            <input type="file" class="form-control mb-2" id="excelFile" accept=".xls,.xlsx">
+            <div class="d-flex justify-content-between">
+                <button id="btnImportExcel" class="btn btn-primary" title="Xác nhận">
+                    Xác nhận
+                </button>
+                <a href="/xuat_dich_vu_ky_thuat/downloadTemplate" class="btn btn-link btn-sm text-decoration-none" download>
+                    Tải file mẫu
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById("btnImportExcel").addEventListener("click", async function (e) {
+        e.preventDefault();
+        const fileInput = document.getElementById("excelFile");
+        const spinner = document.getElementById("loadingSpinner");
+
+        if (!fileInput.files.length) {
+            toastr.error("Vui lòng chọn file Excel!");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("excelFile", fileInput.files[0]);
+
+        try {
+            // Hiển thị loading
+            spinner.style.display = "block";
+
+            const response = await fetch("/xuat_dich_vu_ky_thuat/importExcel", {
+                method: "POST",
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                if (result.errors && result.errors.length > 0) {
+                    result.errors.forEach(error => {
+                        toastr.error(error);
+                    });
+                } else {
+                    toastr.error(result.message || "Import thất bại");
+                }
+                return;
+            }
+
+            toastr.success(result.message);
+
+            fileInput.value = "";
+
+        } catch (err) {
+            toastr.error("Lỗi kết nối: " + err.message);
+        } finally {
+            spinner.style.display = "none";
+        }
+    });
+</script>
+
+@section Scripts {
+    <script src="~/dist/lib/toastr/toastr.min.js" asp-append-version="true" defer></script>
+    <script src="~/dist/lib/bootstrap-datepicker-1.10.0/dist/js/bootstrap-datepicker.min.js" asp-append-version="true" defer></script>
+    <script src="~/dist/lib/bootstrap-datepicker-1.10.0/dist/locales/bootstrap-datepicker.vi.min.js" asp-append-version="true" defer></script>
+
+
+
+}
