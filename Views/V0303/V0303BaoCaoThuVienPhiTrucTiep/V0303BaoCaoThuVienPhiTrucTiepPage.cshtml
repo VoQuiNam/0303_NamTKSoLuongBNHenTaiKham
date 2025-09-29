@@ -19,7 +19,7 @@
         .table-wrapper-scroll th:nth-child(1),
         .table-wrapper-scroll td:nth-child(1) {
             position: sticky;
-            left: 0;
+            /* left: 0; */
             z-index: 2;
             background-color: white;
             min-width: 65px;
@@ -28,7 +28,7 @@
         .table-wrapper-scroll th:nth-child(2),
         .table-wrapper-scroll td:nth-child(2) {
             position: sticky;
-            left: 65px;
+            /* left: 65px; */
             z-index: 2;
             background-color: white;
             min-width: 120px;
@@ -37,8 +37,8 @@
         .table-wrapper-scroll th:nth-child(3),
         .table-wrapper-scroll td:nth-child(3) {
             position: sticky;
-            left: 185px;
-            z-index: 2;
+            left: 0;
+            z-index: 3;
             background-color: white;
             min-width: 130px;
         }
@@ -46,7 +46,7 @@
         .table-wrapper-scroll th:nth-child(4),
         .table-wrapper-scroll td:nth-child(4) {
             position: sticky;
-            left: 315px;
+            /* left: 315px; */
             z-index: 2;
             background-color: white;
             min-width: 90px;
@@ -55,7 +55,7 @@
 
 
        
-        .table-wrapper-scroll th:nth-child(-n+4) {
+        .table-wrapper-scroll th:nth-child(-n+3) {
             position: sticky;
             top: 0;
             z-index: 5; 
@@ -63,34 +63,34 @@
         }
 
        
-        .table-wrapper-scroll th:nth-child(1) {
+        /* .table-wrapper-scroll th:nth-child(1) {
             left: 0;
         }
 
         .table-wrapper-scroll th:nth-child(2) {
             left: 65px;
-        }
+        } */
 
         .table-wrapper-scroll th:nth-child(3) {
-            left: 185px;
+            left: 0;
         }
 
-        .table-wrapper-scroll th:nth-child(4) {
+        /* .table-wrapper-scroll th:nth-child(4) {
             left: 315px;
-        }
+        } */
 
       
-        .table-wrapper-scroll th:nth-child(-n+4),
-        .table-wrapper-scroll td:nth-child(-n+4) {
+        .table-wrapper-scroll th:nth-child(-n+3),
+        .table-wrapper-scroll td:nth-child(-n+3) {
             border-right: 1px solid #ccc !important;
         }
 
     
-    .table-wrapper-scroll tr:hover td:nth-child(-n+4) {
+    .table-wrapper-scroll tr:hover td:nth-child(-n+3) {
         background-color: #bae7ff !important;
     }
 
-    .table-wrapper-scroll tr.selected td:nth-child(-n+4) {
+    .table-wrapper-scroll tr.selected td:nth-child(-n+3) {
         background-color: #bae7ff !important;
     }
 
@@ -235,12 +235,13 @@
 </div>
 
 @section Scripts {
+    <script src="@Url.Content("~/dist/js/BienChung.js")" defer></script>
     <script src="~/dist/lib/toastr/toastr.min.js" asp-append-version="true" defer></script>
     <script src="~/dist/lib/bootstrap-datepicker-1.10.0/dist/js/bootstrap-datepicker.min.js" asp-append-version="true" defer></script>
     <script src="~/dist/lib/bootstrap-datepicker-1.10.0/dist/locales/bootstrap-datepicker.vi.min.js" asp-append-version="true" defer></script>
     <script src="~/dist/js/J0303/J0303BaoCaoThuVienPhiTrucTiep.js" asp-append-version="true" defer></script>
     <script src="~/dist/js/J0303/J0303GiaiDoanNgayThangNam.js" asp-append-version="true" defer></script>
-    <script src="@Url.Content("~/dist/js/BienChung.js")" defer></script>
+  
 
 }
 

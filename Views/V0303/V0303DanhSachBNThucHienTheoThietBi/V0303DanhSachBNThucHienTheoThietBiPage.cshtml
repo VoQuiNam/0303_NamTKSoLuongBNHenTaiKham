@@ -18,7 +18,7 @@
         white-space: nowrap;
     }
 
-        .table-wrapper-scroll th:nth-child(1),
+        /* .table-wrapper-scroll th:nth-child(1),
         .table-wrapper-scroll td:nth-child(1) {
             position: sticky;
             left: 0;
@@ -43,19 +43,21 @@
             z-index: 2;
             background-color: white;
             min-width: 110px;
-        }
+        } */
 
-        .table-wrapper-scroll th:nth-child(4),
-        .table-wrapper-scroll td:nth-child(4) {
+        .table-wrapper-scroll th:nth-child(6),
+        .table-wrapper-scroll td:nth-child(6) {
             position: sticky;
-            left: 250px;
+            left: 0;
             z-index: 2;
             background-color: white;
-            min-width: 150px;
+            width: 112px;
+            min-width: 215px;
+            max-width: 112px;
         }
 
       
-        .table-wrapper-scroll th:nth-child(-n+4) {
+        .table-wrapper-scroll th:nth-child(-n+6) {
             position: sticky;
             top: 0;
             z-index: 5;
@@ -63,11 +65,11 @@
         }
 
   
-        .table-wrapper-scroll th:nth-child(1) {
+        .table-wrapper-scroll th:nth-child(6) {
             left: 0;
         }
 
-        .table-wrapper-scroll th:nth-child(2) {
+      /*   .table-wrapper-scroll th:nth-child(2) {
             left: 65px;
         }
 
@@ -77,20 +79,20 @@
 
         .table-wrapper-scroll th:nth-child(4) {
             left: 250px;
-        }
+        } */
 
       
-        .table-wrapper-scroll th:nth-child(-n+4),
-        .table-wrapper-scroll td:nth-child(-n+4) {
+        .table-wrapper-scroll th:nth-child(-n+6),
+        .table-wrapper-scroll td:nth-child(-n+6) {
             border-right: 1px solid #ccc !important;
         }
 
   
-    .table-wrapper-scroll tr:hover td:nth-child(-n+4) {
+    .table-wrapper-scroll tr:hover td:nth-child(-n+6) {
         background-color: #bae7ff !important;
     }
 
-    .table-wrapper-scroll tr.selected td:nth-child(-n+4) {
+    .table-wrapper-scroll tr.selected td:nth-child(-n+6) {
         background-color: #bae7ff !important;
     }
 
@@ -250,12 +252,13 @@
 </div>
 
 @section Scripts {
+    <script src="@Url.Content("~/dist/js/BienChung.js")" defer></script>
     <script src="~/dist/lib/toastr/toastr.min.js" asp-append-version="true" defer></script>
     <script src="~/dist/lib/bootstrap-datepicker-1.10.0/dist/js/bootstrap-datepicker.min.js" asp-append-version="true" defer></script>
     <script src="~/dist/lib/bootstrap-datepicker-1.10.0/dist/locales/bootstrap-datepicker.vi.min.js" asp-append-version="true" defer></script>
     <script src="~/dist/js/J0303/J0303DanhSachBNThucHienTheoThietBi.js" asp-append-version="true" defer></script>
     <script src="~/dist/js/J0303/J0303GiaiDoanNgayThangNam.js" asp-append-version="true" defer></script>
-    <script src="@Url.Content("~/dist/js/BienChung.js")" defer></script>
+   
 
 }
 

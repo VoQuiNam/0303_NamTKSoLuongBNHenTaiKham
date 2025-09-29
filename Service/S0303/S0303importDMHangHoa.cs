@@ -122,6 +122,9 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                         if (string.IsNullOrEmpty(donViTinh))
                             rowErrors.Add("Đơn vị tính không được để trống");
 
+                        if (isBHYT && donGia <= 0)
+                            rowErrors.Add("Thuốc BHYT phải nhập đơn giá hợp lệ (>0)");
+
                         if (rowErrors.Any())
                         {
                             errors.Add($"Dòng {rowIndex}: {string.Join(", ", rowErrors)}");

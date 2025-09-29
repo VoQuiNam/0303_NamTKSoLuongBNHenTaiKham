@@ -282,6 +282,7 @@ function handleFilter() {
 
         setTimeout(function () {
             const idChiNhanh = window._idcn;
+            console.log(idChiNhanh);
             const tuNgayRaw = $('#tuNgayDesktop').val() || $('#tuNgayMobile').val();
             const denNgayRaw = $('#denNgayDesktop').val() || $('#denNgayMobile').val();
 

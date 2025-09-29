@@ -1,22 +1,39 @@
-﻿
-document.addEventListener('DOMContentLoaded', function () {
+﻿document.addEventListener('DOMContentLoaded', function () {
     const btnExportPDF = document.getElementById('btnExportPDFGoiKham');
     if (btnExportPDF) {
-        btnExportPDF.addEventListener('click', function () {
-            // Lấy các giá trị từ form hoặc các input tương ứng
-            //const ngayGioNhap = '2025-09-07'; // Có thể thay bằng giá trị động
-            //const idKhoHang = 2; // Có thể thay bằng giá trị động
-            const idChiNhanh = 2; // Có thể thêm các tham số khác nếu cần
-            //const idNhaCungCap = 3;
-            //const idHangHoa = 6;
-            //const idDonViTinhNhap = 1;
+        btnExportPDF.addEventListener('click', async function () {
+            const idChiNhanh = 2;
             const IDPhieuNhapKho = 1;
-
-            // Tạo URL với các tham số
             const url = `/lay_phieu_nhap_kho_in_gop/export-pdf?idChiNhanh=${idChiNhanh}&IDPhieuNhapKho=${IDPhieuNhapKho}`;
-            console.log(url);
-            //const url = `/lay_phieu_nhap_kho_in_gop/export-pdf?ngayGioNhap=${encodeURIComponent(ngayGioNhap)}&idChiNhanh=${idChiNhanh}&idKhoHang=${idKhoHang}&idNhaCungCap=${idNhaCungCap}&idKhoHang=${idKhoHang}`;
-            window.open(url, '_blank');
+
+            try {
+                const response = await fetch(url);
+
+                if (!response.ok) {
+                    throw new Error("Lỗi xuất PDF");
+                }
+
+                const blob = await response.blob();
+
+                if (blob.type === "application/pdf") {
+                    // Tạo link download ẩn
+                    const fileURL = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = fileURL;
+                    a.download = "phieu_nhap_kho.pdf"; // tên file tải về
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(fileURL);
+
+                    toastr.success("Xuất PDF thành công!");
+                } else {
+                    toastr.error("Xuất PDF thất bại!");
+                }
+            } catch (error) {
+                console.error(error);
+                toastr.error("Có lỗi khi xuất PDF!");
+            }
         });
     }
 });

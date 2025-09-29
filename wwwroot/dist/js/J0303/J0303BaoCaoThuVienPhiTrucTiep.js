@@ -187,11 +187,19 @@ async function loadJsonData() {
         const totalCols = fixedColumns.length + listNhomDv.length + fixedEndColumns.length + 2;
 
 
+
         let row1 = `<tr>`;
       
-        row1 += fixedColumns.map((col, idx) =>
-            `<th rowspan="2" style="z-index:${idx <= 3 ? 100 : 30}; position:sticky; top:0; background-color:#f8f8f8; border:1px solid #ddd;">${col.title}</th>`
-        ).join('');
+        row1 += fixedColumns.map((col, idx) => {
+            let z = 30;
+            if (idx === 2) {
+                z = 101; // ép cột thứ 3 lên 101 cho row1
+            } else if (idx <= 3) {
+                z = 100;
+            }
+            return `<th rowspan="2" style="z-index:${z}; position:sticky; top:0; background-color:#f8f8f8; border:1px solid #ddd;">${col.title}</th>`;
+        }).join('');
+
 
 
         row1 += `<th colspan="${listNhomDv.length + 2}" style="text-align:center; position:sticky; top:0; z-index:30; background-color:#f8f8f8; border:1px solid #ddd; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);">Thông tin chi tiết</th>`;
@@ -265,7 +273,12 @@ async function loadJsonData() {
                     ? `${row1Height + row2Height - 1}px`
                     : `${row1Height + row2Height}px`;
 
-                th.style.zIndex = idx <= 3 ? 100 : 10;
+                // 👇 Ràng buộc cột thứ 3 (idx = 2) có z-index = 101
+                if (idx === 2) {
+                    th.style.zIndex = 101;
+                } else {
+                    th.style.zIndex = idx <= 3 ? 100 : 10;
+                }
             });
         }, 0);
 
@@ -404,7 +417,7 @@ function calculateTotals(data) {
         const tfoot = document.querySelector(".table-wrapper-scroll tfoot");
         tbody.html('');
         tfoot.innerHTML = '';
-
+        const totalCols = fixedColumns.length + listNhomDv.length + fixedEndColumns.length + 2;
         showLoading();
 
         setTimeout(() => {
@@ -412,7 +425,7 @@ function calculateTotals(data) {
                 if (!fullData || fullData.length === 0) {
                     tbody.html(`
                         <tr>
-                            <td colspan="50" style="text-align:center; vertical-align:middle; border: 1px solid #ccc; padding: 6px 8px; background-color: #fff;">
+                            <td colspan="${totalCols}" style="text-align:center; vertical-align:middle; border: 1px solid #ccc; padding: 6px 8px; background-color: #fff;">
                                 Không có dữ liệu phù hợp
                             </td>
                         </tr>
@@ -835,8 +848,9 @@ function handleExportExcel() {
 
 document.addEventListener('DOMContentLoaded', async () => {
     initDatePicker();
-    renderTable();
     await loadJsonData();
+    renderTable();
+    
     handleFilter();
     handleExportPDF();
     handleExportExcel();
