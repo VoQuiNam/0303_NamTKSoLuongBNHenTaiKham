@@ -472,6 +472,40 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                 for (int i = chiTietStart + nhomDichVuList.Count + 2; i <= totalCols; i++) ws.Column(i).Width = 15;
 
 
+                // ================== THÊM CHỮ KÝ ==================
+                int footerRow = dataRow + 2;
+                string[] nguoiKy = { "THỦ TRƯỞNG ĐƠN VỊ", "THỦ QUỸ", "KẾ TOÁN", "NGƯỜI LẬP BẢNG" };
+                string[] cotKyStart = { "K", "M", "O", "Q" };
+
+                for (int i = 0; i < nguoiKy.Length; i++)
+                {
+                    string colStart = cotKyStart[i];
+                    string colEnd = ((char)(colStart[0] + 2)).ToString();
+
+                    if (i == 3) // Người lập bảng thì thêm ngày tháng
+                    {
+                        ws.Range($"{colStart}{footerRow}:{colEnd}{footerRow}")
+                            .Merge().Value = $"Ngày {DateTime.Now:dd} tháng {DateTime.Now:MM} năm {DateTime.Now:yyyy}";
+                        ws.Range($"{colStart}{footerRow}:{colEnd}{footerRow}").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                        ws.Range($"{colStart}{footerRow}:{colEnd}{footerRow}").Style.Font.Italic = true;
+                        ws.Range($"{colStart}{footerRow}:{colEnd}{footerRow}").Style.Font.FontSize = 10;
+                    }
+
+                    ws.Range($"{colStart}{footerRow + 1}:{colEnd}{footerRow + 1}")
+                        .Merge().Value = nguoiKy[i];
+                    ws.Range($"{colStart}{footerRow + 1}:{colEnd}{footerRow + 1}").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    ws.Range($"{colStart}{footerRow + 1}:{colEnd}{footerRow + 1}").Style.Font.Bold = true;
+                    ws.Range($"{colStart}{footerRow + 1}:{colEnd}{footerRow + 1}").Style.Font.FontSize = 10;
+
+                    string ghiChu = i == 0 ? "(Ký, họ tên, đóng dấu)" : "(Ký, họ tên)";
+                    ws.Range($"{colStart}{footerRow + 2}:{colEnd}{footerRow + 2}")
+                        .Merge().Value = ghiChu;
+                    ws.Range($"{colStart}{footerRow + 2}:{colEnd}{footerRow + 2}").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    ws.Range($"{colStart}{footerRow + 2}:{colEnd}{footerRow + 2}").Style.Font.FontSize = 10;
+                    ws.Range($"{colStart}{footerRow + 2}:{colEnd}{footerRow + 2}").Style.Font.Italic = true;
+                }
+
+
                 using var stream = new MemoryStream();
                 workbook.SaveAs(stream);
                 stream.Position = 0;

@@ -218,6 +218,48 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                         for (int i = 0; i < 3; i++)
                             table.Cell().Element(x => x.Background(Colors.Grey.Lighten2).Border(0.5f).Padding(1.5f).AlignCenter().AlignMiddle().Text("-").FontSize(5f));
                     });
+
+                    contentCol.Item().PaddingTop(10).ShowEntire().Column(summaryCol =>
+                    {
+                        summaryCol.Item().Row(row =>
+                        {
+                            row.RelativeColumn(6);
+                            row.RelativeColumn().AlignCenter().Column(c =>
+                            {
+                                c.Item().Text($"Ngày {DateTime.Now:dd} tháng {DateTime.Now:MM} năm {DateTime.Now:yyyy}")
+                                    .FontSize(9).Italic();
+                                c.Item().PaddingBottom(5);
+                            });
+                        });
+
+                        summaryCol.Item().PaddingHorizontal(20).Row(row =>
+                        {
+                            row.RelativeColumn().AlignLeft().PaddingRight(10).Column(c =>
+                            {
+                                c.Item().Text("THỦ TRƯỞNG ĐƠN VỊ").Bold().FontSize(9);
+                                c.Item().PaddingTop(6).AlignCenter().Text("(Ký, họ tên, đóng dấu)").Italic().FontSize(8);
+                            });
+
+                            row.RelativeColumn().AlignCenter().PaddingHorizontal(5).Column(c =>
+                            {
+                                c.Item().Text("THỦ QUỸ").Bold().FontSize(9);
+                                c.Item().PaddingTop(6).AlignCenter().Text("(Ký, họ tên)").Italic().FontSize(8);
+                            });
+
+                            row.RelativeColumn().AlignCenter().PaddingHorizontal(5).Column(c =>
+                            {
+                                c.Item().Text("KẾ TOÁN").Bold().FontSize(9);
+                                c.Item().PaddingTop(6).AlignCenter().Text("(Ký, họ tên)").Italic().FontSize(8);
+                            });
+
+                            row.RelativeColumn().AlignRight().PaddingLeft(10).Column(c =>
+                            {
+                                c.Item().Text("NGƯỜI LẬP BẢNG").Bold().FontSize(9);
+                                c.Item().PaddingTop(6).AlignCenter().Text("(Ký, họ tên)").Italic().FontSize(8);
+                            });
+                        });
+                    });
+
                 });
 
                 // Footer chỉ hiện số trang

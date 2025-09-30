@@ -357,9 +357,8 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                 // 4. Load danh sách phòng
                 var phongListJson = await this.GetDSPhongBuong();
                 var phongList = phongListJson
-                    .Where(p => data.Any(d => d.IDPhongBuong == p.id))
-                    .OrderBy(x => x.id)
-                    .Select(p => new { p.id, p.ten }).ToList();
+     .OrderBy(x => x.id)
+     .Select(p => new { p.id, p.ten }).ToList();  // ✅ Bỏ điều kiện lọc
 
                 // 5. Tạo workbook Excel
                 using var workbook = new XLWorkbook();
@@ -568,6 +567,35 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                 var dataRange = ws.Range(startRow, 1, row, 3 + phongList.Count);
                 dataRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
                 dataRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+
+                int footerRow = row + 2;
+                string[] nguoiKy = { "THỦ TRƯỞNG ĐƠN VỊ", "THỦ QUỸ", "KẾ TOÁN", "NGƯỜI LẬP BẢNG" };
+                string[] cotKyStart = { "B", "E", "H", "K" };
+
+                for (int i = 0; i < nguoiKy.Length; i++)
+                {
+                    string colStart = cotKyStart[i];
+                    string colEnd = ((char)(colStart[0] + 2)).ToString();
+
+                    if (i == 3)
+                    {
+                        ws.Range($"{colStart}{footerRow}:{colEnd}{footerRow}").Merge().Value = $"Ngày {DateTime.Now:dd} tháng {DateTime.Now:MM} năm {DateTime.Now:yyyy}";
+                        ws.Range($"{colStart}{footerRow}:{colEnd}{footerRow}").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                        ws.Range($"{colStart}{footerRow}:{colEnd}{footerRow}").Style.Font.Italic = true;
+                        ws.Range($"{colStart}{footerRow}:{colEnd}{footerRow}").Style.Font.FontSize = 10;
+                    }
+
+                    ws.Range($"{colStart}{footerRow + 1}:{colEnd}{footerRow + 1}").Merge().Value = nguoiKy[i];
+                    ws.Range($"{colStart}{footerRow + 1}:{colEnd}{footerRow + 1}").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    ws.Range($"{colStart}{footerRow + 1}:{colEnd}{footerRow + 1}").Style.Font.Bold = true;
+                    ws.Range($"{colStart}{footerRow + 1}:{colEnd}{footerRow + 1}").Style.Font.FontSize = 10;
+
+                    string ghiChu = i == 0 ? "(Ký, họ tên, đóng dấu)" : "(Ký, họ tên)";
+                    ws.Range($"{colStart}{footerRow + 2}:{colEnd}{footerRow + 2}").Merge().Value = ghiChu;
+                    ws.Range($"{colStart}{footerRow + 2}:{colEnd}{footerRow + 2}").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    ws.Range($"{colStart}{footerRow + 2}:{colEnd}{footerRow + 2}").Style.Font.FontSize = 10;
+                    ws.Range($"{colStart}{footerRow + 2}:{colEnd}{footerRow + 2}").Style.Font.Italic = true;
+                }
 
                 // 12. Xuất file
                 using var stream = new MemoryStream();
