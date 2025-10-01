@@ -256,7 +256,7 @@ function renderPagination() {
     });
 }
 
-
+//***********sửa 
 $(document).on('change', '#pageSizeSelect', function () {
     pageSize = parseInt($(this).val()) || 10;
     currentPage = 1;
@@ -266,7 +266,6 @@ $(document).on('change', '#pageSizeSelect', function () {
         renderTable();
         renderPagination();
     } else {
-        toastr.error("Vui lòng lọc dữ liệu trước khi thay đổi số dòng hiển thị.");
     }
 });
 

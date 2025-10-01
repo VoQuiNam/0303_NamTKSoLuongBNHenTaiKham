@@ -33,6 +33,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
         public DocumentMetadata GetMetadata() => DocumentMetadata.Default;
 
 
+        //******sửa
         public void Compose(IDocumentContainer container)
         {
             var tuNgayStr = _tuNgay?.ToString("dd-MM-yyyy") ?? "__";
@@ -42,19 +43,19 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
             container.Page(page =>
             {
                 page.Size(PageSizes.A4.Landscape());
-                page.Margin(20);
+                page.Margin(10);
                 page.PageColor(Colors.White);
-                page.DefaultTextStyle(x => x.FontFamily("Times New Roman").FontSize(10).FontColor(Colors.Black));
+                page.DefaultTextStyle(x => x.FontFamily("Times New Roman").FontSize(9).FontColor(Colors.Black));
 
                 page.Header().ShowOnce().Column(headerCol =>
                 {
                     headerCol.Item().Row(row =>
                     {
-                        row.ConstantColumn(50).Column(col =>
+                        row.ConstantColumn(40).Column(col =>
                         {
                             if (File.Exists(_logoPath))
                             {
-                                col.Item().Height(40).Image(_logoPath, ImageScaling.FitHeight);
+                                col.Item().Height(35).Image(_logoPath, ImageScaling.FitHeight);
                             }
                             else
                             {
@@ -64,24 +65,24 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
 
                         row.RelativeColumn().Column(col =>
                         {
-                            col.Item().Text(_thongTinDoanhNghiep.TenCSKCB).Bold().FontSize(12);
-                            col.Item().Text(_thongTinDoanhNghiep.DiaChi).FontSize(9);
-                            col.Item().Text("Điện thoại: " + _thongTinDoanhNghiep.DienThoai).FontSize(9);
+                            col.Item().Text(_thongTinDoanhNghiep.TenCSKCB).Bold().FontSize(11);
+                            col.Item().Text(_thongTinDoanhNghiep.DiaChi).FontSize(8);
+                            col.Item().Text("Điện thoại: " + _thongTinDoanhNghiep.DienThoai).FontSize(8);
                         });
 
 
                         row.RelativeColumn().Column(col =>
                         {
                             col.Item().AlignRight().Text("BẢNG THỐNG KÊ SỐ LƯỢNG BN TÁI KHÁM")
-                                .Bold().FontSize(14).FontColor(Colors.Black);
+                                .Bold().FontSize(12).FontColor(Colors.Black);
                             col.Item().AlignRight().Text("Đơn vị điều trị dịch vụ")
-                                .Italic().FontSize(10);
+                                .Italic().FontSize(9);
                             col.Item().AlignRight().Text($"Từ ngày: {tuNgayStr}   Đến ngày: {denNgayStr}")
-                                .FontSize(9).FontColor(Colors.Black);
+                                .FontSize(8).FontColor(Colors.Black);
                         });
                     });
 
-                    headerCol.Item().PaddingVertical(6).LineHorizontal(1)
+                    headerCol.Item().PaddingVertical(4).LineHorizontal(1)
                         .LineColor(Colors.Grey.Darken2);
                 });
 
@@ -92,18 +93,18 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                     {
                         table.ColumnsDefinition(columns =>
                         {
-                            columns.ConstantColumn(25);
-                            columns.RelativeColumn();
-                            columns.RelativeColumn(1.5f);
-                            columns.ConstantColumn(50);
-                            columns.ConstantColumn(50);
-                            columns.RelativeColumn();
-                            columns.RelativeColumn();
-                            columns.RelativeColumn();
-                            columns.RelativeColumn();
-                            columns.RelativeColumn(1.5f);
-                            columns.ConstantColumn(50);
-                            columns.RelativeColumn(1.5f);
+                            columns.ConstantColumn(20); 
+                            columns.RelativeColumn(0.5f);
+                            columns.RelativeColumn(1.2f);
+                            columns.ConstantColumn(35);
+                            columns.ConstantColumn(35);
+                            columns.RelativeColumn(0.8f);
+                            columns.RelativeColumn(0.8f);
+                            columns.RelativeColumn(0.8f);
+                            columns.RelativeColumn(0.8f); 
+                            columns.RelativeColumn(1.2f);
+                            columns.ConstantColumn(60);
+                            columns.RelativeColumn(0.5f);
                         });
 
                         table.Header(header =>
@@ -113,9 +114,9 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                                 header.Cell()
                                     .Border(1).BorderColor(Colors.Grey.Medium)
                                     .Background(Colors.Grey.Lighten4)
-                                    .PaddingVertical(4).PaddingHorizontal(3)
+                                    .PaddingVertical(3).PaddingHorizontal(2)
                                     .AlignCenter().AlignMiddle()
-                                    .Text(text).Bold().FontSize(9);
+                                    .Text(text).Bold().FontSize(8);
                             }
 
                             AddHeaderCell("STT");
@@ -138,8 +139,8 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                             void AddDataCell(string text, bool center = false, bool left = false)
                             {
                                 var cell = table.Cell().Border(1).BorderColor(Colors.Grey.Lighten1)
-                                    .PaddingVertical(2).PaddingHorizontal(3)
-                                    .AlignMiddle().Text(text ?? "").FontSize(8).WrapAnywhere();
+                                    .PaddingVertical(2).PaddingHorizontal(2)
+                                    .AlignMiddle().Text(text ?? "").FontSize(7).WrapAnywhere();
 
                                 if (center) cell.AlignCenter();
                                 if (left) cell.AlignLeft();
@@ -162,7 +163,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                     });
 
 
-                    contentCol.Item().PaddingTop(10).ShowEntire().Column(summaryCol =>
+                    contentCol.Item().PaddingTop(8).ShowEntire().Column(summaryCol =>
                     {
                         summaryCol.Item().Row(row =>
                         {
@@ -170,40 +171,35 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                             row.RelativeColumn().AlignCenter().Column(c =>
                             {
                                 c.Item().Text($"Ngày {DateTime.Now:dd} tháng {DateTime.Now:MM} năm {DateTime.Now:yyyy}")
-                                   .FontSize(9).Italic();
-                                c.Item().PaddingBottom(5);
+                                   .FontSize(7).Italic(); // Giảm
+                                c.Item().PaddingBottom(3);
                             });
                         });
 
-
-                        summaryCol.Item().PaddingHorizontal(20).Row(row =>
+                        summaryCol.Item().PaddingHorizontal(15).Row(row =>
                         {
-
-                            row.RelativeColumn().AlignLeft().PaddingRight(10).Column(c =>
+                            row.RelativeColumn().AlignLeft().PaddingRight(8).Column(c =>
                             {
-                                c.Item().Text("THỦ TRƯỞNG ĐƠN VỊ").Bold().FontSize(9);
-                                c.Item().PaddingTop(6).AlignCenter().Text("(Ký, họ tên, đóng dấu)").Italic().FontSize(8);
+                                c.Item().Text("THỦ TRƯỞNG ĐƠN VỊ").Bold().FontSize(7); // Giảm
+                                c.Item().PaddingTop(4).AlignCenter().Text("(Ký, họ tên, đóng dấu)").Italic().FontSize(6); // Giảm
                             });
 
-
-                            row.RelativeColumn().AlignCenter().PaddingHorizontal(5).Column(c =>
+                            row.RelativeColumn().AlignCenter().PaddingHorizontal(4).Column(c =>
                             {
-                                c.Item().Text("THỦ QUỸ").Bold().FontSize(9);
-                                c.Item().PaddingTop(6).AlignCenter().Text("(Ký, họ tên)").Italic().FontSize(8);
+                                c.Item().Text("THỦ QUỸ").Bold().FontSize(7); // Giảm
+                                c.Item().PaddingTop(4).AlignCenter().Text("(Ký, họ tên)").Italic().FontSize(6); // Giảm
                             });
 
-
-                            row.RelativeColumn().AlignCenter().PaddingHorizontal(5).Column(c =>
+                            row.RelativeColumn().AlignCenter().PaddingHorizontal(4).Column(c =>
                             {
-                                c.Item().Text("KẾ TOÁN").Bold().FontSize(9);
-                                c.Item().PaddingTop(6).AlignCenter().Text("(Ký, họ tên)").Italic().FontSize(8);
+                                c.Item().Text("KẾ TOÁN").Bold().FontSize(7); // Giảm
+                                c.Item().PaddingTop(4).AlignCenter().Text("(Ký, họ tên)").Italic().FontSize(6); // Giảm
                             });
 
-
-                            row.RelativeColumn().AlignRight().PaddingLeft(10).Column(c =>
+                            row.RelativeColumn().AlignRight().PaddingLeft(8).Column(c =>
                             {
-                                c.Item().Text("NGƯỜI LẬP BẢNG").Bold().FontSize(9);
-                                c.Item().PaddingTop(6).AlignCenter().Text("(Ký, họ tên)").Italic().FontSize(8);
+                                c.Item().Text("NGƯỜI LẬP BẢNG").Bold().FontSize(7); // Giảm
+                                c.Item().PaddingTop(4).AlignCenter().Text("(Ký, họ tên)").Italic().FontSize(6); // Giảm
                             });
                         });
                     });

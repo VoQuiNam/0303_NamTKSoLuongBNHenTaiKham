@@ -110,7 +110,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service
                 // Row height
                 ws.Row(6).Height = 40; // tăng chút cho font to
 
-
+                //***********sửa
                 string thoiGianThongKe = tuNgay.HasValue && denNgay.HasValue
                     ? $"Từ ngày {tuNgay.Value:dd-MM-yyyy} đến ngày {denNgay.Value:dd-MM-yyyy}"
                     : "Toàn bộ thời gian";
