@@ -112,7 +112,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service
 
 
                 string thoiGianThongKe = tuNgay.HasValue && denNgay.HasValue
-                    ? $"Từ ngày {tuNgay.Value:dd/MM/yyyy} đến ngày {denNgay.Value:dd/MM/yyyy}"
+                    ? $"Từ ngày {tuNgay.Value:dd-MM-yyyy} đến ngày {denNgay.Value:dd-MM-yyyy}"
                     : "Toàn bộ thời gian";
 
                 ws.Range("A7:M7").Merge().Value = thoiGianThongKe;
@@ -152,7 +152,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service
                     ws.Cell(row, 6).Value = item.QuocTich;
                     ws.Cell(row, 7).Value = item.CCCD_PASSPORT;
                     ws.Cell(row, 8).Value = item.SDT;
-                    ws.Cell(row, 9).Value = item.NgayHenKham?.ToString("dd/MM/yyyy");
+                    ws.Cell(row, 9).Value = item.NgayHenKham?.ToString("dd-MM-yyyy");
                     ws.Cell(row, 10).Value = item.BacSiHenKham;
                     ws.Cell(row, 11).Value = item.NhacHen;
                     ws.Cell(row, 12).Value = item.GhiChu;
