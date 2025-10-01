@@ -5,8 +5,6 @@ let currentPage = 1;
 let pageSize = 10;
 let lastFilteredTuNgay = null;
 let lastFilteredDenNgay = null;
-let tomSelectNhanVien = null;
-let nhanvienData = [];
 
 function validateDateRange(tuNgay, denNgay) {
     if (!tuNgay || !denNgay) return false;
@@ -142,117 +140,6 @@ function hideLoading() {
     document.getElementById('loadingSpinner').style.display = 'none';
 }
 
-
-function initTomSelectNhanVien() {
-    const selectElement = document.getElementById('nhomNhanVienSelect');
-
-    if (tomSelectNhanVien) {
-        tomSelectNhanVien.destroy();
-    }
-
-    function generateAbbreviation(text) {
-        if (!text || text === 'Tất cả') return '';
-        return text
-            .split(' ')
-            .filter(w => w && w.trim().length > 0)
-            .map(w => w[0] ? w[0].toUpperCase() : '') 
-            .join('');
-    }
-
-
-    tomSelectNhanVien = new TomSelect(selectElement, {
-        valueField: 'id',     
-        labelField: 'ten',    
-        searchField: ['ten', 'viettat'],
-        placeholder: 'Chọn nhân viên',
-        allowEmptyOption: true,
-        create: false,
-        maxOptions: null,
-        render: {
-            option: function (data, escape) {
-                const vietTat = data.ten === 'Tất cả' ? '' : generateAbbreviation(data.ten);
-                return `
-                    <div class="d-flex justify-content-between">
-                        <span>${escape(data.ten)}</span>
-                        <span class="text-muted">${vietTat ? '[' + escape(vietTat) + ']' : ''}</span>
-                    </div>
-                `;
-            },
-            item: function (data, escape) {
-                return `<div>${escape(data.ten)}</div>`;
-            }
-        },
-        onInitialize: function () {
-            this.setValue('0');
-        },
-        onChange: function (value) {
-            const selectedItem = this.options[value];
-            if (selectedItem) {
-                const vietTat = selectedItem.ten === 'Tất cả' ? '' : generateAbbreviation(selectedItem.ten);
-                document.getElementById('nhanVienIdHidden').value = selectedItem.id || 0;
-                document.getElementById('nhanVienTenHidden').value = selectedItem.ten || '';
-                document.getElementById('nhanVienVietTatHidden').value = vietTat || '';
-            } else {
-                document.getElementById('nhanVienIdHidden').value = 0;
-                document.getElementById('nhanVienTenHidden').value = 'Tất cả';
-                document.getElementById('nhanVienVietTatHidden').value = '';
-            }
-        }
-    });
-}
-
-function updateTomSelectNhanVien(data) {
-    if (tomSelectNhanVien) {
-        const currentOptions = tomSelectNhanVien.options;
-        Object.keys(currentOptions).forEach(key => {
-            if (key !== '0') {
-                tomSelectNhanVien.removeOption(key);
-            }
-        });
-
-        tomSelectNhanVien.addOptions(data);
-        tomSelectNhanVien.refreshOptions();
-    }
-}
-
-async function loadNhomNhanVien() {
-    try {
-        const response = await fetch('/bao_cao_xet_nghiem/nhan-vien/all');
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        nhanvienData = await response.json();
-
-        nhanvienData = nhanvienData.map(nv => {
-            const ten = nv?.nguoiChiDinh ?? nv?.NguoiChiDinh ?? "";
-            let viettat = "";
-            if (ten && typeof ten === "string") {
-                viettat = ten
-                    .split(' ')
-                    .filter(w => w && w.trim().length > 0)
-                    .map(w => String(w[0]).toUpperCase())
-                    .join('');
-            }
-
-            return {
-                id: nv?.id ?? nv?.ID ?? 0,
-                ten: ten || "Không rõ",
-                viettat: viettat
-            };
-        });
-        nhanvienData.sort((a, b) =>
-            (a.ten || "").localeCompare(b.ten || "", "vi", { sensitivity: "base" })
-        );
-
-        initTomSelectNhanVien();
-        updateTomSelectNhanVien(nhanvienData);
-
-    } catch (err) {
-        console.error("Lỗi load JSON:", err);
-    }
-}
-
 function handleFilter() {
     $('.btnFilterXetNghiem').off('click').on('click', function (e) {
         e.preventDefault();
@@ -277,11 +164,7 @@ function handleFilter() {
                 const tuNgay = formatDateForServer(tuNgayRaw);
                 const denNgay = formatDateForServer(denNgayRaw);
 
-                
-                const idNhanVien = parseInt($('#nhanVienIdHidden').val()) || 0;
-                const tenNhanVien = $('#nhanVienTenHidden').val() || '';
-
-                console.log("🔍 Filter với:", { tuNgay, denNgay, idNhanVien, tenNhanVien });
+                console.log("🔍 Filter với:", { tuNgay, denNgay });
 
                 $.ajax({
                     url: '/bao_cao_xet_nghiem/tk/FilterByDay',
@@ -292,19 +175,7 @@ function handleFilter() {
                     },
                     success: function (response) {
                         if (response.success) {
-                            let allData = response.data || [];
-
-                            
-                            if (idNhanVien > 0 && tenNhanVien && tenNhanVien !== 'Tất cả') {
-                                fullData = allData.filter(item => {
-                                    const itemTenNhanVien = item.nguoiChiDinh || '';
-                                    return itemTenNhanVien.toLowerCase().includes(tenNhanVien.toLowerCase());
-                                });
-                               
-                            } else {
-                                fullData = allData;
-                                
-                            }
+                            fullData = response.data || [];
 
                             currentPage = 1;
                             pageSize = parseInt($('#pageSizeSelect').val()) || 10;
@@ -366,34 +237,25 @@ function renderTable() {
 
     setTimeout(() => {
         try {
-          
-            const selectedStaffId = parseInt($('#nhanVienIdHidden').val()) || 0;
-            const selectedStaffName = $('#nhanVienTenHidden').val() || '';
-
             if (!fullData || fullData.length === 0) {
-                let headerText = "Tên người chỉ định";
-                if (selectedStaffId > 0 && selectedStaffName && selectedStaffName !== 'Tất cả') {
-                    headerText = `${selectedStaffName}`;
-                }
-
-                renderHeader(headerText);
+                renderHeader("Tên người chỉ định");
                 tbody.append(`<tr><td colspan="6" class="text-center text-muted">Không có dữ liệu</td></tr>`);
                 tfoot.innerHTML = '';
                 hideLoading();
                 return;
             }
 
-            
+
             const totalRecords = fullData.length;
             const pages = Math.max(1, Math.ceil(totalRecords / pageSize));
             if (currentPage > pages) currentPage = pages;
 
-           
+
             const startIndex = (currentPage - 1) * pageSize;
             const endIndex = Math.min(startIndex + pageSize, totalRecords);
             const currentPageData = fullData.slice(startIndex, endIndex);
 
-          
+
             let groupedByDoctor = {};
             currentPageData.forEach(item => {
                 let bacsi = item.nguoiChiDinh || "Không rõ bác sĩ";
@@ -402,22 +264,16 @@ function renderTable() {
             });
 
             let tongCongSLBH = 0, tongCongSLDV = 0, tongCongAll = 0;
-            let sttGlobal = startIndex + 1; 
+            let sttGlobal = startIndex + 1;
             let isFirstDoctor = true;
 
-           
+
             const doctors = Object.keys(groupedByDoctor);
 
-            
+
             let headerText = "Tên người chỉ định";
-            if (selectedStaffId > 0 && selectedStaffName && selectedStaffName !== 'Tất cả') {
-                if (doctors.length === 1) {
-                    headerText = doctors[0];
-                } else {
-                    headerText = `${selectedStaffName}`;
-                }
-            } else if (doctors.length > 0) {
-                headerText = doctors[0]; 
+            if (doctors.length > 0) {
+                headerText = doctors[0];
             }
 
             renderHeader(headerText);
@@ -431,15 +287,9 @@ function renderTable() {
             doctors.forEach(tenBacSi => {
                 const dichVuList = groupedByDoctor[tenBacSi];
 
-                
-                if (selectedStaffId > 0 && selectedStaffName && selectedStaffName !== 'Tất cả' && !isFirstDoctor) {
-                    tbody.append(`
-                        <tr>
-                            <th class="text-start" colspan="6">${tenBacSi}</th>
-                        </tr>
-                    `);
-                } else if (!isFirstDoctor) {
-                   
+
+                if (!isFirstDoctor) {
+
                     tbody.append(`
                         <tr>
                             <th class="text-start" colspan="6">${tenBacSi}</th>
@@ -449,7 +299,7 @@ function renderTable() {
 
                 let subSLBH = 0, subSLDV = 0, subTotal = 0;
 
-                
+
                 dichVuList.forEach(dv => {
                     let slbh = dv.slbh != null ? parseFloat(dv.slbh) : 0;
                     let sldv = dv.sldv != null ? parseFloat(dv.sldv) : 0;
@@ -471,7 +321,7 @@ function renderTable() {
                     `);
                 });
 
-                
+
                 tbody.append(`
                     <tr class="subtotal-row">
                         <td class="text-center" colspan="3"><strong>Cộng</strong></td>
@@ -488,7 +338,7 @@ function renderTable() {
                 isFirstDoctor = false;
             });
 
-            
+
             let tongCongAllFullData = 0, tongCongSLBHFullData = 0, tongCongSLDVFullData = 0;
             fullData.forEach(item => {
                 let slbh = item.slbh != null ? parseFloat(item.slbh) : 0;
@@ -545,7 +395,7 @@ $(document).on('change', '#pageSizeSelect', function () {
         renderTable();
         renderPagination();
     } else {
-       
+
     }
 });
 
@@ -553,31 +403,18 @@ function renderPagination() {
     const pagination = $('#pagination');
     pagination.empty();
 
-    if (!fullData || fullData.length === 0) {
-        $('#paginationContainer').text('Không có dữ liệu');
-        return;
-    }
-
-    
-    let groupedByDoctor = {};
-    fullData.forEach(item => {
-        let bacsi = item.nguoiChiDinh || "Không rõ bác sĩ";
-        if (!groupedByDoctor[bacsi]) groupedByDoctor[bacsi] = [];
-        groupedByDoctor[bacsi].push(item);
-    });
-
-   
     const totalRecords = fullData.length;
     const pages = Math.max(1, Math.ceil(totalRecords / pageSize));
 
     if (currentPage > pages) currentPage = pages;
 
-    $('#paginationContainer').text(`Trang ${currentPage}/${pages} – Tổng ${totalRecords} dịch vụ`);
+    $('#paginationContainer').text(`Trang ${currentPage}/${pages} – Tổng ${totalRecords} bản ghi`);
 
-    
-    pagination.append(`<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-        <a class="page-link" href="#" data-page="${Math.max(1, currentPage - 1)}">Trước</a>
-    </li>`);
+    pagination.append(`
+        <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+            <a class="page-link" href="#" data-page="${Math.max(1, currentPage - 1)}">Trước</a>
+        </li>
+    `);
 
     const visibleCount = 3;
     let startPage = Math.max(1, currentPage - 1);
@@ -587,18 +424,19 @@ function renderPagination() {
         startPage = Math.max(1, endPage - visibleCount + 1);
     }
 
-
     for (let i = startPage; i <= endPage; i++) {
-        pagination.append(`<li class="page-item ${i === currentPage ? 'active' : ''}">
-            <a class="page-link" href="#" data-page="${i}">${i}</a>
-        </li>`);
+        pagination.append(`
+            <li class="page-item ${i === currentPage ? 'active' : ''}">
+                <a class="page-link" href="#" data-page="${i}">${i}</a>
+            </li>
+        `);
     }
 
-
-    pagination.append(`<li class="page-item ${currentPage === pages ? 'disabled' : ''}">
-        <a class="page-link" href="#" data-page="${Math.min(pages, currentPage + 1)}">Sau</a>
-    </li>`);
-
+    pagination.append(`
+        <li class="page-item ${currentPage === pages ? 'disabled' : ''}">
+            <a class="page-link" href="#" data-page="${Math.min(pages, currentPage + 1)}">Sau</a>
+        </li>
+    `);
 
     pagination.find('a.page-link').on('click', function (e) {
         e.preventDefault();
@@ -623,7 +461,6 @@ async function handleExportExcel() {
         const denNgayRaw = document.getElementById("denNgayDesktop").value;
         const tuNgay = formatDateForServer(tuNgayRaw);
         const denNgay = formatDateForServer(denNgayRaw);
-        const idNhanVien = parseInt(document.getElementById('nhanVienIdHidden').value) || 0;
 
         if (!tuNgayRaw || !denNgayRaw) {
             toastr.error("Vui lòng chọn đầy đủ Từ ngày và Đến ngày trước khi xuất Excel.");
@@ -646,14 +483,13 @@ async function handleExportExcel() {
             return;
         }
 
-        btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Đang xuất...`;
+        btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>`;
         btn.disabled = true;
 
         try {
             const formData = new FormData();
             formData.append('tuNgay', tuNgay);
             formData.append('denNgay', denNgay);
-            formData.append('idNhanVien', idNhanVien);
 
             const response = await fetch('/bao_cao_xet_nghiem/export-excel', {
                 method: 'POST',
@@ -667,13 +503,13 @@ async function handleExportExcel() {
 
             const blob = await response.blob();
 
-           
+
             if (blob.size < 1000) {
                 toastr.warning("Không có dữ liệu trong khoảng thời gian đã chọn.");
                 return;
             }
 
-           
+
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
@@ -702,7 +538,6 @@ async function handleExportExcel() {
 
 
 document.addEventListener('DOMContentLoaded', async () => {
-    loadNhomNhanVien();
     initDatePicker();
     handleFilter();
     renderHeader();

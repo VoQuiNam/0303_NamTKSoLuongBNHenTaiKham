@@ -81,22 +81,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
             }
         }
 
-        [HttpGet("nhan-vien/all")]
-        public async Task<List<M0303NhanVien>> GetNhomNhanVien()
-        {
-            var nhomNhanVien = await _localDb.Set<M0303NhanVien>()
-                .FromSqlRaw(@"select ID, TenNhanVien as NguoiChiDinh
-                            from DM_NhanVien 
-                            where Active = 1")
-                .Select(nv => new M0303NhanVien
-                {
-                    ID = nv.ID,
-                    NguoiChiDinh = nv.NguoiChiDinh ?? ""
-                })
-                .ToListAsync();
-
-            return nhomNhanVien;
-        }
+       
 
         [HttpPost("export-excel")]
         public async Task<IActionResult> ExportExcel(
@@ -106,7 +91,6 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
         {
             try
             {
-                // 1. Parse ngày
                 DateTime? parsedTuNgay = !string.IsNullOrEmpty(tuNgay)
                     ? DateTime.ParseExact(tuNgay, "yyyy-MM-dd", null)
                     : null;
@@ -115,7 +99,6 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
                     ? DateTime.ParseExact(denNgay, "yyyy-MM-dd", null)
                     : null;
 
-                // 2. Lấy dữ liệu từ stored procedure
                 var data = await _localDb.Set<M0303BaoCaoXetNghiem>()
                     .FromSqlRaw(@"EXEC S00_BCXetNghiem @TuNgay, @DenNgay",
                         new SqlParameter("@TuNgay", parsedTuNgay?.ToString("dd-MM-yyyy") ?? (object)DBNull.Value),
@@ -123,26 +106,10 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
                     .AsNoTracking()
                     .ToListAsync();
 
-                // 3. Filter theo nhân viên nếu có
-                if (idNhanVien > 0)
-                {
-                    // Lấy tên nhân viên từ danh sách
-                    var nhanVienList = await GetNhomNhanVien();
-                    var selectedNhanVien = nhanVienList.FirstOrDefault(nv => nv.ID == idNhanVien);
-
-                    if (selectedNhanVien != null)
-                    {
-                        data = data.Where(x =>
-                            x.NguoiChiDinh != null &&
-                            x.NguoiChiDinh.ToLower().Contains(selectedNhanVien.NguoiChiDinh.ToLower()))
-                            .ToList();
-                    }
-                }
 
                 if (!data.Any())
                     return new BadRequestObjectResult("Không có dữ liệu để xuất Excel");
 
-                // 4. Thông tin doanh nghiệp
                 var thongTinDoanhNghiep = await _localDb.ThongTinDoanhNghieps
                     .AsNoTracking()
                     .Select(x => new M0303ThongTinDoanhNghiep
@@ -164,27 +131,22 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
                     DienThoai = "(028) 38433022"
                 };
 
-                // 5. Tạo workbook Excel
                 using var workbook = new XLWorkbook();
                 var ws = workbook.Worksheets.Add("BÁO CÁO XÉT NGHIỆM");
 
-                // 5a. Logo
                 var logoPath = Path.Combine(_env.WebRootPath, "dist", "img", "logo.png");
                 if (System.IO.File.Exists(logoPath))
                 {
-                    // Merge ô nếu cần
                     ws.Range("A1:B4").Merge();
-                    ws.Column(1).Width = 0; // Giảm độ rộng cột
+                    ws.Column(1).Width = 0; 
                     ws.Column(2).Width = 0;
 
-                    // Chèn logo và scale nhỏ hơn
                     var picture = ws.AddPicture(logoPath)
-                        .MoveTo(ws.Cell("A1"), 10, 2)  // Giảm offset (thử nghiệm giá trị)
+                        .MoveTo(ws.Cell("A1"), 10, 2)  
                         .WithPlacement(XLPicturePlacement.FreeFloating)
-                        .Scale(0.08); // Scale nhỏ hơn
+                        .Scale(0.08);
                 }
 
-                // 4. Thông tin header
                 string tenCoQuan = thongTinDoanhNghiep.TenCoQuanChuyenMon;
                 string tenCSKCB = thongTinDoanhNghiep.TenCSKCB;
                 bool hienTenCSKCB = !string.Equals(tenCoQuan.Trim(), tenCSKCB.Trim(), StringComparison.OrdinalIgnoreCase);
@@ -213,7 +175,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
                 rangeTitle.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
 
 
-                ws.Row(6).Height = 40; // tăng chút cho font to
+                ws.Row(6).Height = 40; 
 
                 string thoiGianThongKe = parsedTuNgay.HasValue && parsedDenNgay.HasValue
                     ? $"Từ ngày {parsedTuNgay.Value:dd-MM-yyyy} đến ngày {parsedDenNgay.Value:dd-MM-yyyy}"
@@ -225,7 +187,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
                 ws.Range("A7:F7").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                 ws.Row(7).Height = 20;
 
-                // 7. Header
+             
                 int startRow = 9;
                 ws.Cell(startRow, 1).Value = "STT";
                 ws.Cell(startRow, 2).Value = "Mã DV";
@@ -238,11 +200,11 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
                 headerRange.Style.Font.Bold = true;
                 headerRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                 headerRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-                headerRange.Style.Fill.BackgroundColor = XLColor.Gray;   // Nền xám
-                headerRange.Style.Font.FontColor = XLColor.White;        // Chữ trắng
+                headerRange.Style.Fill.BackgroundColor = XLColor.Gray;   
+                headerRange.Style.Font.FontColor = XLColor.White;        
 
 
-                // 8. Dữ liệu chi tiết - Gom theo người chỉ định
+                
                 int row = startRow + 1;
                 int stt = 1;
                 decimal tongSLBH = 0;
@@ -254,7 +216,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
 
                 foreach (var doctorGroup in groupedByDoctor)
                 {
-                    // Dòng tên bác sĩ - CĂN TRÁI
+                  
                     var doctorRange = ws.Range(row, 1, row, 6);
                     doctorRange.Merge();
                     doctorRange.Value = doctorGroup.Key;
@@ -267,7 +229,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
                     decimal subSLDV = 0;
                     decimal subTotal = 0;
 
-                    // Chi tiết dịch vụ của bác sĩ
+                    
                     foreach (var item in doctorGroup)
                     {
                         decimal slbh = item.SLBH != null ? decimal.Parse(item.SLBH.ToString()) : 0;
@@ -281,19 +243,19 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
                         ws.Cell(row, 5).Value = sldv;
                         ws.Cell(row, 6).Value = total;
 
-                        // Căn giữa cho STT và Mã DV
+                     
                         ws.Cell(row, 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                         ws.Cell(row, 2).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
 
-                        // CĂN TRÁI cho Tên dịch vụ
+             
                         ws.Cell(row, 3).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
 
-                        // CĂN PHẢI cho 3 cột số lượng
+                 
                         ws.Cell(row, 4).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
                         ws.Cell(row, 5).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
                         ws.Cell(row, 6).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
 
-                        // Định dạng số
+                       
                         if (slbh > 0) ws.Cell(row, 4).Style.NumberFormat.Format = "#,##0";
                         if (sldv > 0) ws.Cell(row, 5).Style.NumberFormat.Format = "#,##0";
                         if (total > 0) ws.Cell(row, 6).Style.NumberFormat.Format = "#,##0";
@@ -305,7 +267,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
                         row++;
                     }
 
-                    // Dòng cộng cho bác sĩ
+                  
                     var subtotalRange = ws.Range(row, 1, row, 3);
                     subtotalRange.Merge();
                     subtotalRange.Value = "Cộng";
@@ -316,12 +278,12 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
                     ws.Cell(row, 5).Value = subSLDV;
                     ws.Cell(row, 6).Value = subTotal;
 
-                    // CĂN PHẢI cho dòng cộng
+               
                     ws.Cell(row, 4).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
                     ws.Cell(row, 5).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
                     ws.Cell(row, 6).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
 
-                    // Định dạng số cho subtotal
+              
                     if (subSLBH > 0) ws.Cell(row, 4).Style.NumberFormat.Format = "#,##0";
                     if (subSLDV > 0) ws.Cell(row, 5).Style.NumberFormat.Format = "#,##0";
                     if (subTotal > 0) ws.Cell(row, 6).Style.NumberFormat.Format = "#,##0";
@@ -335,7 +297,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
                     row++;
                 }
 
-                // 9. Tổng cuối bảng
+           
                 var totalLabelRange = ws.Range(row, 1, row, 3);
                 totalLabelRange.Merge();
                 totalLabelRange.Value = "Tổng cộng";
@@ -346,32 +308,32 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
                 ws.Cell(row, 5).Value = tongSLDV;
                 ws.Cell(row, 6).Value = tongTatCa;
 
-                // CĂN PHẢI cho dòng tổng cộng
+              
                 ws.Cell(row, 4).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
                 ws.Cell(row, 5).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
                 ws.Cell(row, 6).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
 
-                // Định dạng số cho tổng cộng
+          
                 if (tongSLBH > 0) ws.Cell(row, 4).Style.NumberFormat.Format = "#,##0";
                 if (tongSLDV > 0) ws.Cell(row, 5).Style.NumberFormat.Format = "#,##0";
                 if (tongTatCa > 0) ws.Cell(row, 6).Style.NumberFormat.Format = "#,##0";
 
                 ws.Range(row, 4, row, 6).Style.Font.Bold = true;
 
-                // 10. Set width cột
-                ws.Column(1).Width = 4;   // STT - căn giữa
-                ws.Column(2).Width = 8;   // Mã DV - căn giữa  
-                ws.Column(3).Width = 100; // Tên dịch vụ - căn trái
-                ws.Column(4).Width = 18;  // SL BHYT - căn phải
-                ws.Column(5).Width = 18;  // SL DV - căn phải
-                ws.Column(6).Width = 18;  // Tổng - căn phải
+         
+                ws.Column(1).Width = 4;  
+                ws.Column(2).Width = 8;   
+                ws.Column(3).Width = 100;
+                ws.Column(4).Width = 18;
+                ws.Column(5).Width = 18;
+                ws.Column(6).Width = 18;
 
-                // 11. Border
+             
                 var dataRange = ws.Range(startRow, 1, row, 6);
                 dataRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
                 dataRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
 
-                // 12. Phần ký tên
+                
                 int footerRow = row + 2;
                 string[] nguoiKy = { "NGƯỜI LẬP BẢNG" };
                 string[] cotKyStart = { "E" };
@@ -381,19 +343,19 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
                     string colStart = cotKyStart[i];
                     string colEnd = ((char)(colStart[0] + 2)).ToString();
 
-                    // Dòng ngày tháng năm
+                    
                     ws.Range($"{colStart}{footerRow}:{colEnd}{footerRow}").Merge().Value = $"Ngày {DateTime.Now:dd} tháng {DateTime.Now:MM} năm {DateTime.Now:yyyy}";
                     ws.Range($"{colStart}{footerRow}:{colEnd}{footerRow}").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                     ws.Range($"{colStart}{footerRow}:{colEnd}{footerRow}").Style.Font.Italic = true;
                     ws.Range($"{colStart}{footerRow}:{colEnd}{footerRow}").Style.Font.FontSize = 10;
 
-                    // Dòng chức danh
+              
                     ws.Range($"{colStart}{footerRow + 1}:{colEnd}{footerRow + 1}").Merge().Value = nguoiKy[i];
                     ws.Range($"{colStart}{footerRow + 1}:{colEnd}{footerRow + 1}").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                     ws.Range($"{colStart}{footerRow + 1}:{colEnd}{footerRow + 1}").Style.Font.Bold = true;
                     ws.Range($"{colStart}{footerRow + 1}:{colEnd}{footerRow + 1}").Style.Font.FontSize = 10;
 
-                    // Dòng ghi chú
+                 
                     string ghiChu = "(Ký, họ tên)";
                     ws.Range($"{colStart}{footerRow + 2}:{colEnd}{footerRow + 2}").Merge().Value = ghiChu;
                     ws.Range($"{colStart}{footerRow + 2}:{colEnd}{footerRow + 2}").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;

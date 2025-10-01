@@ -179,23 +179,10 @@
                     <span class="text-danger"></span>
                 </div>
 
-                <div style="width: 100%; padding:0; margin-top: 5px; margin-bottom: 5px;">
-                    <label class="form-label">Nhóm nhân viên</label>
-                    <div style="position: relative;">
-                        <select id="nhomNhanVienSelect" class="tom-select-test" placeholder="Chọn nhân viên" autocomplete="off">
-                            <option value="0">Tất cả</option>
-                        </select>
-                        <input type="hidden" id="nhanVienIdHidden" value="0" />
-                        <input type="hidden" id="nhanVienTenHidden" value="" />
-                        <input type="hidden" id="nhanVienVietTatHidden" value="" />
-                    </div>
-                </div>
+   
 
 
-
-                <label style="padding:0;">
-                    
-                </label>
+     
             </div>
             <div class="row export-buttons">
                 <button class="btnFilterXetNghiem btn btn-outline-primary mb-3" @(ViewBag.quyenvaitro.Xem ? "" : "disabled")>
@@ -205,6 +192,8 @@
                     Xuất Excel
                 </button>
             </div>
+
+
 
         </div>
         <div class="container_goiKham right">
