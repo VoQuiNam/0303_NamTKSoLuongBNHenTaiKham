@@ -207,7 +207,7 @@ function handleFilter() {
     });
 }
 
-function renderHeader(tenBacSiDauTien = "Tên người chỉ định") {
+function renderHeader(tenBacSiDauTien = "Tên bác sĩ chỉ định") {
     const thead = document.querySelector('.table-wrapper-scroll thead');
     thead.innerHTML = '';
 
@@ -238,7 +238,7 @@ function renderTable() {
     setTimeout(() => {
         try {
             if (!fullData || fullData.length === 0) {
-                renderHeader("Tên người chỉ định");
+                renderHeader("Tên bác sĩ chỉ định");
                 tbody.append(`<tr><td colspan="6" class="text-center text-muted">Không có dữ liệu</td></tr>`);
                 tfoot.innerHTML = '';
                 hideLoading();
