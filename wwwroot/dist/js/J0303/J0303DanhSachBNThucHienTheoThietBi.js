@@ -468,7 +468,7 @@ $(document).on('change', '#pageSizeSelect', function () {
         renderTable();
         renderPagination();
     } else {
-        toastr.error("Vui lòng lọc dữ liệu trước khi thay đổi số dòng hiển thị.");
+       
     }
 });
 

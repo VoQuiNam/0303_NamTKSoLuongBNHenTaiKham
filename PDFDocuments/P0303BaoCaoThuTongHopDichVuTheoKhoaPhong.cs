@@ -88,7 +88,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                 {
                     headerCol.Item().Row(row =>
                     {
-                        row.ConstantColumn(38).Column(col =>
+                        row.ConstantColumn(60).Column(col =>
                         {
                             if (File.Exists(_logoPath))
                                 col.Item().Height(28).Image(_logoPath, ImageScaling.FitHeight);
@@ -127,11 +127,11 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                         // Header - SỬ DỤNG .Header() ĐỂ HIỂN THỊ TRÊN MỖI TRANG
                         table.Header(header =>
                         {
-                            header.Cell().Element(c => c.Border(0.5f).AlignCenter().AlignMiddle().Text("STT").Bold().FontSize(7));
-                            header.Cell().Element(c => c.Border(0.5f).AlignCenter().AlignMiddle().Text("Dịch vụ").Bold().FontSize(7));
+                            header.Cell().Element(c => c.Border(0.5f).Background(Colors.Grey.Lighten4).AlignCenter().AlignMiddle().Text("STT").Bold().FontSize(7));
+                            header.Cell().Element(c => c.Border(0.5f).Background(Colors.Grey.Lighten4).AlignCenter().AlignMiddle().Text("Dịch vụ").Bold().FontSize(7));
                             foreach (var phong in phongListHienThi)
-                                header.Cell().Element(c => c.Border(0.5f).AlignCenter().AlignMiddle().Text(phong.ten).Bold().FontSize(6));
-                            header.Cell().Element(c => c.Border(0.5f).AlignCenter().AlignMiddle().Text("Tổng cộng").Bold().FontSize(7));
+                                header.Cell().Element(c => c.Border(0.5f).Background(Colors.Grey.Lighten4).AlignCenter().AlignMiddle().Text(phong.ten).Bold().FontSize(6));
+                            header.Cell().Element(c => c.Border(0.5f).Background(Colors.Grey.Lighten4).AlignCenter().AlignMiddle().Text("Tổng cộng").Bold().FontSize(7));
                         });
 
                         decimal tongTatCa = 0;

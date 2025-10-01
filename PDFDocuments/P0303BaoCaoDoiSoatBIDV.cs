@@ -44,7 +44,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                 {
                     headerCol.Item().Row(row =>
                     {
-                        row.ConstantColumn(50).Column(col =>
+                        row.ConstantColumn(60).Column(col =>
                         {
                             if (File.Exists(_logoPath))
                             {
@@ -115,7 +115,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                                 header.Cell().RowSpan(rowSpan).ColumnSpan(colSpan).Element(c =>
                                 {
                                     c.Border(1).BorderColor(Colors.Grey.Medium)
-                                     .Background(isGroup ? Colors.Grey.Lighten2 : Colors.Grey.Lighten2)
+                                     .Background(Colors.Grey.Lighten4)
                                      .PaddingVertical(4).PaddingHorizontal(3)
                                      .AlignCenter().AlignMiddle()
                                      .Text(text).Bold().FontSize(isGroup ? 9 : 8);

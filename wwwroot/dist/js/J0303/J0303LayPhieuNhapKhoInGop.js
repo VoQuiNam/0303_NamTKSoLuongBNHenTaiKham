@@ -16,11 +16,11 @@
                 const blob = await response.blob();
 
                 if (blob.type === "application/pdf") {
-                    // Tạo link download ẩn
+                    
                     const fileURL = URL.createObjectURL(blob);
                     const a = document.createElement("a");
                     a.href = fileURL;
-                    a.download = "phieu_nhap_kho.pdf"; // tên file tải về
+                    a.download = "phieu_nhap_kho.pdf"; 
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);

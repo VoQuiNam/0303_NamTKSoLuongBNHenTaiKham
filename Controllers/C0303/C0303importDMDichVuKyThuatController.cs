@@ -69,7 +69,6 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
                     });
                 }
 
-                // Không lỗi → trả success
                 return Ok(new
                 {
                     success = true,

@@ -156,8 +156,9 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                 // Row height
                 ws.Row(6).Height = 40; // tăng chút cho font to
 
+                //***********sửa
                 string thoiGianThongKe = tuNgay.HasValue && denNgay.HasValue
-                     ? $"Từ ngày {tuNgay.Value:dd/MM/yyyy} đến ngày {denNgay.Value:dd/MM/yyyy}"
+                     ? $"Từ ngày {tuNgay.Value:dd-MM-yyyy} đến ngày {denNgay.Value:dd-MM-yyyy}"
                      : "Toàn bộ thời gian";
 
                 ws.Range("A7:M7").Merge().Value = thoiGianThongKe;

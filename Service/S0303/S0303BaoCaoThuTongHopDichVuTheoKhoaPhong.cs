@@ -30,56 +30,6 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
             _httpClientFactory = httpClientFactory;
         }
 
-        //public async Task<object> FilterByDayAsync(string tuNgay, string denNgay, int idChiNhanh, int idNhomKyThuat, int idPhong)
-        //{
-        //    try
-        //    {
-        //        object paramTuNgay = string.IsNullOrEmpty(tuNgay)
-        //            ? (object)DBNull.Value
-        //            : DateTime.ParseExact(tuNgay, "yyyy-MM-dd", null).ToString("dd-MM-yyyy");
-
-        //        object paramDenNgay = string.IsNullOrEmpty(denNgay)
-        //            ? (object)DBNull.Value
-        //            : DateTime.ParseExact(denNgay, "yyyy-MM-dd", null).ToString("dd-MM-yyyy");
-
-        //        var data = await _localDb.Set<M0303BaoCaoThuTongHopDichVuTheoKhoaPhongSTO>()
-        //            .FromSqlRaw(@"EXEC S0303_BaoCaoTongHopDichVuTheoKhoaPhong @TuNgay, @DenNgay, @IDCN, @IdNhomKyThuat, @IdPhong",
-        //                new SqlParameter("@TuNgay", paramTuNgay),
-        //                new SqlParameter("@DenNgay", paramDenNgay),
-        //                new SqlParameter("@IDCN", idChiNhanh),
-        //                new SqlParameter("@idNhomKyThuat", idNhomKyThuat),
-        //                new SqlParameter("@IdPhong", idPhong))
-        //            .AsNoTracking()
-        //            .ToListAsync();
-
-        //        var thongTinDoanhNghiep = await _localDb.ThongTinDoanhNghieps
-        //            .AsNoTracking()
-        //            .Where(x => x.IDChiNhanh == idChiNhanh)
-        //            .Select(x => new
-        //            {
-        //                TenCSKCB = x.TenCSKCB ?? "",
-        //                DiaChi = x.DiaChi ?? "",
-        //                DienThoai = x.DienThoai ?? "",
-        //                Email = x.Email ?? "",
-        //                Website = x.Website ?? "",
-        //                MaCSKCB = x.MaCSKCB ?? ""
-        //            })
-        //            .FirstOrDefaultAsync();
-
-        //        return new
-        //        {
-        //            success = true,
-        //            data,
-        //            thongTinDoanhNghiep
-        //        };
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine($"❌ LỖI: {ex.Message}");
-        //        return new { success = false, error = ex.Message };
-        //    }
-        //}
-
         public async Task<object> FilterByDayAsync(string tuNgay, string denNgay, int idChiNhanh, int idDichVuKyThuat, int idPhong)
         {
             try
@@ -205,23 +155,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                     @IDNDVKT = {idDichVuKyThuat}")
                 .ToListAsync();
 
-            //string jsonFile = Path.Combine("wwwroot", "dist/data/json/DM_DichVuKyThuat.json");
-            //var jsonData = await System.IO.File.ReadAllTextAsync(jsonFile);
-            //var dsDichVu = JsonConvert.DeserializeObject<List<M0303DichVuKyThuat>>(jsonData);
-
-            //if (dsDichVu != null && idNhomDichVu != 0)
-            //{
-            //    var dsIds = dsDichVu
-            //        .Where(x => x.idNhomDichVu == idNhomDichVu)
-            //        .Select(x => x.id)
-            //        .ToList();
-
-            //    _logger.LogInformation("DEBUG: dsIds.Count = {count}", dsIds.Count);
-
-            //    data = data.Where(x => x.IdDichVuKyThuat.HasValue && dsIds.Contains((int)x.IdDichVuKyThuat.Value)).ToList();
-
-            //    _logger.LogInformation("DEBUG: data.Count sau khi lọc = {count}", data.Count);
-            //}
+           
             data.ForEach(item => _logger.LogWarning(item.TenDichVu));
 
             return data;
@@ -438,7 +372,8 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                 ws.Cell(startRow, col++).Value = "Tổng cộng";
 
                 ws.Range(startRow, 1, startRow, col - 1).Style.Font.Bold = true;
-                ws.Range(startRow, 1, startRow, col - 1).Style.Fill.BackgroundColor = XLColor.LightGray;
+                ws.Range(startRow, 1, startRow, col - 1).Style.Fill.BackgroundColor = XLColor.Gray;
+                ws.Range(startRow, 1, startRow, col - 1).Style.Font.FontColor = XLColor.White;
                 ws.Range(startRow, 1, startRow, col - 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
 
                 // 8. Dữ liệu chi tiết

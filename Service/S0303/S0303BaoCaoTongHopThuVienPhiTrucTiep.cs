@@ -308,7 +308,8 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                     ws.Cell(headerStart, colIndex).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                     ws.Cell(headerStart, colIndex).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
                     ws.Cell(headerStart, colIndex).Style.Font.Bold = true;
-                    ws.Cell(headerStart, colIndex).Style.Fill.BackgroundColor = XLColor.LightGray;
+                    ws.Cell(headerStart, colIndex).Style.Font.FontColor = XLColor.White;
+                    ws.Cell(headerStart, colIndex).Style.Fill.BackgroundColor = XLColor.Gray;
                     colIndex++;
                 }
 
@@ -317,7 +318,8 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                 ws.Range(headerStart, chiTietColStart, headerStart, chiTietColStart + chiTietColCount - 1).Merge().Value = "THÔNG TIN CHI TIẾT";
                 ws.Range(headerStart, chiTietColStart, headerStart, chiTietColStart + chiTietColCount - 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                 ws.Range(headerStart, chiTietColStart, headerStart, chiTietColStart + chiTietColCount - 1).Style.Font.Bold = true;
-                ws.Cell(headerStart, colIndex).Style.Fill.BackgroundColor = XLColor.LightGray;
+                ws.Cell(headerStart, colIndex).Style.Font.FontColor = XLColor.White;
+                ws.Cell(headerStart, colIndex).Style.Fill.BackgroundColor = XLColor.Gray;
 
                 colIndex += chiTietColCount;
 
@@ -328,7 +330,8 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                     ws.Cell(headerStart, colIndex).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                     ws.Cell(headerStart, colIndex).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
                     ws.Cell(headerStart, colIndex).Style.Font.Bold = true;
-                    ws.Cell(headerStart, colIndex).Style.Fill.BackgroundColor = XLColor.LightGray;
+                    ws.Cell(headerStart, colIndex).Style.Font.FontColor = XLColor.White;
+                    ws.Cell(headerStart, colIndex).Style.Fill.BackgroundColor = XLColor.Gray;
                     colIndex++;
                 }
 

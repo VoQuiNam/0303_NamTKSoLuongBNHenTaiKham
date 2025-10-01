@@ -1,79 +1,119 @@
-﻿
-@{
+﻿@{
     ViewData["NonSixOs"] = true;
 }
 
 
-@using Nam_ThongKeSoLuongBNHenTaiKham.Models.M0303
-@model List<M0303TKSoLuongBNHenKhamSTO>
-<head> 
-    <link href="~/dist/css/CSS0303/CSS0303TKSoLuongBNHenTaiKham.css" rel="stylesheet" />
+<head>
+    <link href="~/dist/css/CSS0303/CSS0303BaoCaoXetNghiem.css" rel="stylesheet" />
     <link href="~/dist/lib/bootstrap-datepicker-1.10.0/dist/css/bootstrap-datepicker.min.css" rel="stylesheet" />
     <link href="~/dist/lib/toastr/toastr.min.css" rel="stylesheet" />
+    <link href="~/dist/css/CSS0303/tom-select.css" rel="stylesheet" />
 </head>
 
-
 <style>
-    .table-wrapper-scroll th,
-    .table-wrapper-scroll td {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+    .table-wrapper-scroll th:nth-child(1),
+    .table-wrapper-scroll td:nth-child(1) {
+        width: 50px;
+        min-width: 50px;
+        max-width: 50px;
+    }
+
+    .table-wrapper-scroll th:nth-child(2),
+    .table-wrapper-scroll td:nth-child(2) {
+        width: 80px;
+        min-width: 80px;
+        max-width: 80px;
     }
 
 
-    .table-wrapper-scroll table {
-        table-layout: fixed;
-    }
-
-
-    .table-wrapper-scroll th:nth-child(3),
-    .table-wrapper-scroll td:nth-child(3) {
-        width: 112px;
-        min-width: 215px;
-        max-width: 112px;
-    }
-
-
-
-    .table-wrapper-scroll th:nth-child(3),
-    .table-wrapper-scroll td:nth-child(3) {
-        position: sticky;
-        left: 0;
-        z-index: 100;
-        background-color: white;
-    }
-
- 
-
-    .table-wrapper-scroll th:nth-child(-n+3) {
+    .table-wrapper-scroll thead tr:nth-child(1) th {
         position: sticky;
         top: 0;
-        z-index: 101;
+        z-index: 10;
         background-color: #f2f2f2;
     }
 
-  
 
-    .table-wrapper-scroll th:nth-child(3) {
-        left: 0;
+    .table-wrapper-scroll thead tr:nth-child(2) th {
+        position: sticky;
+        top: 34px;
+        z-index: 20;
+        background-color: #f2f2f2;
+    }
+
+    .table-wrapper-scroll tbody th {
+        position: sticky;
+        top: 0;
+        z-index: 15;
+        background-color: #f2f2f2 !important;
+        border-bottom: 2px solid #ccc;
     }
 
 
 
-    .table-wrapper-scroll th:nth-child(-n+1),
-    .table-wrapper-scroll td:nth-child(-n+1) {
-        border-right: 1px solid #ccc !important;
+
+    .ts-control {
+        display: flex !important;
+        align-items: center !important;
+        flex-wrap: nowrap !important;
+        height: auto !important;
+        min-height: 38px !important;
     }
 
-    .table-wrapper-scroll tr:hover td:nth-child(-n+1) {
-        background-color: #bae7ff !important;
+        .ts-control input {
+            flex: 1 !important;
+            min-width: 0 !important;
+            height: auto !important;
+            line-height: normal !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            caret-color: auto !important;
+        }
+
+
+    .ts-dropdown {
+        z-index: 1055 !important;
     }
 
-    .table-wrapper-scroll tr.selected td:nth-child(-n+1) {
-        background-color: #bae7ff !important;
+
+    .ts-control input:not(:focus) {
+        caret-color: transparent !important;
+    }
+
+
+    .ts-dropdown .option:hover {
+        background-color: #0d6efd !important;
+        color: #fff !important;
+    }
+
+    .ts-dropdown .option.selected {
+        background-color: #cfe2ff !important;
+        color: #084298 !important;
+    }
+
+
+    .ts-dropdown .option.active {
+        background-color: #0d6efd !important;
+        color: #fff !important;
+    }
+
+
+    .ts-dropdown .highlight {
+        background: yellow !important;
+        color: black !important;
+        border-radius: 2px;
+    }
+
+    .item {
+        font-size: 14px;
+    }
+
+    select#selectGiaiDoan {
+        font-size: 14px;
     }
 </style>
+
+
 <div class="card p-1">
     <div class="container_goiKham">
         <div class="container_goiKham left">
@@ -132,18 +172,29 @@
                     <span class="text-danger"></span>
                 </div>
 
+                <div style="width: 100%; padding:0; margin-top: 5px; margin-bottom: 5px;">
+                    <label class="form-label">Nhóm nhân viên</label>
+                    <div style="position: relative;">
+                        <select id="nhomNhanVienSelect" class="tom-select-test" placeholder="Chọn nhân viên" autocomplete="off">
+                            <option value="0">Tất cả</option>
+                        </select>
+                        <input type="hidden" id="nhanVienIdHidden" value="0" />
+                        <input type="hidden" id="nhanVienTenHidden" value="" />
+                        <input type="hidden" id="nhanVienVietTatHidden" value="" />
+                    </div>
+                </div>
+
+
 
                 <label style="padding:0;">
-                    <button class="btnFilter btn btn-outline-primary mb-3" @(ViewBag.quyenvaitro.Xem ? "" : "disabled")>
-                        <i class="bi bi-funnel"></i> Lọc danh sách
-                    </button>
+                    
                 </label>
             </div>
             <div class="row export-buttons">
-                <button id="btnExportPDFGoiKham" class="btnExportPDFDesktop btn btn-outline-danger mb-3" @(ViewBag.quyenvaitro.Xuat ? "" : "disabled")>
-                    Xuất PDF
+                <button class="btnFilterXetNghiem btn btn-outline-primary mb-3" @(ViewBag.quyenvaitro.Xem ? "" : "disabled")>
+                    Lọc ds
                 </button>
-                <button id="btnExportExcelGoiKham" class="btnExportExcel btn btn-outline-success mb-3" @(ViewBag.quyenvaitro.Xuat ? "" : "disabled")>
+                <button id="btnExportExcelXetNghiem" class="btnExportExcel btn btn-outline-success mb-3" @(ViewBag.quyenvaitro.Xuat ? "" : "disabled")>
                     Xuất Excel
                 </button>
             </div>
@@ -159,35 +210,21 @@
 
             <div class="table-wrapper-scroll">
                 <table class="custom-table" cellpadding="8">
-
                     <thead>
-                        <tr>
-                            <th>STT</th>
-                            <th>Mã y tế</th>
-                            <th>Họ và tên</th>
-                            <th>Năm sinh</th>
-                            <th>Giới tính</th>
-                            <th>Quốc tịch</th>
-                            <th>Cccd/Passport</th>
-                            <th>SĐT</th>
-                            <th>Ngày hẹn khám</th>
-                            <th>Bác sĩ hẹn khám</th>
-                            <th>Nhắc hẹn</th>
-                            <th>Ghi chú</th>
-                        </tr>
+                     
                     </thead>
                     <tbody id="tableBody">
-                       
+                      
                     </tbody>
-                    <tfoot></tfoot>
-
+                    <tfoot>
+                       
+                    </tfoot>
                 </table>
-
             </div>
             <div class="phan_trang">
                 <div class="d-flex">
                     <label name="pageSizeSelect" class="form-label" style="font-size:1rem !important;">Số bản ghi mỗi trang:</label>
-                    <select id="pageSizeSelect"  style="font-size:1rem !important;" class="form-select">
+                    <select id="pageSizeSelect" style="font-size:1rem !important;" class="form-select">
                         <option value="10">10</option>
                         <option value="20">20</option>
                         <option value="50">50</option>
@@ -209,21 +246,18 @@
     </div>
 </div>
 
+
 @section Scripts {
     <script src="@Url.Content("~/dist/js/BienChung.js")" defer></script>
     <script src="~/dist/lib/toastr/toastr.min.js" asp-append-version="true" defer></script>
+    <script src="~/dist/lib/tom-select/dist/js/tom-select.complete.min.js"></script>
     <script src="~/dist/lib/bootstrap-datepicker-1.10.0/dist/js/bootstrap-datepicker.min.js" asp-append-version="true" defer></script>
     <script src="~/dist/lib/bootstrap-datepicker-1.10.0/dist/locales/bootstrap-datepicker.vi.min.js" asp-append-version="true" defer></script>
-    <script src="~/dist/js/J0303/J0303TKSoLuongBNHenTaiKham.js" asp-append-version="true" defer></script>
+    <script src="~/dist/js/J0303/J0303BaoCaoXetNghiem.js" asp-append-version="true" defer></script>
     <script src="~/dist/js/J0303/J0303GiaiDoanNgayThangNam.js" asp-append-version="true" defer></script>
 
-  
+
 }
-
-
-
-
-
 
 
 <script>

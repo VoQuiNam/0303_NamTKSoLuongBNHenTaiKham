@@ -193,7 +193,7 @@ async function loadJsonData() {
         row1 += fixedColumns.map((col, idx) => {
             let z = 30;
             if (idx === 2) {
-                z = 101; // ép cột thứ 3 lên 101 cho row1
+                z = 101; 
             } else if (idx <= 3) {
                 z = 100;
             }
@@ -273,7 +273,7 @@ async function loadJsonData() {
                     ? `${row1Height + row2Height - 1}px`
                     : `${row1Height + row2Height}px`;
 
-                // 👇 Ràng buộc cột thứ 3 (idx = 2) có z-index = 101
+               
                 if (idx === 2) {
                     th.style.zIndex = 101;
                 } else {
@@ -412,7 +412,7 @@ function calculateTotals(data) {
     return { totalMienGiam, totalNo, totalSoTien, totalThuoc, totalChiTietNhom };
 }
 
-    function renderTable() {
+function renderTable() {
         const tbody = $('#tableBody');
         const tfoot = document.querySelector(".table-wrapper-scroll tfoot");
         tbody.html('');
@@ -674,7 +674,7 @@ $(document).on('change', '#pageSizeSelect', function () {
         renderTable();
         renderPagination();
     } else {
-        toastr.error("Vui lòng lọc dữ liệu trước khi thay đổi số dòng hiển thị.");
+       
     }
 });
 

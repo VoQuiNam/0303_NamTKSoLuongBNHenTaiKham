@@ -9,6 +9,7 @@ using Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303.SI0303;
 using Nam_ThongKeSoLuongBNHenTaiKham.Service.SI0303;
 using QuestPDF.Infrastructure;
 using System;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +36,13 @@ builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddControllersWithViews();
 QuestPDF.Settings.License = LicenseType.Community;
+
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    });
+
 
 
 var app = builder.Build();

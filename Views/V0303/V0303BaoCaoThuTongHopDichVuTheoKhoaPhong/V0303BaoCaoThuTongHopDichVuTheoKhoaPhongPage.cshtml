@@ -212,10 +212,10 @@
                     <div style="position: relative;">
                         <select id="nhomDichVuSelect" class="tom-select-test" placeholder="Chọn nhóm dịch vụ" autocomplete="off">
                             <option value="0">Tất cả</option>
-                            <!-- Các option sẽ được thêm bằng JavaScript -->
+                            
                         </select>
 
-                        <!-- Hidden inputs để lưu thông tin -->
+                       
                         <input type="hidden" name="DichVu.Id" id="nhomDichVuIdHidden" value="0" />
                         <input type="hidden" name="DichVu.Ma" id="nhomDichVuMaHidden" value="" />
                         <input type="hidden" name="DichVu.Ten" id="nhomDichVuTenHidden" value="Tất cả" />
@@ -225,7 +225,7 @@
                 </div>
 
                 <label style="padding:0;">
-                    <button class="btnFilterBacSi btn btn-outline-primary mb-3" style="margin: 2px !important;">
+                    <button class="btnFilterBacSi btn btn-outline-primary mb-3" style="margin: 2px !important;" @(ViewBag.quyenvaitro.Xem ? "" : "disabled")>
                         <i class="bi bi-funnel"></i> Lọc danh sách
                     </button>
                 </label>

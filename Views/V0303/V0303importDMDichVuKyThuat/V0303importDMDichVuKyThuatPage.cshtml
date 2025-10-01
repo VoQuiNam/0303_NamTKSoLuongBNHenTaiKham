@@ -57,7 +57,6 @@
         formData.append("excelFile", fileInput.files[0]);
 
         try {
-            // Hiển thị loading
             spinner.style.display = "block";
 
             const response = await fetch("/xuat_dich_vu_ky_thuat/importExcel", {

@@ -7,7 +7,6 @@ let lastFilteredTuNgay = null;
 let lastFilteredDenNgay = null;
 
 
-
 function validateDateRange(tuNgay, denNgay) {
     if (!tuNgay || !denNgay) return false;
 
@@ -158,9 +157,6 @@ function parseHocPhiToNumber(str) {
     return parseFloat(str.replace(/,/g, ''));
 }
 
-
-
-
 function renderHeader() {
     const thead = document.querySelector('table thead');
     thead.innerHTML = '';
@@ -187,7 +183,7 @@ $(document).on('change', '#pageSizeSelect', function () {
         renderTable();
         renderPagination();
     } else {
-        toastr.error("Vui lòng lọc dữ liệu trước khi thay đổi số dòng hiển thị.");
+        
     }
 });
 
@@ -252,7 +248,7 @@ function initTomSelectNhomDichVu() {
                 
                 const vietTat = data.ten === 'Tất cả' ? '' : generateAbbreviation(data.ten);
 
-                return `<div>${escape(data.ten)} ${vietTat ? '[' + escape(vietTat) + ']' : ''}</div>`;
+                return `<div>${escape(data.ten)}</div>`;
             }
         },
         onInitialize: function () {
@@ -519,8 +515,8 @@ function exportPDFHandler(btn, viewType) {
     btn.disabled = true;
 
     const idChiNhanh = window._idcn || 0;
-    const formattedTuNgay = formatDateForServer(tuNgay);  // yyyy-MM-dd
-    const formattedDenNgay = formatDateForServer(denNgay); // yyyy-MM-dd
+    const formattedTuNgay = formatDateForServer(tuNgay); 
+    const formattedDenNgay = formatDateForServer(denNgay);
     const idNhomDichVu = parseInt(document.getElementById("nhomDichVuIdHidden").value) || 0;
     const idDichVuKyThuat = 0;
 
@@ -602,16 +598,14 @@ async function handleExportExcel() {
 
                 if (!validateDateRange(tuNgayRaw, denNgayRaw)) return;
 
-                // Disable button và hiển thị spinner
                 btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>`;
                 btn.disabled = true;
 
-                // Chuyển ngày sang định dạng server
                 const tuNgay = formatDateForServer(tuNgayRaw);
                 const denNgay = formatDateForServer(denNgayRaw);
                 const idcn = window._idcn || 0;
 
-                // Lấy danh sách phòng có dữ liệu thực tế
+               
                 let phongCoDuLieu = [];
                 fullData.forEach(item => {
                     if (item.idPhong && !phongCoDuLieu.includes(item.idPhong)) {
@@ -619,20 +613,19 @@ async function handleExportExcel() {
                     }
                 });
 
-                // Lấy phòng được chọn trên UI
+             
                 let idPhong = parseInt($("#selectedPhongId").val()) || 0;
                 if (idPhong && !phongCoDuLieu.includes(idPhong)) {
-                    idPhong = 0; // nếu chọn phòng không có dữ liệu => export tất cả
+                    idPhong = 0; 
                 }
 
-                // Lấy danh sách nhóm dịch vụ & dịch vụ dựa trên JSON
                 let idNhomDichVu = parseInt(document.getElementById("nhomDichVuIdHidden")?.value) || 0;
                 let idDichVuKyThuat = parseInt(document.getElementById("dichVuKyThuatIdHidden")?.value) || 0;
 
-                // Build URL export
+              
                 const url = `/bao_cao_thu_tong_hop_dv_theo_khoa_phong/check-and-export?tuNgay=${tuNgay}&denNgay=${denNgay}&idcn=${idcn}&idPhong=${idPhong}&idDichVuKyThuat=${idDichVuKyThuat}&idNhomDichVu=${idNhomDichVu}`;
 
-                // Gọi API export
+               
                 const response = await fetch(url);
                 if (!response.ok) {
                     const errorText = await response.text();
@@ -645,7 +638,7 @@ async function handleExportExcel() {
                     return;
                 }
 
-                // Tải file
+                
                 const blobUrl = window.URL.createObjectURL(blob);
                 const a = document.createElement("a");
                 a.href = blobUrl;
@@ -660,7 +653,7 @@ async function handleExportExcel() {
                 console.error(error);
                 toastr.error("Lỗi khi xuất Excel: " + error.message);
             } finally {
-                // Reset button
+               
                 btn.innerHTML = btn.dataset.originalHTML;
                 btn.disabled = false;
             }
@@ -685,14 +678,14 @@ function renderTable() {
             let selectedNhomDichVuId = parseInt(document.getElementById("nhomDichVuIdHidden").value) || 0;
 
             if (!fullData || fullData.length === 0) {
-                // Tính tổng cột dựa trên header: STT + Dịch vụ + phòng + Tổng cộng
+                
                 const colCount = 2 + (phongList ? phongList.length : 0) + 1;
                 tbody.append(`<tr><td colspan="15" class="text-center text-muted">Không có dữ liệu</td></tr>`);
                 hideLoading();
                 return;
             }
 
-            // Lọc nhóm theo dữ liệu
+           
             let nhomIds = [...new Set(fullData.map(item => item.idNhomDichVu))];
             let filteredNhomDichVuList = listNhomDichVuKyThuat.filter(nhom => nhomIds.includes(nhom.id));
 
@@ -700,14 +693,13 @@ function renderTable() {
                 filteredNhomDichVuList = filteredNhomDichVuList.filter(nhom => nhom.id === selectedNhomDichVuId);
             }
 
-            // Gom tất cả dịch vụ theo nhóm
+            
             let dichVuHienThi = [];
             filteredNhomDichVuList.forEach(nhom => {
                 const dichVuInNhom = fullData.filter(item => item.idNhomDichVu === nhom.id);
                 dichVuHienThi = dichVuHienThi.concat(dichVuInNhom);
             });
 
-            // Phân trang dịch vụ theo pageSize
             const totalRecords = dichVuHienThi.length;
             const pages = Math.max(1, Math.ceil(totalRecords / pageSize));
             if (currentPage > pages) currentPage = pages;
@@ -717,19 +709,17 @@ function renderTable() {
             const pageData = dichVuHienThi.slice(start, end);
 
             let sttGlobal = start + 1;
-
-            // Lấy các nhóm hiện tại trong pageData
             let nhomBlocks = filteredNhomDichVuList.map((nhom, idx) => {
                 const items = pageData.filter(dv => dv.idNhomDichVu === nhom.id);
-                return { nhom, items, sttNhom: idx + 1 }; // STT nhóm liên tục theo filteredNhomDichVuList
+                return { nhom, items, sttNhom: idx + 1 };
             }).filter(block => block.items.length > 0);
 
-            // render từng nhóm
+        
             nhomBlocks.forEach((block) => {
                 const nhomDichVu = block.nhom;
                 const dichVuInNhom = block.items;
 
-                // Tính tổng nhóm theo tất cả dịch vụ của nhóm, không phụ thuộc trang
+                
                 let tongNhomTheoPhong = {};
                 phongList.forEach(phong => {
                     tongNhomTheoPhong[phong.id] = fullData
@@ -739,7 +729,7 @@ function renderTable() {
 
                 let tongNhom = Object.values(tongNhomTheoPhong).reduce((a, b) => a + b, 0);
 
-                // header nhóm sử dụng sttNhom
+                
                 let headerRow = `<tr style="background-color:#f8f9fa; font-weight:bold;">
   <td colspan="2" class="text-start ps-2">${block.sttNhom}. ${nhomDichVu.ten}</td>`;
                 phongList.forEach(phong => {
@@ -750,7 +740,6 @@ function renderTable() {
 
 
 
-                // render chi tiết dịch vụ
                 dichVuInNhom.forEach(item => {
                     let rowHtml = `<tr>
                         <td class="text-center">${sttGlobal}</td>
@@ -768,7 +757,7 @@ function renderTable() {
                 });
             });
 
-            // tổng cuối bảng
+           
             let tongTatCaGia = fullData.reduce((sum, item) => sum + (parseFloat(item.giaTien) || 0), 0);
             let totalRowHtml = `<tr style="background-color:#f2f2f2; color:black; font-weight:bold;">
                 <td colspan="${2 + phongList.length}" class="text-start ps-2">TỔNG CỘNG</td>
@@ -801,7 +790,6 @@ function renderPagination() {
     const phongList = window.filteredPhongList || listPhongBuong;
     let selectedNhomDichVuId = parseInt(document.getElementById("nhomDichVuIdHidden").value) || 0;
 
-    // Lấy danh sách nhóm DVKT từ fullData
     let nhomIds = [...new Set(fullData.map(item => item.idNhomDichVu))];
     let filteredNhomDichVuList = listNhomDichVuKyThuat.filter(nhom => nhomIds.includes(nhom.id));
 
@@ -809,7 +797,7 @@ function renderPagination() {
         filteredNhomDichVuList = filteredNhomDichVuList.filter(nhom => nhom.id === selectedNhomDichVuId);
     }
 
-    // Gom tất cả dịch vụ theo nhóm
+   
     let dichVuHienThi = [];
     filteredNhomDichVuList.forEach(nhom => {
         const dichVuInNhom = fullData.filter(item => item.idNhomDichVu === nhom.id);
@@ -822,7 +810,6 @@ function renderPagination() {
 
     $('#paginationContainer').text(`Trang ${currentPage}/${pages} – Tổng ${totalRecords} dịch vụ`);
 
-    // Nút trước
     pagination.append(`<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
         <a class="page-link" href="#" data-page="${Math.max(1, currentPage - 1)}">Trước</a>
     </li>`);
@@ -840,7 +827,7 @@ function renderPagination() {
         </li>`);
     }
 
-    // Nút sau
+
     pagination.append(`<li class="page-item ${currentPage === pages ? 'disabled' : ''}">
         <a class="page-link" href="#" data-page="${Math.min(pages, currentPage + 1)}">Sau</a>
     </li>`);

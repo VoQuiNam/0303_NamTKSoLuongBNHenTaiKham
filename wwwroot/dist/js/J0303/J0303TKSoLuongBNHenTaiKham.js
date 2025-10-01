@@ -256,7 +256,6 @@ function renderPagination() {
     });
 }
 
-//***********sửa 
 $(document).on('change', '#pageSizeSelect', function () {
     pageSize = parseInt($(this).val()) || 10;
     currentPage = 1;
