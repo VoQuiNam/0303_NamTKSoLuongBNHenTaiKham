@@ -12,11 +12,6 @@ function validateDateRange(tuNgay, denNgay) {
 
     const tuNgayDate = new Date(tuNgay);
     const denNgayDate = new Date(denNgay);
-
-    if (tuNgayDate > denNgayDate) {
-        toastr.error("Lỗi: Từ ngày phải nhỏ hơn hoặc bằng Đến ngày");
-        return false;
-    }
     return true;
 }
 
@@ -189,7 +184,7 @@ $(document).on('change', '#pageSizeSelect', function () {
 
 document.addEventListener('DOMContentLoaded', async () => {
     await loadJsonData();
-    loadDichVu();
+    await loadDichVu(); 
     renderTable();
     initDatePicker();
     handleFilter();
@@ -197,7 +192,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     handleExportExcel();
 });
 
-document.addEventListener("DOMContentLoaded", loadDichVu);
 
 let tomSelectNhomDichVu = null;
 
@@ -211,7 +205,6 @@ function initTomSelectNhomDichVu() {
     function generateAbbreviation(text) {
         if (!text || text === 'Tất cả') return '';
 
-      
         const words = text.split(' ');
         let abbreviation = '';
 
@@ -234,30 +227,27 @@ function initTomSelectNhomDichVu() {
         maxOptions: null,
         render: {
             option: function (data, escape) {
-  
                 const vietTat = data.ten === 'Tất cả' ? '' : generateAbbreviation(data.ten);
-
                 return `
-                    <div class="d-flex justify-content-between">
-                        <span>${escape(data.ten)}</span>
-                        <span class="text-muted">${vietTat ? '[' + escape(vietTat) + ']' : ''}</span>
-                    </div>
-                `;
+                <div class="d-flex justify-content-between">
+                    <span>${escape(data.ten)}</span>
+                    <span class="text-muted">${vietTat ? '[' + escape(vietTat) + ']' : ''}</span>
+                </div>
+            `;
             },
             item: function (data, escape) {
-                
-                const vietTat = data.ten === 'Tất cả' ? '' : generateAbbreviation(data.ten);
-
                 return `<div>${escape(data.ten)}</div>`;
             }
         },
         onInitialize: function () {
-           
-            this.setValue('0');
+            // Set mặc định
+            this.setValue('0', true);
+            // Ép đóng luôn khi init
+            this.close();
+            this.blur();
         },
         onChange: function (value) {
             const selectedItem = this.options[value];
-
             if (selectedItem) {
                 const vietTat = selectedItem.ten === 'Tất cả' ? '' : generateAbbreviation(selectedItem.ten);
 
@@ -266,7 +256,6 @@ function initTomSelectNhomDichVu() {
                 document.getElementById('nhomDichVuTenHidden').value = selectedItem.ten || '';
                 document.getElementById('nhomDichVuVietTatHidden').value = vietTat || '';
             } else {
-             
                 document.getElementById('nhomDichVuIdHidden').value = 0;
                 document.getElementById('nhomDichVuMaHidden').value = '';
                 document.getElementById('nhomDichVuTenHidden').value = 'Tất cả';
@@ -275,11 +264,16 @@ function initTomSelectNhomDichVu() {
         }
     });
 
-  
-    tomSelectNhomDichVu.on('type', function (str) {
-    
-    });
+
+    tomSelectNhomDichVu.on('type', function (str) { });
+
+    // 🔥 Fix: ép blur sau khi khởi tạo xong
+    setTimeout(() => {
+        tomSelectNhomDichVu.close();
+        tomSelectNhomDichVu.blur();
+    }, 10);
 }
+
 
 
 function updateTomSelectData(data) {
