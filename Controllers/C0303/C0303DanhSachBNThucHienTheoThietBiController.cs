@@ -103,5 +103,38 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
             }
         }
 
+
+        [HttpGet("nhom-dich-vu/all")]
+        public async Task<List<M0303NhomDichVuKyThuat>> LayNhomDichVu()
+        {
+            try
+            {
+                var nhomDVKT = await _service.GetNhomDVKT();
+                return nhomDVKT;
+            }
+            catch (Exception ex)
+            {
+                throw;
+
+            }
+
+        }
+
+        [HttpGet("dich-vu-ky-thuat/all")]
+        public async Task<List<M0303DichVuKyThuat>> GetDSDichVuKyThuat()
+        {
+            try
+            {
+                var dsDVuKT = await _service.GetDSDichVuKyThuat();
+                return dsDVuKT;
+
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+        }
+
     }
 }

@@ -44,7 +44,9 @@
         public string? TinhTrang { get; set; }
         public string? NoiChiDinh { get; set; }
         public string? BacSi { get; set; }
+        public long? IDDVKT { get; set; }
         public string? TenDichVuKyThuat { get; set; } // tên dịch vụ, không phải ID
+        public long? IDNDVKT { get; set; }
         public string? TenNhomDichVu { get; set; }    // tên nhóm dịch vụ
         public int? SoLuong { get; set; }
         public DateTime? NgayYC { get; set; }
@@ -54,7 +56,7 @@
         public string? ChungTu { get; set; }
         public string? TenThietBi { get; set; }
         public decimal? DoanhThu { get; set; }
-        public string? BaoHiem { get; set; }          // để string cho khớp STO
+        public decimal? BaoHiem { get; set; }          // để string cho khớp STO
         public decimal? DaThanhToan { get; set; }
         public decimal? ChuaThanhToan { get; set; }    // có thể là số hoặc rỗng
         public string? HuyHoan { get; set; }          // 'x' hoặc ''

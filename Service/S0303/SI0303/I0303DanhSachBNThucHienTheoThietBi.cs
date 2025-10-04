@@ -5,11 +5,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303.SI0303
 {
     public interface I0303DanhSachBNThucHienTheoThietBi
     {
-        //    Task<object> FilterDanhSachBNTheoThietBiAsync(string tuNgay,
-        //string denNgay,
-        //int idChiNhanh,
-        //int idNhomDichVu,
-        //int idDichVuKyThuat);
+    
 
         Task<object> FilterDanhSachBNTheoThietBiAsync(string tuNgay,
    string denNgay,
@@ -25,6 +21,8 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303.SI0303
 
         Task<List<M0303DanhSachBNThucHienTheoThietBiSTO>> GetBNHenKhamAsync(DateTime? tuNgay, DateTime? denNgay, int? idChiNhanh);
 
-        //Task<List<M0303DichVuKyThuat>> GetDSDichVuKyThuat();
+        Task<List<M0303NhomDichVuKyThuat>> GetNhomDVKT();
+
+        Task<List<M0303DichVuKyThuat>> GetDSDichVuKyThuat();
     }
 }

@@ -13,10 +13,6 @@ function validateDateRange(tuNgay, denNgay) {
     const tuNgayDate = new Date(tuNgay);
     const denNgayDate = new Date(denNgay);
 
-    if (tuNgayDate > denNgayDate) {
-        toastr.error("Lỗi: Từ ngày phải nhỏ hơn hoặc bằng Đến ngày");
-        return false;
-    }
     return true;
 }
 
@@ -137,9 +133,9 @@ function formatDateDisplay(dateString) {
 
 async function loadJsonData() {
     try {
-        const [dvRes, nhomDvRes, thietBiRes] = await Promise.all([
-            fetch('/dist/data/json/DM_DichVuKyThuat.json').then(r => r.json()),
-            fetch('/dist/data/json/DM_NhomDichVuKyThuat.json').then(r => r.json()),
+        const [dvRes, nhomDvRes] = await Promise.all([
+            fetch('/danh_sach_bn_thuc_hien_theo_thiet_bi/dich-vu-ky-thuat/all').then(r => r.json()),
+            fetch('/danh_sach_bn_thuc_hien_theo_thiet_bi/nhom-dich-vu/all').then(r => r.json()),
            
         ]);
 
@@ -211,10 +207,11 @@ function handleFilter() {
                     success: function (response) {
                         if (response.success) {
                             fullData = response.data || [];
+                            console.log(fullData);
 
                             fullData.forEach(item => {
                                 const nhomdichvu = listNhomDv.find(p => p.id === item.idNhomDichVu);
-                                const dichvu = listDv.find(k => k.id === item.idDichVuKyThuat);
+                                const dichvu = listDv.find(k => k.id === item.IDDVKT); // SỬA Ở ĐÂY
 
                                 item.tenNhomDV = nhomdichvu?.ten || "Không rõ nhóm dịch vụ";
                                 item.tenDV = dichvu?.ten || "Không rõ dịch vụ";
@@ -302,7 +299,7 @@ function renderTable() {
                     <td class="text-center">${item.soBA || ''}</td>
                     <td class="text-start">${item.icd || ''}</td>
                     <td class="text-start">${item.hoTen || ''}</td>
-                    <td class="text-start">${item.gioiTinh || ''}</td>
+                    <td class="text-start">${item.tenGioiTinh || ''}</td>
                     <td class="text-center">${item.soBHYT || ''}</td>
                     <td class="text-start">${item.kcbbd || ''}</td>
                     <td class="text-center">${item.dt === true ? 'X' : ''}</td>
@@ -312,7 +309,7 @@ function renderTable() {
                     <td class="text-start">${item.bacSi || ''}</td>
                     <td class="text-start">${item.tenNhomDichVu || ''}</td>
                     <td class="text-start">${item.tenDichVuKyThuat || ''}</td>
-                    <td class="text-center">${item.soLuong || '0'}</td>
+                    <td class="text-end">${item.soLuong || '0'}</td>
                     <td class="text-center">${ngayYC}</td>
                     <td class="text-center">${ngayTH}</td>
                     <td class="text-center">${item.quyenSo || ''}</td>
@@ -363,7 +360,6 @@ function renderTable() {
     }, 100);
 }
 
-
 function formatDateDisplay(dateString) {
     const date = new Date(dateString);
     if (isNaN(date)) return '';
@@ -372,11 +368,15 @@ function formatDateDisplay(dateString) {
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
 
-    const hours = String(date.getHours()).padStart(2, '0');
+    let hours = date.getHours();
     const minutes = String(date.getMinutes()).padStart(2, '0');
     const seconds = String(date.getSeconds()).padStart(2, '0');
 
-    return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12; // đổi về giờ 12h
+    hours = hours ? hours : 12; // nếu = 0 thì thành 12
+
+    return `${day}-${month}-${year} ${hours}:${minutes}:${seconds} ${ampm}`;
 }
 
 

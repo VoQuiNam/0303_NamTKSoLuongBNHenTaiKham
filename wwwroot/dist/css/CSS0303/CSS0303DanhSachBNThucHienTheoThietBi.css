@@ -168,7 +168,7 @@
     .table-wrapper-scroll table {
         border-collapse: separate;
         border-spacing: 0;
-        width: auto;
+        width: 100%;
         min-width: 1800px; /* giữ scroll ngang nếu bảng nhiều cột */
         table-layout: auto; /* cột dãn theo nội dung */
     }
