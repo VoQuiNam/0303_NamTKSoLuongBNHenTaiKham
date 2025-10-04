@@ -263,7 +263,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
 
                 var rangeTitle = ws.Range("K6:P6");
                 rangeTitle.Merge();
-                rangeTitle.Value = "BÁO CÁO BỆNH NHÂN THỰC HIỆN THEO THIẾT BỊ";
+                rangeTitle.Value = "DANH SÁCH BỆNH NHÂN THỰC HIỆN THEO THIẾT BỊ";
                 rangeTitle.Style.Font.FontSize = 24;
                 rangeTitle.Style.Font.Bold = true;
                 rangeTitle.Style.Font.FontName = "Times New Roman";
