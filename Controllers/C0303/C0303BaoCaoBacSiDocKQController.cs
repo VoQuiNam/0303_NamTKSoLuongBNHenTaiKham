@@ -103,5 +103,36 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
         }
 
 
+        [HttpGet("khoa/all")]
+        public async Task<List<M0303Khoa>> LayKhoa()
+        {
+            try
+            {
+                var khoa = await _service.GetKhoa();
+                return khoa;
+            }
+            catch (Exception ex)
+            {
+                throw;
+
+            }
+
+        }
+
+        [HttpGet("phong/all")]
+        public async Task<List<M0303Phong>> LayPhong()
+        {
+            try
+            {
+                var phong = await _service.GetDSPhongBuong();
+                return phong;
+            }
+            catch (Exception ex)
+            {
+                throw;
+
+            }
+
+        }
     }
 }

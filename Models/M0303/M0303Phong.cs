@@ -6,5 +6,9 @@
         public int idKhoa { get; set; }
         public string ten { get; set; }
         public string viettat { get; set; }
+
+        public long? idChiNhanh { get; set; }
+
+        public bool active { get; set; }
     }
 }

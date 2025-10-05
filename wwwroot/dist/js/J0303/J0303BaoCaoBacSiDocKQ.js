@@ -7,109 +7,137 @@ let phongIndex = 1;
 let khoaSttGlobal = 1;
 let lastFilteredTuNgay = null;
 let lastFilteredDenNgay = null;
+let tomSelectKhoa = null;
+let tomSelectPhong = null;
 
-function initSearchDropdown({ inputId, dropdownId, hiddenFieldId, data, onSelect }) {
-    const $input = $(`#${inputId}`);
-    const $dropdown = $(`#${dropdownId}`);
-    let currentIndex = -1;
-    let currentData = data;
-    function renderDropdown(filter = "", overrideData = null) {
-        if (overrideData) currentData = overrideData;
-        const lower = filter.toLowerCase();
-        const list = currentData.filter(item =>
-            item.ten.toLowerCase().includes(lower) ||
-            (item.alias && item.alias.toLowerCase().includes(lower))
-        );
+function initTomSelect({ selectId, placeholder, data, onSelect, onClear }) {
+    const selectElement = document.getElementById(selectId);
 
-        $dropdown.empty();
-        currentIndex = -1;
-
-        if (list.length === 0) {
-            $dropdown.append(`<div class="list-group-item text-muted">Không tìm thấy</div>`);
-        } else {
-            list.forEach(item => {
-                let tenHienThi = item.ten;
-                if (filter.trim() !== "") {
-                    const regex = new RegExp(`(${filter})`, "gi");
-                    tenHienThi = tenHienThi.replace(regex, "<mark>$1</mark>");
-                }
-                $dropdown.append(
-                    `<div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center p-3" 
-                    data-id="${item.id}" 
-                    data-ten="${item.ten}">
-                    <div class="tenHienThi truncate-text" title="${item.ten}">
-                        ${tenHienThi}
-                    </div>
-                    ${item.alias ? `<div class="px-1 text-muted">[${item.alias}]</div>` : ""}
-                </div>`
-                );
-            });
-
-            currentIndex = 0;
-            const firstItem = $dropdown.find(".list-group-item").eq(0);
-            firstItem.addClass("active");
-        }
-
-        $dropdown.show();
+    if (!selectElement) {
+        console.error(`Không tìm thấy element với id: ${selectId}`);
+        return null;
     }
 
+    const firstOption = selectElement.querySelector('option');
+    selectElement.innerHTML = firstOption ? firstOption.outerHTML : '';
 
-    $input.on("input focus", function (e) {
-        const val = $(this).val();
-        if (e.type === "focus") $(this).select();
-        renderDropdown(val);
+    data.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item.id;
+        option.textContent = item.ten;
+        option.setAttribute('data-alias', item.alias || '');
+        selectElement.appendChild(option);
     });
 
-    $dropdown.on("click", ".list-group-item", function () {
-        const ten = $(this).data("ten");
-        const id = $(this).data("id");
-        $input.val(ten);
-        $(`#${hiddenFieldId}`).val(id);
-        $dropdown.hide();
+    const tomSelect = new TomSelect(`#${selectId}`, {
+        plugins: [],
+        valueField: 'value',
+        labelField: 'text',
+        searchField: ['text', 'alias'],
+        create: false,
+        maxItems: 1,
+        placeholder: placeholder,
+        allowEmptyOption: false,
+        closeAfterSelect: true,
+        loadThrottle: null,
+        loadingClass: null,
+        preload: true,
+        load: function (query, callback) {
+            const filteredData = data.filter(item => {
+                const searchText = query.toLowerCase();
+                return item.ten.toLowerCase().includes(searchText) ||
+                    (item.alias && item.alias.toLowerCase().includes(searchText));
+            }).map(item => ({
+                value: item.id,
+                text: item.ten,
+                alias: item.alias || ''
+            }));
 
-        if (onSelect) onSelect({ id, ten });
-    });
+            callback(filteredData);
+        },
+        render: {
+            option: function (item, escape) {
+                let html = `<div class="d-flex justify-content-between align-items-center">`;
+                let displayText = escape(item.text);
+                let aliasText = item.alias ? escape(item.alias) : '';
 
-    $input.on("keydown", function (e) {
-        const items = $dropdown.find(".list-group-item");
-        if (!items.length) return;
+                const searchQuery = this.inputState.query || '';
+                if (searchQuery.trim() !== '') {
+                    const regex = new RegExp(`(${escape(searchQuery)})`, 'gi');
+                    displayText = displayText.replace(regex, '<mark class="highlight">$1</mark>');
+                    if (aliasText) {
+                        aliasText = aliasText.replace(regex, '<mark class="highlight">$1</mark>');
+                    }
+                }
 
-        if (e.key === "ArrowDown" || e.key === "ArrowUp") {
-            e.preventDefault();
-            currentIndex = (e.key === "ArrowDown")
-                ? (currentIndex + 1) % items.length
-                : (currentIndex - 1 + items.length) % items.length;
+                html += `<div class="tenHienThi">${displayText}</div>`;
+                if (item.alias) {
+                    html += `<div class="px-1 text-muted">[${aliasText}]</div>`;
+                }
+                html += `</div>`;
+                return html;
+            },
+            item: function (item, escape) {
+                return `<div>${escape(item.text)}</div>`;
+            },
+            loading: function () {
+                return '';
+            },
+            no_results: function () {
+                return '<div class="no-results">Không tìm thấy kết quả</div>';
+            }
+        },
+        onInitialize: function () {
 
-            items.removeClass("active").eq(currentIndex).addClass("active");
-            items.eq(currentIndex)[0].scrollIntoView({ behavior: "smooth", block: "nearest" });
+            this.setValue('0', true);
 
-        } else if (e.key === "Enter") {
-            e.preventDefault();
-            if (currentIndex >= 0) {
-                const selected = items.eq(currentIndex);
-                const ten = selected.data("ten");
-                const id = selected.data("id");
 
-                selectedId = id;
-                $input.val(ten);
-                $(`#${hiddenFieldId}`).val(id);
-                $dropdown.hide();
+            if (selectId === 'khoaSelect') {
+                $('#khoaIdHidden').val('0');
+                $('#khoaMaHidden').val('');
+                $('#khoaTenHidden').val('Tất cả');
+                $('#khoaVietTatHidden').val('');
+            } else if (selectId === 'phongSelect') {
+                $('#phongIdHidden').val('0');
+                $('#phongMaHidden').val('');
+                $('#phongTenHidden').val('Tất cả');
+                $('#phongVietTatHidden').val('');
+            }
 
-                if (onSelect) onSelect({ id, ten });
+            if (onClear) onClear();
+        },
+        onBlur: function () {
+            if (!this.getValue() || this.getValue() === '') {
+                this.setValue('0', true);
             }
         }
     });
 
-    $(document).on("click", function (e) {
-        if (!$(e.target).closest(`#${inputId}, #${dropdownId}`).length) {
-            $dropdown.hide();
+    tomSelect.on('change', function (value) {
+        if (value && value !== '') {
+            const selectedItem = data.find(item => item.id.toString() === value.toString());
+            if (selectedItem && onSelect) {
+                onSelect({ id: selectedItem.id, ten: selectedItem.ten });
+            }
+        } else {
+            if (selectId === 'khoaSelect') {
+                $('#khoaIdHidden').val('0');
+                $('#khoaMaHidden').val('');
+                $('#khoaTenHidden').val('Tất cả');
+                $('#khoaVietTatHidden').val('');
+            } else if (selectId === 'phongSelect') {
+                $('#phongIdHidden').val('0');
+                $('#phongMaHidden').val('');
+                $('#phongTenHidden').val('Tất cả');
+                $('#phongVietTatHidden').val('');
+            }
+
+            if (onClear) onClear();
         }
     });
 
-    return { renderDropdown };
+    return tomSelect;
 }
-
-
 
 
 function flattenData(khoaGroups) {
@@ -124,6 +152,15 @@ function flattenData(khoaGroups) {
     return flatList;
 }
 
+function showLoading() {
+    document.getElementById('loadingSpinner').style.display = 'block';
+}
+
+function hideLoading() {
+    document.getElementById('loadingSpinner').style.display = 'none';
+}
+
+
 function renderTable() {
     const tbody = $('#tableBody');
     tbody.empty();
@@ -133,129 +170,130 @@ function renderTable() {
         return;
     }
 
-    const khoaGroups = {};
-    fullData.forEach(item => {
-        if (!khoaGroups[item.idKhoa]) {
-            khoaGroups[item.idKhoa] = {
-                tenKhoa: item.tenKhoa,
-                tongSoCa: 0,
-                phongGroups: {}
-            };
-        }
-        const khoa = khoaGroups[item.idKhoa];
+    showLoading();
 
-        if (!khoa.phongGroups[item.idPhong]) {
-            khoa.phongGroups[item.idPhong] = {
-                tenPhong: item.tenPhong,
-                tongSoCa: 0,
-                list: []
-            };
-        }
-        const phong = khoa.phongGroups[item.idPhong];
-        phong.list.push(item);
-    });
+    setTimeout(() => {
+        try {
+            const khoaGroups = {};
+            fullData.forEach(item => {
+                if (!khoaGroups[item.idKhoa]) {
+                    khoaGroups[item.idKhoa] = {
+                        tenKhoa: item.tenKhoa,
+                        tongSoCa: 0,
+                        phongGroups: {}
+                    };
+                }
+                const khoa = khoaGroups[item.idKhoa];
 
-    Object.values(khoaGroups).forEach(khoa => {
-        Object.values(khoa.phongGroups).forEach(phong => {
-            phong.tongSoCa = phong.list.reduce((sum, item) => {
-                return sum + ((item.thuPhi || 0) + (item.bhyt || 0) + (item.no || 0) + (item.mienGiam || 0));
-            }, 0);
-
-
-        });
-
-        khoa.tongSoCa = Object.values(khoa.phongGroups)
-            .reduce((sum, phong) => sum + phong.tongSoCa, 0);
-
-
-    });
-
-
-
-
-    const flatList = [];
-    Object.values(khoaGroups).forEach(khoa => {
-        Object.values(khoa.phongGroups).forEach(phong => {
-            phong.list.forEach(item => {
-                flatList.push({ khoa, phong, item });
+                if (!khoa.phongGroups[item.idPhong]) {
+                    khoa.phongGroups[item.idPhong] = {
+                        tenPhong: item.tenPhong,
+                        tongSoCa: 0,
+                        list: []
+                    };
+                }
+                const phong = khoa.phongGroups[item.idPhong];
+                phong.list.push(item);
             });
-        });
-    });
 
-    const startIndex = (currentPage - 1) * pageSize;
-    const endIndex = Math.min(startIndex + pageSize, flatList.length);
-    const pagedData = flatList.slice(startIndex, endIndex);
+            Object.values(khoaGroups).forEach(khoa => {
+                Object.values(khoa.phongGroups).forEach(phong => {
+                    phong.tongSoCa = phong.list.reduce((sum, item) => {
+                        return sum + ((item.thuPhi || 0) + (item.bhyt || 0) + (item.no || 0) + (item.mienGiam || 0));
+                    }, 0);
+                });
 
-    let khoaSttStart = 1;
-    if (currentPage > 1) {
-        const allKhoaIds = Object.keys(khoaGroups);
-        let itemsCount = 0;
+                khoa.tongSoCa = Object.values(khoa.phongGroups)
+                    .reduce((sum, phong) => sum + phong.tongSoCa, 0);
+            });
 
-        for (let i = 0; i < allKhoaIds.length; i++) {
-            const khoaId = allKhoaIds[i];
-            const khoa = khoaGroups[khoaId];
-            const khoaItemCount = Object.values(khoa.phongGroups).reduce((total, phong) => total + phong.list.length, 0);
+            const flatList = [];
+            Object.values(khoaGroups).forEach(khoa => {
+                Object.values(khoa.phongGroups).forEach(phong => {
+                    phong.list.forEach(item => {
+                        flatList.push({ khoa, phong, item });
+                    });
+                });
+            });
 
-            itemsCount += khoaItemCount;
-            if (itemsCount >= startIndex) {
-                khoaSttStart = i + 1;
-                break;
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = Math.min(startIndex + pageSize, flatList.length);
+            const pagedData = flatList.slice(startIndex, endIndex);
+
+            let khoaSttStart = 1;
+            if (currentPage > 1) {
+                const allKhoaIds = Object.keys(khoaGroups);
+                let itemsCount = 0;
+
+                for (let i = 0; i < allKhoaIds.length; i++) {
+                    const khoaId = allKhoaIds[i];
+                    const khoa = khoaGroups[khoaId];
+                    const khoaItemCount = Object.values(khoa.phongGroups).reduce((total, phong) => total + phong.list.length, 0);
+
+                    itemsCount += khoaItemCount;
+                    if (itemsCount >= startIndex) {
+                        khoaSttStart = i + 1;
+                        break;
+                    }
+                }
             }
+
+            let currentKhoaStt = khoaSttStart;
+            let lastKhoa = null;
+            let lastPhong = null;
+            let stt = startIndex + 1;
+
+            pagedData.forEach(({ khoa, phong, item }) => {
+                if (lastKhoa !== khoa) {
+                    tbody.append(`
+                        <tr class="fw-bold" style="background-color: #f8f9fa;">
+                            <td colspan="6" style="text-align: left; padding-left: 8px; font-weight: bold;">
+                                ${String(currentKhoaStt++).padStart(2)}. ${khoa.tenKhoa}
+                            </td>
+                            <td>${khoa.tongSoCa}</td>
+                        </tr>
+                    `);
+                    lastKhoa = khoa;
+                    lastPhong = null;
+                }
+
+                if (lastPhong !== phong) {
+                    tbody.append(`
+                        <tr class="fw-bold">
+                            <td colspan="6" style="text-align: left; padding-left: 32px; font-weight: bold;">
+                                ${phong.tenPhong}
+                            </td>
+                            <td>${phong.tongSoCa}</td>
+                        </tr>
+                    `);
+                    lastPhong = phong;
+                }
+
+                tbody.append(`
+                    <tr>
+                        <td style="border-right: 1px solid #dee2e6; text-align: center; width: 40px;">
+                            ${stt++}
+                        </td>
+                        <td style="text-align: left; padding-left: 16px;">
+                            ${item.bacSiChiDinh || ''}
+                        </td>
+                        <td>${item.thuPhi || 0}</td>
+                        <td>${item.bhyt || 0}</td>
+                        <td>${item.no || 0}</td>
+                        <td>${item.mienGiam || 0}</td>
+                        <td>${(item.thuPhi || 0) + (item.bhyt || 0) + (item.no || 0) + (item.mienGiam || 0)}</td>
+                    </tr>
+                `);
+            });
+        } catch (error) {
+            console.error('Lỗi khi render table:', error);
+            tbody.append(`<tr><td colspan="7" class="text-center text-danger">Đã xảy ra lỗi khi tải dữ liệu</td></tr>`);
+        } finally {
+            hideLoading();
         }
-    }
-
-    let currentKhoaStt = khoaSttStart;
-    let lastKhoa = null;
-    let lastPhong = null;
-    let stt = startIndex + 1;
-
-
-    pagedData.forEach(({ khoa, phong, item }) => {
-
-        if (lastKhoa !== khoa) {
-            tbody.append(`
-                <tr class="fw-bold" style="background-color: #f8f9fa;">
-                    <td colspan="6" style="text-align: left; padding-left: 8px; font-weight: bold;">
-                        ${String(currentKhoaStt++).padStart(2)}. ${khoa.tenKhoa}
-                    </td>
-                    <td>${khoa.tongSoCa}</td>
-                </tr>
-            `);
-            lastKhoa = khoa;
-            lastPhong = null;
-        }
-
-
-        if (lastPhong !== phong) {
-            tbody.append(`
-                <tr class="fw-bold">
-                    <td colspan="6" style="text-align: left; padding-left: 32px; font-weight: bold;">
-                        ${phong.tenPhong}
-                    </td>
-                    <td>${phong.tongSoCa}</td>
-                </tr>
-            `);
-            lastPhong = phong;
-        }
-
-
-        tbody.append(`
-            <tr>
-                <td style="border-right: 1px solid #dee2e6; text-align: center; width: 40px;">
-                    ${stt++}
-                </td>
-                <td style="text-align: left; padding-left: 16px;">
-                    ${item.bacSiChiDinh || ''}
-                </td>
-                <td>${item.thuPhi || 0}</td>
-                <td>${item.bhyt || 0}</td>
-                <td>${item.no || 0}</td>
-                <td>${item.mienGiam || 0}</td>
-                <td>${(item.thuPhi || 0) + (item.bhyt || 0) + (item.no || 0) + (item.mienGiam || 0)}</td>
-            </tr>
-        `);
-    });
+    }, 100);
 }
+
 
 
 function updateTable(data) {
@@ -334,9 +372,10 @@ function handleFilter() {
     $('.btnFilterBacSi').off('click').on('click', function (e) {
         e.preventDefault();
 
+        showLoading();
+
         setTimeout(function () {
             try {
-
                 const idChiNhanh = window._idcn || 0;
 
                 const tuNgayRaw = $('#tuNgayDesktop').val() || $('#tuNgayMobile').val();
@@ -344,9 +383,9 @@ function handleFilter() {
 
                 if (!tuNgayRaw || !denNgayRaw) {
                     toastr.error("Vui lòng chọn đầy đủ Từ ngày và Đến ngày");
+                    hideLoading();
                     return;
                 }
-
 
                 const tuNgayDate = new Date(tuNgayRaw.split('-').reverse().join('-'));
                 const denNgayDate = new Date(denNgayRaw.split('-').reverse().join('-'));
@@ -358,42 +397,59 @@ function handleFilter() {
                     $('#tuNgayMobile').datepicker('update', denNgayRaw);
                 }
 
-
                 const tuNgay = formatDateForServer($('#tuNgayDesktop').val() || $('#tuNgayMobile').val());
                 const denNgay = formatDateForServer($('#denNgayDesktop').val() || $('#denNgayMobile').val());
 
+                const idKhoa = $('#khoaIdHidden').val() || 0;
+                const idPhong = $('#phongIdHidden').val() || 0;
 
-                let idKhoa = parseInt($("#selectedKhoaId").val());
-                let idPhong = parseInt($("#selectedPhongId").val());
-
-
-                if (isNaN(idKhoa)) idKhoa = 0;
-                if (isNaN(idPhong)) idPhong = 0;
-
-
+             
 
                 $.ajax({
                     url: '/bao_cao_bac_si_doc_kq/tk/FilterByDay',
                     type: 'POST',
-                    data: { tuNgay, denNgay, idChiNhanh, idKhoa, idPhong },
+                    data: {
+                        tuNgay,
+                        denNgay,
+                        idChiNhanh,
+                        idKhoa: idKhoa || 0,
+                        idPhong: idPhong || 0
+                    },
+                    beforeSend: function () {
+                       
+                        showLoading();
+                    },
                     success: function (response) {
                         if (response.success) {
                             fullData = response.data || [];
 
+                           
 
                             fullData.forEach(item => {
-                                const phong = listPhong.find(p => p.id === item.idPhong);
-                                const khoa = listKhoa.find(k => k.id === item.idKhoa);
+                                const itemKhoaId = parseInt(item.idKhoa);
+                                const itemPhongId = parseInt(item.idPhong);
+
+                                const phong = listPhong.find(p => {
+                                    const phongId = parseInt(p.id);
+                                    return phongId === itemPhongId;
+                                });
+
+                                const khoa = listKhoa.find(k => {
+                                    const khoaId = parseInt(k.id);
+                                    return khoaId === itemKhoaId;
+                                });
 
                                 item.tenPhong = phong?.ten || "Không rõ phòng";
                                 item.tenKhoa = khoa?.ten || "Không rõ khoa";
+
+                              
                             });
 
-
+                          
 
                             currentPage = 1;
                             pageSize = parseInt($('#pageSizeSelect').val()) || 10;
-                            khoaStt = 1;
+                            khoaSttGlobal = 1;
                             renderTable();
                             renderPagination();
                             lastFilteredTuNgay = tuNgayRaw;
@@ -406,27 +462,26 @@ function handleFilter() {
                     error: function (xhr) {
                         console.error("❌ Lỗi kết nối:", xhr);
                         toastr.error("❌ Lỗi kết nối: " + xhr.responseText);
+                    },
+                    complete: function () {
+                      
+                        hideLoading();
                     }
                 });
 
             } catch (err) {
                 console.error("❌ Lỗi trong setTimeout:", err);
+                hideLoading();
             }
         }, 100);
     });
 }
-
 
 function validateDateRange(tuNgay, denNgay) {
     if (!tuNgay || !denNgay) return false;
 
     const tuNgayDate = new Date(tuNgay);
     const denNgayDate = new Date(denNgay);
-
-    if (tuNgayDate > denNgayDate) {
-        toastr.error("Lỗi: Từ ngày phải nhỏ hơn hoặc bằng Đến ngày");
-        return false;
-    }
     return true;
 }
 
@@ -568,11 +623,9 @@ async function handleExportExcel() {
 
         const tuNgayRaw = document.getElementById("tuNgayDesktop")?.value || document.getElementById("tuNgayMobile")?.value;
         const denNgayRaw = document.getElementById("denNgayDesktop")?.value || document.getElementById("denNgayMobile")?.value;
-        const selectKhoaEl = document.getElementById("selectedKhoaId");
-        const selectPhongEl = document.getElementById("selectedPhongId");
+        const selectKhoaEl = document.getElementById("khoaIdHidden");
+        const selectPhongEl = document.getElementById("phongIdHidden");
         const idChiNhanh = window._idcn;
-
-
 
         if (!tuNgayRaw || !denNgayRaw) {
             toastr.error("Vui lòng chọn đầy đủ Từ ngày và Đến ngày trước khi xuất Excel.");
@@ -589,7 +642,6 @@ async function handleExportExcel() {
             return;
         }
 
-
         const tuNgay = formatDateForServer(tuNgayRaw);
         const denNgay = formatDateForServer(denNgayRaw);
 
@@ -604,35 +656,29 @@ async function handleExportExcel() {
 
         btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>`;
         btn.disabled = true;
+        showLoading();
 
         try {
             const exportUrl = `/bao_cao_bac_si_doc_kq/check-and-export?tuNgay=${tuNgay}&denNgay=${denNgay}&idcn=${idChiNhanh}&idKhoa=${idKhoa}&idPhong=${idPhong}`;
-            console.log("Fetch exportUrl:", exportUrl);
+           
 
             const exportResponse = await fetch(exportUrl);
 
-
             if (!exportResponse.ok) {
-
                 const errorText = await exportResponse.text();
-
-
                 try {
                     const errorData = JSON.parse(errorText);
                     if (errorData.message) {
                         throw new Error(errorData.message);
                     }
                 } catch (e) {
-
                     throw new Error(errorText || "Lỗi không xác định");
                 }
             }
 
-
             const contentType = exportResponse.headers.get('content-type');
 
             if (contentType && contentType.includes('application/json')) {
-
                 const responseData = await exportResponse.json();
                 if (!responseData.hasData) {
                     toastr.error(responseData.message || "Không có dữ liệu trong khoảng ngày đã chọn.");
@@ -640,7 +686,6 @@ async function handleExportExcel() {
                 }
             } else if (contentType && (contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') ||
                 contentType.includes('application/octet-stream'))) {
-
                 const blob = await exportResponse.blob();
 
                 if (blob.size === 0) {
@@ -669,9 +714,11 @@ async function handleExportExcel() {
         } finally {
             btn.innerHTML = btn.dataset.originalHTML;
             btn.disabled = false;
+            hideLoading();
         }
     });
 }
+
 
 
 
@@ -680,21 +727,21 @@ function exportPDFHandler(btn, viewType) {
         btn.dataset.originalHTML = btn.innerHTML.trim();
     }
 
-    const tuNgay = document.getElementById(viewType === "Mobile" ? "tuNgayMobile" : "tuNgayDesktop").value;
-    const denNgay = document.getElementById(viewType === "Mobile" ? "denNgayMobile" : "denNgayDesktop").value;
+    const tuNgay = document.getElementById(viewType === "Mobile" ? "tuNgayMobile" : "tuNgayDesktop")?.value;
+    const denNgay = document.getElementById(viewType === "Mobile" ? "denNgayMobile" : "denNgayDesktop")?.value;
 
-
-    const idKhoa = document.getElementById("selectedKhoaId").value || 0;
-    const idPhong = document.getElementById("selectedPhongId").value || 0;
-
-
-    if (!fullData || fullData.length === 0) {
-        toastr.error("Vui lòng lọc dữ liệu trước khi xuất PDF.");
-        return;
-    }
+    const idKhoa = document.getElementById("khoaIdHidden")?.value || 0;
+    const idPhong = document.getElementById("phongIdHidden")?.value || 0;
 
     if (!tuNgay || !denNgay) {
         toastr.error("Vui lòng chọn đầy đủ Từ ngày và Đến ngày trước khi xuất PDF.");
+        btn.innerHTML = btn.dataset.originalHTML;
+        btn.disabled = false;
+        return;
+    }
+
+    if (!fullData || fullData.length === 0) {
+        toastr.error("Vui lòng lọc dữ liệu trước khi xuất PDF.");
         btn.innerHTML = btn.dataset.originalHTML;
         btn.disabled = false;
         return;
@@ -726,33 +773,58 @@ function exportPDFHandler(btn, viewType) {
     if (formattedTuNgay) url += `tuNgay=${formattedTuNgay}&`;
     if (formattedDenNgay) url += `denNgay=${formattedDenNgay}&`;
     if (idChiNhanh) url += `idChiNhanh=${idChiNhanh}&`;
-    if (idKhoa) url += `idKhoa=${idKhoa}&`;
-    if (idPhong) url += `idPhong=${idPhong}&`;
+    if (idKhoa && idKhoa !== '0') url += `idKhoa=${idKhoa}&`;
+    if (idPhong && idPhong !== '0') url += `idPhong=${idPhong}&`;
     url = url.replace(/&$/, "");
+
+   
 
     fetch(url, {
         method: "GET",
-        headers: { 'Accept': 'application/pdf' }
+        headers: {
+            'Accept': 'application/pdf',
+            'Cache-Control': 'no-cache'
+        }
     })
         .then(response => {
             if (!response.ok) {
-                return response.text().then(text => { throw new Error(text || "Không thể tải file PDF"); });
+                return response.text().then(text => {
+                    throw new Error(text || "Không thể tải file PDF");
+                });
             }
+
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/pdf')) {
+                throw new Error("Phản hồi không phải là file PDF");
+            }
+
             return response.blob();
         })
         .then(blob => {
+            if (blob.size === 0) {
+                throw new Error("File PDF trống");
+            }
+
             const blobUrl = window.URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = blobUrl;
-            a.download = `BaoCaoBacSiDocKQ_${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '')}.pdf`;
+            a.download = `BaoCaoBacSiDocKQ.pdf`;
             document.body.appendChild(a);
             a.click();
             a.remove();
-            window.URL.revokeObjectURL(blobUrl);
+
+            setTimeout(() => {
+                window.URL.revokeObjectURL(blobUrl);
+            }, 100);
+
             toastr.success("Xuất PDF thành công!");
-            if (blob.size < 1000) toastr.warning("Không có dữ liệu trong khoảng thời gian đã chọn.");
+
+            if (blob.size < 5000) {
+                toastr.warning("File PDF có kích thước nhỏ, có thể không có dữ liệu.");
+            }
         })
         .catch(error => {
+            console.error('PDF Export Error:', error);
             toastr.error("Lỗi khi xuất PDF: " + error.message);
         })
         .finally(() => {
@@ -762,95 +834,325 @@ function exportPDFHandler(btn, viewType) {
 }
 
 
-$('#searchKhoa').on('input', function () {
-    if (!$(this).val().trim()) {
-        $('#selectedKhoaId').val('');
-    }
-});
-
-
-$('#searchPhong').on('input', function () {
-    if (!$(this).val().trim()) {
-        $('#selectedPhongId').val('');
-    }
-});
-
 
 document.addEventListener('DOMContentLoaded', function () {
-    $.getJSON("/dist/data/json/DM_Khoa.json", function (data) {
-        listKhoa = data.map(n => {
+    Promise.all([
+        fetch('/dist/data/json/DM_Khoa.json').then(response => {
+            if (!response.ok) throw new Error('Lỗi khi tải danh sách khoa');
+            return response.json();
+        }),
+        fetch('/dist/data/json/DM_PhongBuong.json').then(response => {
+            if (!response.ok) throw new Error('Lỗi khi tải danh sách phòng');
+            return response.json();
+        })
+    ]).then(([khoaData, phongData]) => {
+        listKhoa = khoaData.map(n => {
             let alias = n.viettat && n.viettat.trim() !== ""
                 ? n.viettat.toUpperCase()
                 : n.ten.trim().split(/\s+/).map(word => word.charAt(0).toUpperCase()).join("");
             return { ...n, alias };
         });
 
-
-        $.getJSON("/dist/data/json/DM_PhongBuong.json", function (dataPB) {
-            listPhong = dataPB.map(n => {
-                let alias = n.viettat && n.viettat.trim() !== ""
-                    ? n.viettat.toUpperCase()
-                    : n.ten.trim().split(/\s+/).map(word => word.charAt(0).toUpperCase()).join("");
-                return { ...n, alias };
-            });
-
-
-
-            const khoaDropdown = initSearchDropdown({
-                inputId: "searchKhoa",
-                dropdownId: "dropdownKhoa",
-                hiddenFieldId: "selectedKhoaId",
-                data: listKhoa,
-                onSelect: ({ id }) => {
-                    const currentPhongId = $("#selectedPhongId").val();
-                    const currentPhong = listPhong.find(p => p.id === currentPhongId);
-
-                    if (!currentPhong || currentPhong.idKhoa !== id) {
-                        $("#searchPhong").val("");
-                        $("#selectedPhongId").val("");
-                    }
-
-
-                    phongDropdown.renderDropdown("", listPhong.filter(p => p.idKhoa === id));
-
-
-                    setTimeout(() => {
-                        $("#searchPhong").focus();
-                    }, 100);
-                }
-            });
-
-
-            const phongDropdown = initSearchDropdown({
-                inputId: "searchPhong",
-                dropdownId: "dropdownPhong",
-                hiddenFieldId: "selectedPhongId",
-                data: listPhong,
-                onSelect: ({ id }) => {
-                    const phong = listPhong.find(p => p.id === id);
-                    if (phong) {
-                        const khoa = listKhoa.find(k => k.id === phong.idKhoa);
-                        if (khoa) {
-                            $("#searchKhoa").val(khoa.ten);
-                            $("#selectedKhoaId").val(khoa.id);
-                        }
-                    }
-                }
-            });
-
-
-            $("#searchKhoa, #searchPhong").on("input", function () {
-                const khoaVal = $("#searchKhoa").val().trim();
-                const phongVal = $("#searchPhong").val().trim();
-
-                if (khoaVal === "" && phongVal === "") {
-                    phongDropdown.renderDropdown("", listPhong);
-                }
-            });
-
-
+        listPhong = phongData.map(n => {
+            let alias = n.viettat && n.viettat.trim() !== ""
+                ? n.viettat.toUpperCase()
+                : n.ten.trim().split(/\s+/).map(word => word.charAt(0).toUpperCase()).join("");
+            return { ...n, alias };
         });
+
+        tomSelectKhoa = initTomSelect({
+            selectId: 'khoaSelect',
+            placeholder: 'Chọn khoa',
+            data: listKhoa,
+            onSelect: ({ id, ten }) => {
+               
+
+                if (id === '0') {
+                    resetKhoaAndPhongToAll();
+                    return;
+                }
+
+                const selectedKhoa = listKhoa.find(k => k.id === id);
+                if (selectedKhoa) {
+                    $('#khoaIdHidden').val(selectedKhoa.id);
+                    $('#khoaMaHidden').val(selectedKhoa.ma || '');
+                    $('#khoaTenHidden').val(selectedKhoa.ten);
+                    $('#khoaVietTatHidden').val(selectedKhoa.viettat || '');
+
+                    if (tomSelectPhong) {
+                        const phongTheoKhoa = listPhong.filter(p => p.idKhoa === selectedKhoa.id);
+
+                        tomSelectPhong.clear();
+                        tomSelectPhong.clearOptions();
+                        tomSelectPhong.addOption({ value: '0', text: 'Tất cả', alias: '' });
+
+                        phongTheoKhoa.forEach(p => {
+                            tomSelectPhong.addOption({
+                                value: String(p.id),
+                                text: p.ten,
+                                alias: p.alias || ''
+                            });
+                        });
+
+                        tomSelectPhong.refreshOptions(false);
+                        tomSelectPhong.setValue('0', true);
+                    }
+                }
+            },
+            onClear: () => {
+                resetPhongToAll();
+            },
+            
+        });
+
+        tomSelectPhong = initTomSelect({
+            selectId: 'phongSelect',
+            placeholder: 'Chọn phòng',
+            data: listPhong,
+            onSelect: ({ id, ten }) => {
+                const selectedPhongLocal = listPhong.find(p => p.id == id);
+                if (selectedPhongLocal) {
+                    $('#phongIdHidden').val(selectedPhongLocal.id);
+                    $('#phongMaHidden').val(selectedPhongLocal.ma || '');
+                    $('#phongTenHidden').val(selectedPhongLocal.ten);
+                    $('#phongVietTatHidden').val(selectedPhongLocal.viettat || '');
+
+                    
+                    if (selectedPhongLocal.idKhoa && tomSelectKhoa) {
+                        tomSelectKhoa.setValue(String(selectedPhongLocal.idKhoa), true);
+                    }
+                }
+            },
+            onClear: () => {
+                $('#phongIdHidden').val('0');
+                $('#phongMaHidden').val('');
+                $('#phongTenHidden').val('Tất cả');
+                $('#phongVietTatHidden').val('');
+            }
+        });
+
+      
+        function setupInputHandlers() {
+           
+            const khoaInput = document.querySelector('#khoaSelect ~ .ts-control input');
+            const phongInput = document.querySelector('#phongSelect ~ .ts-control input');
+
+            if (khoaInput) {
+              
+                khoaInput.addEventListener('input', function (e) {
+                   
+
+                 
+                    if (!this.value || this.value.trim() === '') {
+                       
+                        setTimeout(() => {
+                           
+                            this.setValue('0', true);
+                            resetKhoaAndPhongToAll();
+                        }, 100);
+                    }
+                });
+
+             
+                khoaInput.addEventListener('blur', function (e) {
+                    setTimeout(() => {
+                        const currentValue = tomSelectKhoa.getValue();
+                      
+
+                        if (!currentValue || currentValue === '' || currentValue.length === 0) {
+                           
+                            resetKhoaAndPhongToAll();
+                        }
+                    }, 150);
+                });
+            }
+
+            if (phongInput) {
+              
+                phongInput.addEventListener('input', function (e) {
+                  
+
+                   
+                    if (!this.value || this.value.trim() === '') {
+                      
+                        setTimeout(() => {
+                            resetPhongToAllOnly();
+                        }, 100);
+                    }
+                });
+
+               
+                phongInput.addEventListener('blur', function (e) {
+                    setTimeout(() => {
+                        const currentValue = tomSelectPhong.getValue();
+                       
+
+                        if (!currentValue || currentValue === '' || currentValue.length === 0) {
+                            resetPhongToAllOnly();
+                        }
+                    }, 150);
+                });
+            }
+        }
+
+      
+        const khoaSelectElement = document.getElementById('khoaSelect');
+        if (khoaSelectElement) {
+            khoaSelectElement.addEventListener('click', function (e) {
+               
+                setTimeout(() => {
+                    const dropdownItems = document.querySelectorAll('.ts-dropdown .option[data-value="0"]');
+                    dropdownItems.forEach(item => {
+                        item.addEventListener('click', function () {
+                            resetKhoaAndPhongToAll();
+                        });
+                    });
+                }, 100);
+            });
+        }
+
+      
+        function resetKhoaAndPhongToAll() {
+           
+            if (tomSelectKhoa) {
+                
+                tomSelectKhoa.clear();
+                tomSelectKhoa.clearOptions();
+                tomSelectKhoa.addOption({ value: '0', text: 'Tất cả', alias: '' });
+
+              
+                listKhoa.forEach(k => {
+                    tomSelectKhoa.addOption({
+                        value: String(k.id),
+                        text: k.ten,
+                        alias: k.alias || ''
+                    });
+                });
+
+                tomSelectKhoa.refreshOptions(false);
+                tomSelectKhoa.setValue('0', true);
+            }
+
+
+            $('#khoaIdHidden').val('0');
+            $('#khoaMaHidden').val('');
+            $('#khoaTenHidden').val('Tất cả');
+            $('#khoaVietTatHidden').val('');
+
+           
+            resetPhongToAll();
+
+         
+        }
+
+       
+        function resetPhongToAll() {
+           
+
+            if (tomSelectPhong) {
+                tomSelectPhong.clear();
+                tomSelectPhong.clearOptions();
+                tomSelectPhong.addOption({ value: '0', text: 'Tất cả', alias: '' });
+
+                
+                listPhong.forEach(p => {
+                    tomSelectPhong.addOption({
+                        value: String(p.id),
+                        text: p.ten,
+                        alias: p.alias || ''
+                    });
+                });
+
+                tomSelectPhong.refreshOptions(false);
+                tomSelectPhong.setValue('0', true);
+
+                
+                $('#phongIdHidden').val('0');
+                $('#phongMaHidden').val('');
+                $('#phongTenHidden').val('Tất cả');
+                $('#phongVietTatHidden').val('');
+            }
+        }
+
+       
+        function resetPhongToAllOnly() {
+          
+
+            if (tomSelectPhong) {
+                tomSelectPhong.clear();
+                tomSelectPhong.clearOptions();
+                tomSelectPhong.addOption({ value: '0', text: 'Tất cả', alias: '' });
+
+
+                listPhong.forEach(p => {
+                    tomSelectPhong.addOption({
+                        value: String(p.id),
+                        text: p.ten,
+                        alias: p.alias || ''
+                    });
+                });
+
+                tomSelectPhong.refreshOptions(false);
+                tomSelectPhong.setValue('0', true);
+
+                
+                $('#phongIdHidden').val('0');
+                $('#phongMaHidden').val('');
+                $('#phongTenHidden').val('Tất cả');
+                $('#phongVietTatHidden').val('');
+
+               
+            }
+        }
+
+        $('#khoaSelect').on('change', function () {
+            const selectedValue = $(this).val();
+           
+
+            if (selectedValue == '0') {
+                resetKhoaAndPhongToAll();
+            }
+        });
+
+      
+        setTimeout(() => {
+            setupInputHandlers();
+        }, 500);
+
+       
+        document.addEventListener('keydown', function (e) {
+           
+            const activeElement = document.activeElement;
+            if (activeElement && activeElement.closest('.ts-control')) {
+                const input = activeElement;
+
+               
+                if (e.key === 'Delete' || e.key === 'Backspace') {
+                   
+                    setTimeout(() => {
+                        if (!input.value || input.value.trim() === '') {
+                            const tsControl = input.closest('.ts-control');
+
+                            if (tsControl.previousElementSibling &&
+                                tsControl.previousElementSibling.id === 'khoaSelect') {
+                               
+                            } else if (tsControl.previousElementSibling &&
+                                tsControl.previousElementSibling.id === 'phongSelect') {
+                              
+                              
+                                resetPhongToAllOnly();
+                            }
+                        }
+                    }, 50);
+                }
+            }
+        });
+
+    }).catch(error => {
+        console.error('❌ Lỗi khi tải dữ liệu:', error);
+        toastr.error('Không thể tải danh sách khoa/phòng: ' + error.message);
     });
+
     initDatePicker();
     renderTable();
     handleFilter();

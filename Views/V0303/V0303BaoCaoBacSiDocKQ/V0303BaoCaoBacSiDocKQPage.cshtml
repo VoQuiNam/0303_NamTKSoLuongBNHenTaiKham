@@ -10,7 +10,100 @@
     <link href="~/dist/css/CSS0303/CSS0303TKSoLuongBNHenTaiKham.css" rel="stylesheet" />
     <link href="~/dist/lib/bootstrap-datepicker-1.10.0/dist/css/bootstrap-datepicker.min.css" rel="stylesheet" />
     <link href="~/dist/lib/toastr/toastr.min.css" rel="stylesheet" />
+    <link href="~/dist/css/CSS0303/tom-select.css" rel="stylesheet" />
 </head>
+
+<style>
+    .ts-control {
+        display: flex !important;
+        align-items: center !important;
+        flex-wrap: nowrap !important;
+        height: auto !important;
+        min-height: 38px !important;
+    }
+
+        .ts-control input {
+            flex: 1 !important;
+            min-width: 0 !important;
+            height: auto !important;
+            line-height: normal !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            caret-color: auto !important;
+        }
+
+    .ts-dropdown {
+        z-index: 1055 !important;
+    }
+
+    .ts-control input:not(:focus) {
+        caret-color: transparent !important;
+    }
+
+
+    .table-wrapper-scroll th:nth-child(2),
+    .table-wrapper-scroll td:nth-child(2) {
+        width: 75px;
+        min-width: 75px;
+        max-width: 1800px;
+        position: sticky;
+        left: 0;
+        background-color: white;
+    }
+
+    .table-wrapper-scroll th:nth-child(-n+2) {
+        position: sticky;
+        top: 0;
+        z-index: 223; /* Cao hơn z-index trong file CSS */
+        background-color: #f2f2f2;
+    }
+
+  
+
+    .table-wrapper-scroll th:nth-child(2) {
+        left: 0;
+    }
+
+    .table-wrapper-scroll th:nth-child(-n+2),
+    .table-wrapper-scroll td:nth-child(-n+2) {
+        border-right: 1px solid #ccc !important;
+    }
+
+    /* Style cho TomSelect options */
+    .ts-dropdown .option:hover {
+        background-color: #0d6efd !important;
+        color: #fff !important;
+    }
+
+    .ts-dropdown .option.selected {
+        background-color: #cfe2ff !important;
+        color: #084298 !important;
+    }
+
+    .ts-dropdown .option.active {
+        background-color: #0d6efd !important;
+        color: #fff !important;
+    }
+
+    .ts-dropdown .highlight {
+        background: yellow !important;
+        color: black !important;
+        border-radius: 2px;
+    }
+
+    .ts-dropdown .option.active .text-muted,
+    .ts-dropdown .option:hover .text-muted {
+        color: #fff !important;
+    }
+
+    .table-wrapper-scroll thead th {
+        background-color: #f2f2f2 !important;
+        color: #000 !important;
+        font-weight: 600;
+        border-bottom: 1px solid #dee2e6;
+    }
+</style>
+
 
 
 <div class="card p-1">
@@ -71,50 +164,53 @@
                     <span class="text-danger"></span>
                 </div>
 
-                <!-- Dropdown Khoa -->
-                <div style="width: 100%; margin-bottom:8px;padding:0;">
-                        <label class="form-label">Khoa</label>
-                        <div class="position-relative">
-                            <input type="text" id="searchKhoa" class="form-control" autocomplete="off">
-                        <input type="hidden" id="selectedNhomDichVuId" name="KhoaId">
-                            <div id="dropdownKhoa"
-                             class="dropdown-menu show"
-                             style="display: none; position: absolute; width: 100%; z-index: 9999;
-            max-height: 200px; overflow-y: auto; overflow-x: hidden; font-size: 1rem;
-            background: white; border: 1px solid #ccc;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
-                            </div>
-                        </div>
+                <div style="width: 100%; padding:0; margin-top: 5px; margin-bottom: 5px;">
+                    <label class="form-label">Khoa</label>
+                    <div style="position: relative;">
+                        <select id="khoaSelect" class="tom-select-test" placeholder="Chọn khoa" autocomplete="off">
+                            <option value="0">Tất cả</option>
+
+                        </select>
+
+
+                        <input type="hidden" name="Khoa.Id" id="khoaIdHidden" value="0" />
+                        <input type="hidden" name="Khoa.Ma" id="khoaMaHidden" value="" />
+                        <input type="hidden" name="Khoa.Ten" id="khoaTenHidden" value="Tất cả" />
+                        <input type="hidden" name="Khoa.VietTat" id="khoaVietTatHidden" value="" />
+                    </div>
+
                 </div>
 
-                <div style="width: 100%; margin-bottom:8px;padding:0;">
+                <div style="width: 100%; padding:0; margin-top: 5px; margin-bottom: 5px;">
                     <label class="form-label">Phòng buồng</label>
-                    <div class="position-relative">
-                        <input type="text" id="searchPhong" class="form-control" autocomplete="off">
-                        <input type="hidden" id="selectedPhongId" name="PhongId">
-                        <div id="dropdownPhong"
-                             class="list-group position-absolute w-100"
-                             style="display: none; position: absolute; width: 100%; z-index: 1055;
-            max-height: 200px; overflow-y: auto; overflow-x: hidden; font-size: 1rem;
-            background: white; border: 1px solid #ccc;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
-                        </div>
+                    <div style="position: relative;">
+                        <select id="phongSelect" class="tom-select-test" placeholder="Chọn phòng" autocomplete="off">
+                            <option value="0">Tất cả</option>
+
+                        </select>
+
+
+                        <input type="hidden" name="Phong.Id" id="phongIdHidden" value="0" />
+                        <input type="hidden" name="Phong.Ma" id="phongMaHidden" value="" />
+                        <input type="hidden" name="Phong.Ten" id="phongTenHidden" value="Tất cả" />
+                        <input type="hidden" name="Phong.VietTat" id="phongVietTatHidden" value="" />
                     </div>
+
                 </div>
              
 
                 <label style="padding:0;">
-                    <button class="btnFilterBacSi btn btn-outline-primary mb-3" style="margin: 2px !important;">
+                    <button class="btnFilterBacSi btn btn-outline-primary mb-3" style="margin: 2px !important;" @(ViewBag.quyenvaitro.Xem ? "" : "disabled")>
                         <i class="bi bi-funnel"></i> Lọc danh sách
                     </button>
                 </label>
             </div>
 
             <div class="row export-buttons">
-                <button id="btnExportPDFGoiKham" class="btnExportPDFDesktop btn btn-outline-danger mb-3">
+                <button id="btnExportPDFGoiKham" class="btnExportPDFDesktop btn btn-outline-danger mb-3" @(ViewBag.quyenvaitro.Xuat ? "" : "disabled")>
                     Xuất PDF
                 </button>
-                <button id="btnExportExcelGoiKham" class="btnExportExcel btn btn-outline-success mb-3">
+                <button id="btnExportExcelGoiKham" class="btnExportExcel btn btn-outline-success mb-3" @(ViewBag.quyenvaitro.Xuat ? "" : "disabled")>
                     Xuất Excel
                 </button>
             </div>
@@ -128,12 +224,12 @@
                 <p>Đang tải dữ liệu...</p>
             </div>
 
-            <div class="table-wrapper">
-                <table style="width:100%; margin: 0; table-layout: fixed; min-width: 1200px;" cellpadding="8">
+            <div class="table-wrapper-scroll">
+                <table style="table  table-vcenter card-table" cellpadding="8">
                     <thead class="table-secondary">
                         <tr>
-                            <th class="text-center" style="width:6%;">STT</th>
-                            <th class="text-center" style="width:30%;">Bác sĩ chỉ định</th>
+                            <th class="text-center" style="width:3%;">STT</th>
+                            <th class="text-center" style="width:20%;">Bác sĩ chỉ định</th>
                             <th class="text-center" style="width:10%;">Thu phí</th>
                             <th class="text-center" style="width:10%;">BHYT</th>
                             <th class="text-center" style="width:10%;">Nợ</th>
@@ -174,6 +270,7 @@
 
 @section Scripts {
     <script src="~/dist/lib/toastr/toastr.min.js" asp-append-version="true" defer></script>
+    <script src="~/dist/lib/tom-select/dist/js/tom-select.complete.min.js"></script>
     <script src="~/dist/lib/bootstrap-datepicker-1.10.0/dist/js/bootstrap-datepicker.min.js" asp-append-version="true" defer></script>
     <script src="~/dist/lib/bootstrap-datepicker-1.10.0/dist/locales/bootstrap-datepicker.vi.min.js" asp-append-version="true" defer></script>
     <script src="~/dist/js/J0303/J0303BaoCaoBacSiDocKQ.js" asp-append-version="true" defer></script>

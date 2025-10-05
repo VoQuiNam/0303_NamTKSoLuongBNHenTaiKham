@@ -20,7 +20,16 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
         private List<M0303Khoa> _khoaList;
         private List<M0303Phong> _phongList;
 
-        public P0303BaoCaoBacSiDocKQ(List<M0303BaoCaoBacSiDocKQSTO> data, DateTime? tuNgay, DateTime? denNgay, long IdPhong, long IdKhoa, string logoPath, dynamic thongTinDoanhNghiep)
+        public P0303BaoCaoBacSiDocKQ(
+        List<M0303BaoCaoBacSiDocKQSTO> data,
+        DateTime? tuNgay,
+        DateTime? denNgay,
+        long IdPhong,
+        long IdKhoa,
+        string logoPath,
+        dynamic thongTinDoanhNghiep,
+        List<M0303Khoa> khoaList,
+        List<M0303Phong> phongList)
         {
             _data = data;
             _tuNgay = tuNgay;
@@ -29,13 +38,8 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
             _idPhong = IdPhong;
             _logoPath = logoPath;
             _thongTinDoanhNghiep = thongTinDoanhNghiep;
-
-  
-            string khoaJson = System.IO.File.ReadAllText(Path.Combine("wwwroot", "dist/data/json/DM_Khoa.json"));
-            _khoaList = JsonConvert.DeserializeObject<List<M0303Khoa>>(khoaJson);
-
-            string phongJson = System.IO.File.ReadAllText(Path.Combine("wwwroot", "dist/data/json/DM_PhongBuong.json"));
-            _phongList = JsonConvert.DeserializeObject<List<M0303Phong>>(phongJson);
+            _khoaList = khoaList ?? new List<M0303Khoa>();
+            _phongList = phongList ?? new List<M0303Phong>();
         }
 
         public DocumentMetadata GetMetadata() => DocumentMetadata.Default;
@@ -57,8 +61,9 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                 x.MienGiam,
                 x.IdKhoa,
                 x.IdPhong,
-                TenKhoa = x.IdKhoa.HasValue && khoaDict.ContainsKey((int)x.IdKhoa.Value) ? khoaDict[(int)x.IdKhoa.Value] : "",
-                TenPhong = x.IdPhong.HasValue && phongDict.ContainsKey((int)x.IdPhong.Value) ? phongDict[(int)x.IdPhong.Value] : ""
+    
+                TenKhoa = x.IdKhoa.HasValue && khoaDict.ContainsKey(x.IdKhoa.Value) ? khoaDict[x.IdKhoa.Value] : "",
+                TenPhong = x.IdPhong.HasValue && phongDict.ContainsKey(x.IdPhong.Value) ? phongDict[x.IdPhong.Value] : ""
             }).ToList();
 
             container.Page(page =>
@@ -66,7 +71,6 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                 page.Size(PageSizes.A4.Landscape());
                 page.Margin(20);
                 page.DefaultTextStyle(x => x.FontFamily("Times New Roman").FontSize(10));
-
 
                 page.Header().ShowOnce().Column(headerCol =>
                 {
@@ -89,7 +93,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
 
                         row.RelativeColumn().Column(col =>
                         {
-                            col.Item().AlignRight().Text("BÁO CÁO BÁC SĨ CHỈ ĐỊNH").Bold().FontSize(14);
+                            col.Item().AlignRight().Text("BÁO CÁO BÁC SĨ ĐỌC KẾT QUẢ").Bold().FontSize(14);
                             col.Item().AlignRight().Text($"Từ ngày: {tuNgayStr}   Đến ngày: {denNgayStr}").FontSize(9);
                         });
                     });
@@ -101,19 +105,17 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                 {
                     contentCol.Item().Table(table =>
                     {
-                 
                         table.ColumnsDefinition(columns =>
                         {
                             columns.ConstantColumn(30);  
                             columns.RelativeColumn(3);   
-                            columns.ConstantColumn(60);   
-                            columns.ConstantColumn(60);   
                             columns.ConstantColumn(60);  
-                            columns.ConstantColumn(60);   
+                            columns.ConstantColumn(60); 
+                            columns.ConstantColumn(60); 
+                            columns.ConstantColumn(60);  
                             columns.ConstantColumn(60);  
                         });
 
-                       
                         table.Header(header =>
                         {
                             header.Cell().Element(CellStyle).Text("STT").Bold();
@@ -136,7 +138,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                         {
                             int tongCaKhoa = khoa.Sum(x => (x.ThuPhi ?? 0) + (x.BHYT ?? 0) + (x.No ?? 0) + (x.MienGiam ?? 0));
 
-                            
+                        
                             table.Cell().ColumnSpan(2)
                                 .Element(c => c.BorderBottom(1).BorderLeft(1).BorderTop(1).BorderColor(Colors.Grey.Lighten2)
                                                .Padding(3).AlignLeft().Text($"{sttKhoa}. {khoa.First().TenKhoa}").Bold());
@@ -190,7 +192,6 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                         }
                     });
 
-                   
                     contentCol.Item().PaddingTop(20).AlignRight().Width(200).Column(nguoiLapCol =>
                     {
                         nguoiLapCol.Item().AlignCenter().Text($"Ngày {DateTime.Now:dd} tháng {DateTime.Now:MM} năm {DateTime.Now:yyyy}").Italic().FontSize(10);

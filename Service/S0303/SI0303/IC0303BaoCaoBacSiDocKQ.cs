@@ -13,5 +13,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303.SI0303
 
         Task<ActionResult> ExportExcel(DateTime? tuNgay, DateTime? denNgay, int? idChiNhanh, int? idKhoa = 0, int? idPhong = 0);
 
+        Task<List<M0303Khoa>> GetKhoa();
+        Task<List<M0303Phong>> GetDSPhongBuong();
     }
 }

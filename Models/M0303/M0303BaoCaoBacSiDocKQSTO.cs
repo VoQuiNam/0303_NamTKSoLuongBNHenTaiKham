@@ -16,6 +16,10 @@
 
         public long? IdKhoa { get; set; }
 
+        public string? TenKhoa { get; set; }
+
         public long? IdPhong { get; set; }
+
+        public string? TenPhong { get; set; }
     }
 }

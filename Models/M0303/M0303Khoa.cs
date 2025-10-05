@@ -2,9 +2,12 @@
 {
     public class M0303Khoa
     {
-        public int id { get; set; }
+        public long? id { get; set; }
+        public string ma { get; set; }
         public string ten { get; set; }
         public string viettat { get; set; }
+        
+        public bool active { get; set; }
 
     }
 }

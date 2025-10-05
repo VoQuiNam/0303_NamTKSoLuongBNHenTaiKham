@@ -31,90 +31,124 @@
     }
 
 
-mark {
-    background-color: #ffeb3b;
-    padding: 0;
-    margin: 0;
-    font-weight: inherit;
-    font-size: inherit;
-    letter-spacing: normal;
-    word-spacing: normal;
+
+/* ---------- scrollbar custom ---------- */
+.table-wrapper-scroll::-webkit-scrollbar {
+    height: 12px;
+    width: 12px;
 }
 
-.list-group-item.active .text-muted {
-    color: #fff !important;
+.table-wrapper-scroll::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0.25);
+    border-radius: 6px;
 }
 
-
-
-
-
-.table-wrapper {
-    overflow: scroll;
-    height: 70vh;
-    scrollbar-width: thin;
-    -ms-overflow-style: scrollbar;
+.table-wrapper-scroll::-webkit-scrollbar-track {
+    background: transparent;
 }
-
-
-    .table-wrapper::-webkit-scrollbar {
-        display: block;
-        height: 12px;
-        width: 12px;
-    }
-
 
 .column-toggle-dropdown:hover .dropdown-menu {
     display: block;
 }
 
-.table-wrapper table {
-    border-collapse: separate;
-    border-spacing: 0;
-    width: auto;
-    min-width: 1500px;
-    table-layout: fixed;
+/* ---------- container ---------- */
+.table-wrapper-scroll {
+    overflow: auto; /* scroll cả ngang và dọc */
+    height: 68vh; /* chiều cao khung */
+    scrollbar-width: thin; /* Firefox */
+    -ms-overflow-style: scrollbar;
+    border: 1px solid #ddd;
+    box-sizing: border-box;
 }
 
-.table-wrapper th,
-.table-wrapper td {
-    border: 1px solid #ccc;
-    padding: 6px;
-    text-align: center;
+    /* ---------- table ---------- */
+
+
+    .table-wrapper-scroll table {
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+        /*        min-width: 1800px; */
+        table-layout: auto; /* cột dãn theo nội dung */
+    }
+
+    /* ---------- cell (td/th) ---------- */
+    .table-wrapper-scroll th,
+    .table-wrapper-scroll td {
+        border: 1px solid #ccc;
+        padding: 6px 8px;
+        text-align: center;
+        font-size: 13px;
+        /* ✨ quan trọng: giữ text 1 dòng, không xuống hàng */
+        white-space: nowrap !important;
+        overflow: hidden;
+        text-overflow: ellipsis; /* hiện "..." khi nội dung quá dài */
+    }
+
+    /* ---------- header sticky ---------- */
+    .table-wrapper-scroll th {
+        background-color: #f2f2f2;
+        font-weight: 600;
+        position: sticky;
+        top: 0;
+        z-index: 102;
+    }
+
+    /* ---------- hover row ---------- */
+    .table-wrapper-scroll tr:hover td {
+        background-color: #bae7ff; /* màu đậm hơn để phân biệt */
+    }
+    /* Khi click chọn */
+    .table-wrapper-scroll tr.selected td {
+        background-color: #bae7ff; /* màu đậm hơn để phân biệt */
+    }
+    /* ---------- fix border 2 cạnh ---------- */
+    .table-wrapper-scroll th:first-child,
+    .table-wrapper-scroll td:first-child {
+        border-left: 1px solid #ccc !important;
+    }
+
+    .table-wrapper-scroll th:last-child,
+    .table-wrapper-scroll td:last-child {
+        border-right: 1px solid #ccc !important;
+    }
+
+    .table-wrapper-scroll tfoot td:nth-child(-n+2) {
+        background-color: #f2f2f2 !important;
+    }
+
+    /* Đảm bảo các cột tổng cộng có màu nền đúng */
+    .table-wrapper-scroll tfoot td {
+        background-color: #f2f2f2 !important;
+    }
+
+    .table-wrapper-scroll tfoot td {
+        position: static !important;
+        background-color: #f2f2f2 !important;
+    }
+
+    .table-wrapper-scroll thead tr:nth-child(1) th {
+        top: 0;
+    }
+
+    .table-wrapper-scroll thead tr:nth-child(2) th {
+        top: 30px; /* đúng bằng chiều cao dòng 1 */
+        background-color: white !important;
+    }
+
+
+/* ---------- dropdown hover ---------- */
+.column-toggle-dropdown:hover .dropdown-menu {
+    display: block;
 }
 
-.table-wrapper th {
-    background-color: #f2f2f2;
-    font-weight: bold;
-    font-size: 1rem;
-    position: sticky;
-    top: 0;
-    z-index: 3;
-}
-
-.table-wrapper td {
-    font-size: 1rem;
-}
-
-
-.table-wrapper tr:hover td {
-    background-color: #e6f7ff; 
-}
-
-.table-wrapper th:first-child {
-    border-left: 1px solid #ccc !important;
-}
-
-.table-wrapper th:last-child {
-    border-right: 1px solid #ccc !important;
-}
-
+/* ---------- form/input ---------- */
 .form-label {
     margin: auto !important;
 }
 
 label {
-    font-size: 1rem !important;
+    font-size: 14px !important;
     font-weight: 600;
     margin: 5px 0 4px 0;
 }
@@ -125,8 +159,8 @@ label {
 }
 
     .container_goiKham.left {
-        display: block;
         width: 14%;
+        display: block;
     }
 
     .container_goiKham.right {
@@ -134,28 +168,25 @@ label {
         display: block;
     }
 
-
-
     .container_goiKham.left .row {
         font-size: 1rem;
     }
 
         .container_goiKham.left .row button {
             width: 100%;
-            font-size: 0.8rem;
+            font-size: 14px;
         }
-
 
         .container_goiKham.left .row.export-buttons {
             display: flex;
             font-size: 0.8rem;
-            gap: 8px; 
+            gap: 8px;
         }
 
             .container_goiKham.left .row.export-buttons button {
                 flex: 1;
                 padding: 8px;
-                font-size: 0.8rem;
+                font-size: 14px;
             }
 
 .datepicker {
@@ -172,7 +203,7 @@ label {
 }
 
 input {
-    font-size: 1rem !important;
+    font-size: 14px !important;
     margin: 5px 0;
     font-weight: 400;
 }
@@ -204,7 +235,7 @@ input {
     margin: 8px 0 6px 0 !important;
 }
 
-
+/* ---------- pagination ---------- */
 .pagination {
     margin: 0;
 }
@@ -246,7 +277,7 @@ input {
     margin: 20px auto !important;
     font-size: 1rem;
     gap: 10px;
-    min-height: 50px;
+}
 
     .phan_trang label {
         margin-bottom: 0;
@@ -257,6 +288,7 @@ input {
     opacity: 0.5;
 }
 
+/* ---------- loading spinner ---------- */
 #loadingSpinner {
     display: none;
     position: fixed;
@@ -271,12 +303,5 @@ input {
     #loadingSpinner .spinner-border {
         width: 5rem;
         height: 5rem;
-        border-width: 0.5em; 
+        border-width: 0.5em;
     }
-
-
-th, td {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}

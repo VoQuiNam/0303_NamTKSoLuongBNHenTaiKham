@@ -28,19 +28,20 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
             {
                 object paramTuNgay = string.IsNullOrEmpty(tuNgay)
                     ? (object)DBNull.Value
-                    : DateTime.ParseExact(tuNgay, "yyyy-MM-dd", null).ToString("dd-MM-yyyy");
+                    : DateTime.ParseExact(tuNgay, "yyyy-MM-dd", null).ToString("yyyy-MM-dd");
 
                 object paramDenNgay = string.IsNullOrEmpty(denNgay)
                     ? (object)DBNull.Value
-                    : DateTime.ParseExact(denNgay, "yyyy-MM-dd", null).ToString("dd-MM-yyyy");
+                    : DateTime.ParseExact(denNgay, "yyyy-MM-dd", null).ToString("yyyy-MM-dd");
 
+                // SỬA: Sử dụng đúng parameter names từ store procedure
                 var data = await _localDb.Set<M0303BaoCaoBacSiDocKQSTO>()
-                    .FromSqlRaw(@"EXEC S0303_BaoCaoBacSiDocKQ @TuNgay, @DenNgay, @IDCN, @IdKhoa, @IdPhong",
+                    .FromSqlRaw(@"EXEC S0303_BaoCaoBacSiDocKetQua @TuNgay, @DenNgay, @IDCN, @IdKhoa, @IdPhong",
                         new SqlParameter("@TuNgay", paramTuNgay),
                         new SqlParameter("@DenNgay", paramDenNgay),
                         new SqlParameter("@IDCN", idChiNhanh),
-                        new SqlParameter("@IdKhoa", idKhoa),
-                        new SqlParameter("@IdPhong", idPhong))
+                        new SqlParameter("@IdKhoa", idKhoa == 0 ? (object)DBNull.Value : idKhoa),
+                        new SqlParameter("@IdPhong", idPhong == 0 ? (object)DBNull.Value : idPhong))
                     .AsNoTracking()
                     .ToListAsync();
 
@@ -73,42 +74,82 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
         }
 
 
+        public async Task<List<M0303Khoa>> GetKhoa()
+        {
+            var nhomKhoa = await _localDb.Set<M0303BaoCaoBacSiDocKQSTO>()
+                .FromSqlRaw(@"SELECT ID AS IdKhoa, TenKhoa AS TenKhoa FROM [dbo].[DM_Khoa] Where active = 1")
+                .Select(khoa => new M0303Khoa
+                {
+                    id = khoa.IdKhoa,
+                    ten = khoa.TenKhoa ?? ""
+                })
+                .ToListAsync();
+
+            return nhomKhoa;
+        }
+
+        public async Task<List<M0303Phong>> GetDSPhongBuong()
+        {
+            var dsPhongBuong = await _localDb.Set<M0303BaoCaoBacSiDocKQSTO>()
+                .FromSqlRaw(@"SELECT ID AS IdPhong, TenPhong FROM [dbo].[DM_PhongBuong]  Where active = 1")
+                .Select(dspb => new M0303Phong
+                {
+                    id = dspb.IdPhong,
+                    ten = dspb.TenPhong ?? ""
+                })
+                .ToListAsync();
+
+            return dsPhongBuong;
+        }
+
         public async Task<List<M0303BaoCaoBacSiDocKQSTO>> GetBNHenKhamAsync(
             DateTime? tuNgay, DateTime? denNgay, int? idChiNhanh, int idKhoa = 0, int idPhong = 0)
         {
-            string tuNgayStr = tuNgay?.ToString("dd/MM/yyyy") ?? DateTime.Now.ToString("dd/MM/yyyy");
-            string denNgayStr = denNgay?.ToString("dd/MM/yyyy") ?? DateTime.Now.ToString("dd/MM/yyyy");
-            int idCN = idChiNhanh ?? 0;
+            try
+            {
+                object paramTuNgay = string.IsNullOrEmpty(tuNgay?.ToString("yyyy-MM-dd"))
+                    ? (object)DBNull.Value
+                    : tuNgay?.ToString("yyyy-MM-dd");
 
-            return await _localDb.M0303BaoCaoBacSiDocKQSTOs
-                .FromSqlInterpolated($@"
-            EXEC S0303_BaoCaoBacSiDocKQ 
-                @TuNgay = {tuNgayStr}, 
-                @DenNgay = {denNgayStr}, 
-                @IDCN = {idCN}, 
-                @IdKhoa = {idKhoa}, 
-                @IdPhong = {idPhong}")
-                .ToListAsync();
+                object paramDenNgay = string.IsNullOrEmpty(denNgay?.ToString("yyyy-MM-dd"))
+                    ? (object)DBNull.Value
+                    : denNgay?.ToString("yyyy-MM-dd");
+
+                Console.WriteLine($"🔍 GetBNHenKhamAsync - Params: Khoa={idKhoa}, Phong={idPhong}");
+
+                // SỬA: Sử dụng cùng store procedure và format với FilterByDayAsync
+                var data = await _localDb.Set<M0303BaoCaoBacSiDocKQSTO>()
+                    .FromSqlRaw(@"EXEC S0303_BaoCaoBacSiDocKetQua @TuNgay, @DenNgay, @IDCN, @IdKhoa, @IdPhong",
+                        new SqlParameter("@TuNgay", paramTuNgay),
+                        new SqlParameter("@DenNgay", paramDenNgay),
+                        new SqlParameter("@IDCN", idChiNhanh ?? 0),
+                        new SqlParameter("@IdKhoa", idKhoa == 0 ? (object)DBNull.Value : idKhoa),
+                        new SqlParameter("@IdPhong", idPhong == 0 ? (object)DBNull.Value : idPhong))
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ LỖI GetBNHenKhamAsync: {ex.Message}");
+                return new List<M0303BaoCaoBacSiDocKQSTO>();
+            }
         }
-
 
         public async Task<IActionResult> ExportToPDF(DateTime? tuNgay, DateTime? denNgay, int? idChiNhanh, int idKhoa = 0, int idPhong = 0)
         {
             try
             {
-            
                 var data = await GetBNHenKhamAsync(tuNgay, denNgay, idChiNhanh, idKhoa, idPhong);
 
-
                 if (!data.Any())
-                    return new BadRequestObjectResult("Không có dữ liệu để xuất PDF");
+                {
+                    return new BadRequestObjectResult(new { message = "Không có dữ liệu để xuất PDF" });
+                }
 
-               
-
-            
                 var logoPath = Path.Combine(_env.WebRootPath, "dist", "img", "logo.png");
 
-              
                 var thongTinDoanhNghiep = await _localDb.ThongTinDoanhNghieps
                     .AsNoTracking()
                     .Where(x => idChiNhanh.HasValue && x.IDChiNhanh == idChiNhanh.Value)
@@ -123,7 +164,10 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                     })
                     .FirstOrDefaultAsync();
 
-             
+                // SỬA: Lấy dữ liệu khoa và phòng từ database
+                var khoaList = await GetKhoa();
+                var phongList = await GetDSPhongBuong();
+
                 var document = new P0303BaoCaoBacSiDocKQ(
                     data,
                     tuNgay,
@@ -131,10 +175,11 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                     idPhong,
                     idKhoa,
                     logoPath,
-                    thongTinDoanhNghiep
+                    thongTinDoanhNghiep,
+                    khoaList,    // Thêm khoaList
+                    phongList    // Thêm phongList
                 );
 
-               
                 var stream = new MemoryStream();
                 document.GeneratePdf(stream);
                 stream.Position = 0;
@@ -146,35 +191,30 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
             }
             catch (Exception ex)
             {
-                return new ObjectResult($"Lỗi khi tạo PDF: {ex.Message}") { StatusCode = 500 };
+                return new ObjectResult(new { message = $"Lỗi khi tạo PDF: {ex.Message}" })
+                {
+                    StatusCode = 500
+                };
             }
         }
-
 
         public async Task<ActionResult> ExportExcel(DateTime? tuNgay, DateTime? denNgay, int? idChiNhanh, int? idKhoa = 0, int? idPhong = 0)
         {
             try
             {
-          
-                var khoaList = JsonConvert.DeserializeObject<List<M0303Khoa>>(System.IO.File.ReadAllText(Path.Combine("wwwroot", "dist", "data", "json", "DM_Khoa.json")));
-                var phongList = JsonConvert.DeserializeObject<List<M0303Phong>>(System.IO.File.ReadAllText(Path.Combine("wwwroot", "dist", "data", "json", "DM_PhongBuong.json")));
+                var khoaList = await GetKhoa();
+                var phongList = await GetDSPhongBuong();
 
-              
-                var reportData = await _localDb.M0303BaoCaoBacSiDocKQSTOs
-                    .FromSqlInterpolated($@"
-                EXEC S0303_BaoCaoBacSiDocKQ 
-                    @TuNgay = {tuNgay?.ToString("dd/MM/yyyy") ?? ""},
-                    @DenNgay = {denNgay?.ToString("dd/MM/yyyy") ?? ""},
-                    @IDCN = {idChiNhanh ?? 0},
-                    @IdKhoa = {idKhoa ?? 0},
-                    @IdPhong = {idPhong ?? 0}")
-                    .AsNoTracking()
-                    .ToListAsync();
+                int khoaId = idKhoa ?? 0;
+                int phongId = idPhong ?? 0;
+
+               
+                var reportData = await GetBNHenKhamAsync(tuNgay, denNgay, idChiNhanh, khoaId, phongId);
 
                 if (!reportData.Any())
                     throw new Exception("Không có dữ liệu trong khoảng ngày đã chọn");
 
-               
+
                 var enrichedData = reportData.Select(item =>
                 {
                     var khoa = khoaList.FirstOrDefault(k => k.id == item.IdKhoa);
@@ -185,7 +225,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                         item.IdKhoa,
                         TenKhoa = khoa?.ten ?? $"Khoa {item.IdKhoa}",
                         item.IdPhong,
-                        TenPhong = phong?.ten ?? $"Phòng {item.IdPhong}",
+                        TenPhong = phong?.ten ?? $"{item.IdPhong}",
                         item.BacSiChiDinh,
                         item.ThuPhi,
                         item.BHYT,
@@ -194,7 +234,6 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                     };
                 }).ToList();
 
-            
                 var thongTinDoanhNghiep = await _localDb.ThongTinDoanhNghieps
                     .AsNoTracking()
                     .Where(x => x.IDChiNhanh == idChiNhanh)
@@ -221,83 +260,75 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                     MaCSKCB = ""
                 };
 
-               
                 using var workbook = new XLWorkbook();
-                var ws = workbook.Worksheets.Add("Báo cáo bác sĩ chỉ định");
+                var ws = workbook.Worksheets.Add("Báo cáo bác sĩ đọc kết quả");
 
-               
                 var logoPath = Path.Combine(_env.WebRootPath, "dist", "img", "logo.png");
                 if (System.IO.File.Exists(logoPath))
                 {
                     ws.Range("A1:A4").Merge();
                     ws.Column(1).Width = 20;
                     ws.Column(2).Width = 40;
-                    var img = ws.AddPicture(logoPath)
-                                .MoveTo(ws.Cell("A1"), 5, 5)
-                                .WithPlacement(XLPicturePlacement.FreeFloating)
-                                .Scale(0.25);
+                    ws.AddPicture(logoPath)
+                      .MoveTo(ws.Cell("A1"), 20, 5)
+                      .WithPlacement(XLPicturePlacement.FreeFloating)
+                      .Scale(0.08);
                 }
 
-               
+                
                 string tenCoQuan = thongTinDoanhNghiep.TenCoQuanChuyenMon;
                 string tenCSKCB = thongTinDoanhNghiep.TenCSKCB;
                 bool hienTenCSKCB = !string.Equals(tenCoQuan.Trim(), tenCSKCB.Trim(), StringComparison.OrdinalIgnoreCase);
                 string diaChi = thongTinDoanhNghiep.DiaChi;
                 string dienThoai = thongTinDoanhNghiep.DienThoai;
 
-                ws.Cell("B1").Value = tenCoQuan;
-                ws.Cell("B1").Style.Font.SetBold().Font.FontName = "Times New Roman".ToString();
-                ws.Cell("B1").Style.Font.FontSize = 11;
-                ws.Cell("B1").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
-                ws.Cell("B1").Style.Alignment.Indent = 6;
-                ws.Row(1).Height = 20;
-
                 if (hienTenCSKCB)
                 {
-                    ws.Cell("B2").Value = tenCSKCB;
-                    ws.Cell("B2").Style.Font.SetBold().Font.FontName = "Times New Roman".ToString();
-                    ws.Cell("B2").Style.Font.FontSize = 11;
-                    ws.Cell("B2").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
-                    ws.Cell("B2").Style.Alignment.Indent = 6;
+                    ws.Cell("B1").Value = tenCSKCB;
+                    ws.Cell("B1").Style.Font.FontName = "Times New Roman";
+                    ws.Cell("B1").Style.Font.FontSize = 10;
+                    ws.Cell("B1").Style.Font.Bold = true;
+                    ws.Cell("B1").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+                    ws.Cell("B1").Style.Alignment.Indent = 1;
                     ws.Row(2).Height = 20;
                 }
 
-                ws.Cell("B3").Value = diaChi;
+                ws.Cell("B2").Value = diaChi;
+                ws.Cell("B2").Style.Font.FontName = "Times New Roman";
+                ws.Cell("B2").Style.Font.FontSize = 10;
+                ws.Cell("B2").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+                ws.Cell("B2").Style.Alignment.Indent = 1;
+                ws.Row(3).Height = 20;
+
+                ws.Cell("B3").Value = $"Điện thoại: {dienThoai}";
                 ws.Cell("B3").Style.Font.FontName = "Times New Roman";
                 ws.Cell("B3").Style.Font.FontSize = 10;
                 ws.Cell("B3").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
-                ws.Cell("B3").Style.Alignment.Indent = 6;
-                ws.Row(3).Height = 18;
+                ws.Cell("B3").Style.Alignment.Indent = 1;
+                ws.Row(4).Height = 20;
 
-                ws.Cell("B4").Value = $"Điện thoại: {dienThoai}";
-                ws.Cell("B4").Style.Font.FontName = "Times New Roman";
-                ws.Cell("B4").Style.Font.FontSize = 10;
-                ws.Cell("B4").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
-                ws.Cell("B4").Style.Alignment.Indent = 6;
-                ws.Row(4).Height = 18;
-
-                
-                ws.Range("A6:G6").Merge().Value = "BÁO CÁO BÁC SĨ CHỈ ĐỊNH";
-                ws.Range("A6:G6").Style.Font.SetBold().Font.FontSize = 16;
+              
+                ws.Range("A6:G6").Merge().Value = "BÁO CÁO BÁC SĨ ĐỌC KẾT QUẢ";
+                ws.Range("A6:G6").Style.Font.Bold = true;
+                ws.Range("A6:G6").Style.Font.FontSize = 20;
+                ws.Range("A6:G6").Style.Font.FontName = "Times New Roman";
                 ws.Range("A6:G6").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                 ws.Range("A6:G6").Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-                ws.Row(6).Height = 30;
+                ws.Row(6).Height = 40;
 
                 string thoiGianThongKe = tuNgay.HasValue && denNgay.HasValue
-                    ? $"Từ ngày {tuNgay.Value:dd/MM/yyyy} đến ngày {denNgay.Value:dd/MM/yyyy}"
+                    ? $"Từ ngày {tuNgay.Value:dd-MM-yyyy} đến ngày {denNgay.Value:dd-MM-yyyy}"
                     : "Toàn bộ thời gian";
 
                 ws.Range("A7:G7").Merge().Value = thoiGianThongKe;
-                ws.Range("A7:G7").Style.Font.SetBold().Font.FontSize = 12;
+                ws.Range("A7:G7").Style.Font.Bold = true;
+                ws.Range("A7:G7").Style.Font.FontSize = 12;
                 ws.Range("A7:G7").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                ws.Row(7).Height = 22;
+                ws.Row(7).Height = 20;
 
-        
-                ws.Column(1).Width = 8;   
-                ws.Column(2).Width = 50;   
-                for (int i = 3; i <= 7; i++) ws.Column(i).Width = 15;
+                ws.Column(1).Width = 15;
+                ws.Column(6).Width = 10;
 
-                
                 string[] headers = { "STT", "Bác sĩ chỉ định", "Thu phí", "BHYT", "Nợ", "Miễn giảm", "Tổng số ca" };
                 for (int i = 0; i < headers.Length; i++)
                 {
@@ -308,12 +339,19 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                     cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
                 }
 
-                
                 int currentRow = 10;
                 int sttKhoa = 1;
                 int sttBacSi = 1;
 
-                var khoaGroups = enrichedData.GroupBy(x => x.IdKhoa).OrderBy(x => x.Key);
+              
+                var filteredData = enrichedData;
+
+              
+
+                var khoaGroups = filteredData
+                    .GroupBy(x => x.IdKhoa)
+                    .OrderBy(x => x.Key);
+
                 foreach (var khoa in khoaGroups)
                 {
                     int tongCaKhoa = khoa.Sum(x => (x.ThuPhi ?? 0) + (x.BHYT ?? 0) + (x.No ?? 0) + (x.MienGiam ?? 0));
@@ -323,11 +361,13 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                     ws.Cell(currentRow, 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
                     currentRow++;
 
-                    var phongGroups = khoa.GroupBy(x => x.IdPhong).OrderBy(x => x.Key);
+                    var phongGroups = khoa
+                       .GroupBy(x => x.IdPhong)
+                       .OrderBy(x => x.Key);
                     foreach (var phong in phongGroups)
                     {
                         int tongCaPhong = phong.Sum(x => (x.ThuPhi ?? 0) + (x.BHYT ?? 0) + (x.No ?? 0) + (x.MienGiam ?? 0));
-                        ws.Range(currentRow, 1, currentRow, 6).Merge().Value = $"PHÒNG {phong.First().TenPhong.ToUpper()}";
+                        ws.Range(currentRow, 1, currentRow, 6).Merge().Value = $"{phong.First().TenPhong.ToUpper()}";
                         ws.Cell(currentRow, 7).Value = tongCaPhong;
                         ws.Range(currentRow, 1, currentRow, 7).Style.Font.SetBold();
                         ws.Cell(currentRow, 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
@@ -353,32 +393,29 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                     }
                 }
 
-                
                 var dataRange = ws.Range(9, 1, currentRow - 1, 7);
                 dataRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
                 dataRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
 
-               
                 int footerRow = currentRow + 2;
-                ws.Range($"F{footerRow}:H{footerRow}").Merge().Value = $"Ngày {DateTime.Now:dd} tháng {DateTime.Now:MM} năm {DateTime.Now:yyyy}";
-                ws.Range($"F{footerRow}:H{footerRow}").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                ws.Range($"F{footerRow}:H{footerRow}").Style.Font.Italic = true;
-                ws.Range($"F{footerRow}:H{footerRow}").Style.Font.FontSize = 10;
+                ws.Range($"E{footerRow}:G{footerRow}").Merge().Value = $"Ngày {DateTime.Now:dd} tháng {DateTime.Now:MM} năm {DateTime.Now:yyyy}";
+                ws.Range($"E{footerRow}:G{footerRow}").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                ws.Range($"E{footerRow}:G{footerRow}").Style.Font.Italic = true;
+                ws.Range($"E{footerRow}:G{footerRow}").Style.Font.FontSize = 10;
                 ws.Row(footerRow).Height = 20;
 
-                ws.Range($"F{footerRow + 1}:H{footerRow + 1}").Merge().Value = "NGƯỜI LẬP BẢNG";
-                ws.Range($"F{footerRow + 1}:H{footerRow + 1}").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                ws.Range($"F{footerRow + 1}:H{footerRow + 1}").Style.Font.SetBold();
-                ws.Range($"F{footerRow + 1}:H{footerRow + 1}").Style.Font.FontSize = 10;
+                ws.Range($"E{footerRow + 1}:G{footerRow + 1}").Merge().Value = "NGƯỜI LẬP BẢNG";
+                ws.Range($"E{footerRow + 1}:G{footerRow + 1}").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                ws.Range($"E{footerRow + 1}:G{footerRow + 1}").Style.Font.SetBold();
+                ws.Range($"E{footerRow + 1}:G{footerRow + 1}").Style.Font.FontSize = 10;
                 ws.Row(footerRow + 1).Height = 20;
 
-                ws.Range($"F{footerRow + 2}:H{footerRow + 2}").Merge().Value = "(Ký, họ tên)";
-                ws.Range($"F{footerRow + 2}:H{footerRow + 2}").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                ws.Range($"F{footerRow + 2}:H{footerRow + 2}").Style.Font.Italic = true;
-                ws.Range($"F{footerRow + 2}:H{footerRow + 2}").Style.Font.FontSize = 10;
+                ws.Range($"E{footerRow + 2}:G{footerRow + 2}").Merge().Value = "(Ký, họ tên)";
+                ws.Range($"E{footerRow + 2}:G{footerRow + 2}").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                ws.Range($"E{footerRow + 2}:G{footerRow + 2}").Style.Font.Italic = true;
+                ws.Range($"E{footerRow + 2}:G{footerRow + 2}").Style.Font.FontSize = 10;
                 ws.Row(footerRow + 2).Height = 20;
 
-               
                 using var stream = new MemoryStream();
                 workbook.SaveAs(stream);
                 return new FileContentResult(stream.ToArray(),
@@ -389,6 +426,9 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
             }
             catch (Exception ex)
             {
+               
+                Console.WriteLine($"❌ Lỗi ExportExcel: {ex.Message}");
+                Console.WriteLine($"❌ StackTrace: {ex.StackTrace}");
                 throw new Exception("Lỗi khi tạo Excel: " + ex.Message);
             }
         }
