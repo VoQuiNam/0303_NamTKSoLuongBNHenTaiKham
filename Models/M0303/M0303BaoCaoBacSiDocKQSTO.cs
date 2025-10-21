@@ -12,8 +12,6 @@
 
         public int? MienGiam { get; set; }
 
-        public DateTime? Ngay { get; set; }
-
         public long? IdKhoa { get; set; }
 
         public string? TenKhoa { get; set; }
