@@ -247,7 +247,13 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                         contentCol.Item().PaddingTop(10).Row(row =>
                         {
                             // Phần bên trái: "Cộng khoản: X khoản."
-                            row.RelativeColumn().AlignLeft().Text($"Cộng khoản: {tongSoKhoan} khoản.").Bold().FontSize(9);
+                            row.RelativeColumn().AlignLeft().Text(text =>
+                            {
+                                text.Span("Cộng khoản: ").FontSize(9);         // Bình thường
+                                text.Span($"{tongSoKhoan}").Bold().FontSize(9); // Chỉ số đậm
+                                text.Span(" khoản.").FontSize(9);              // Bình thường
+                            });
+
 
                             // Phần bên phải: "TỔNG CỘNG: X,XXX,XXX"
                             row.RelativeColumn().AlignRight().Text($"TỔNG CỘNG: {tongTien.ToString("#,##0")}").Bold().FontSize(9);

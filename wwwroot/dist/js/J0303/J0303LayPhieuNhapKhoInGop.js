@@ -36,4 +36,46 @@
             }
         });
     }
+
+    const btnExportExcel = document.getElementById('btnExportExcelGoiKham');
+    if (btnExportExcel) {
+        btnExportExcel.addEventListener('click', async function () {
+            const idChiNhanh = 2;
+            const IDPhieuNhapKho = 1;
+            const url = `/lay_phieu_nhap_kho_in_gop/export-excel?idChiNhanh=${idChiNhanh}&IDPhieuNhapKho=${IDPhieuNhapKho}`;
+
+            console.log('url: ', url);
+            try {
+                const response = await fetch(url);
+
+                if (!response.ok) {
+                    throw new Error("Lỗi xuất Excel");
+                }
+
+                const blob = await response.blob();
+
+                // ✅ Kiểm tra MIME type Excel
+                if (
+                    blob.type ===
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                ) {
+                    const fileURL = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = fileURL;
+                    a.download = "phieu_nhap_kho.xlsx"; // tên file tải về
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(fileURL);
+
+                    toastr.success("Xuất Excel thành công!");
+                } else {
+                    toastr.error("Xuất Excel thất bại!");
+                }
+            } catch (error) {
+                console.error(error);
+                toastr.error("Có lỗi khi xuất Excel!");
+            }
+        });
+    }
 });
