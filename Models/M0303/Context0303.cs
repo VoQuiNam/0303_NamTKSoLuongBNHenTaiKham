@@ -37,7 +37,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Models.M0303
         public DbSet<M0303HH_DM_HangHoa> M0303HH_DM_HangHoas { get; set; }
         public DbSet<M0303BaoCaoXetNghiem> M0303BaoCaoXetNghiems { get; set; }
 
-
+        public DbSet<M0303_BaoCaoMienGiamNgoaiTruSTO> M0303_BaoCaoMienGiamNgoaiTruSTOs { get; set; }
 
 
 
@@ -70,6 +70,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Models.M0303
             modelBuilder.Entity<M0303HH_DM_HangHoa>().HasNoKey();
             modelBuilder.Entity<M0303BaoCaoXetNghiem>().HasNoKey();
             modelBuilder.Entity<M0303NhanVien>().HasNoKey();
+            modelBuilder.Entity<M0303_BaoCaoMienGiamNgoaiTruSTO>().HasNoKey();
 
 
         }
