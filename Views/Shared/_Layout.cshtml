@@ -1,6 +1,6 @@
-﻿@{
-    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
-    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+﻿﻿@{
+var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
 }
 
 <!DOCTYPE html>
@@ -10,12 +10,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - ThongKeSoLuongBN</title>
 
-    <link rel="stylesheet" href="~/dist/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link href="/dist/css/tabler.min.css" rel="stylesheet" />
+    <style>
 
-    
+        body {
+            font-family: "Inter Var", -apple-system, BlinkMacSystemFont, "San Francisco", "Segoe UI", Roboto, "Helvetica Neue", sans-serif !important;
+        }
 
-
+        a.nav-link {
+            color: #000;
+        }
+    </style>
 </head>
+
+
 
 <body>
     <header>
@@ -44,7 +52,7 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link @(currentController == "D0303Nam_TKSoLuongBNHenTaiKham" ? "active" : "")"
-                               asp-controller="C0303BaoCaoThuVienPhiTrucTiep" asp-action="V0303BaoCaoThuVienPhiTrucTiepPage">Báo cáo thư viện phí trực tiếp</a>
+                               asp-controller="C0303BaoCaoThuVienPhiTrucTiep" asp-action="V0303BaoCaoThuVienPhiTrucTiepPage">Báo cáo thu viện phí trực tiếp</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link @(currentController == "D0303Nam_TKSoLuongBNHenTaiKham" ? "active" : "")"
@@ -67,9 +75,13 @@
                                asp-controller="C0303importDMHangHoa" asp-action="V0303importDMHangHoaPage">Danh mục hàng hóa</a>
                         </li>
 
-                         <li class="nav-item">
+                        <li class="nav-item">
                             <a class="nav-link @(currentController == "D0303Nam_TKSoLuongBNHenTaiKham" ? "active" : "")"
                                asp-controller="C0303importDMDichVuKyThuat" asp-action="V0303importDMDichVuKyThuatPage">Danh mục dịch vụ kỹ thuật</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(currentController == "D0303Nam_TKSoLuongBNHenTaiKham" ? "active" : "")"
+                               asp-controller="C0303BaoCaoMienGiamNgoaiTru" asp-action="V0303BaoCaoMienGiamNgoaiTruPage">Báo cáo miễn giảm ngoại trú</a>
                         </li>
 
                     </ul>
@@ -88,11 +100,9 @@
     <script src="@Url.Content("~/dist/lib/Jquery/jquery.inputmask.js")"></script>
     <script src="~/dist/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
-    
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
-
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {

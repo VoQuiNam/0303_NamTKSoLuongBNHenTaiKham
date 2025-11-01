@@ -10,14 +10,14 @@ using Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303.SI0303;
 namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
 {
     [Route("bao_cao_mien_giam_ngoai_tru")]
-    public class C0303_BaoCaoMienGiamNgoaiTruController : Controller
+    public class C0303BaoCaoMienGiamNgoaiTruController : Controller
     {
         //private string _maChucNang = "/bao_cao_mien_giam_ngoai_tru";
         //private IMemoryCachingServices _memoryCache;
         private readonly Context0303 _localDb;
         private readonly IWebHostEnvironment _env;
         private readonly I0303BaoCaoMienGiamNgoaiTru _service;
-        public C0303_BaoCaoMienGiamNgoaiTruController(Context0303 localDb, IWebHostEnvironment env, I0303BaoCaoMienGiamNgoaiTru service
+        public C0303BaoCaoMienGiamNgoaiTruController(Context0303 localDb, IWebHostEnvironment env, I0303BaoCaoMienGiamNgoaiTru service
           /*, IMemoryCachingServices memoryCache*/)
         {
             _localDb = localDb;
