@@ -15,12 +15,16 @@
         public decimal? TiLeMienGiam { get; set; }
         public decimal? SoTienMienGiam { get; set; }
         public decimal? Thuoc { get; set; }
-        public long? IDNhomDVKT { get; set; }
-        public string? TenNhomDichVu { get; set; }
-        public long? IDDVKT { get; set; }
-        public string? TenDichVu { get; set; }
-        public decimal? SoTienChiTiet { get; set; }
+        public decimal? KhamBenh { get; set; }
+        public decimal? XetNghiem { get; set; }
+        public decimal? SieuAm { get; set; }
+        public decimal? DVKTCao { get; set; }
+        public decimal? GPB { get; set; }
+        public decimal? CDHA { get; set; }
+        public decimal? NoiSoi { get; set; }
+        public decimal? Khac { get; set; }
         public decimal? TongCong { get; set; }
-
+        public long? IDCN { get; set; }
     }
+
 }

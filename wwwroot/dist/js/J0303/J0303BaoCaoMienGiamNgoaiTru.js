@@ -153,100 +153,90 @@ function formatDateDisplay(dateString) {
 }
 
 
-async function loadJsonData() {
-    try {
-        const [dvRes, nhomDvRes] = await Promise.all([
-            fetch('/bao_cao_mien_giam_ngoai_tru/dich-vu-ky-thuat/all').then(r => r.json()),
-            fetch('/bao_cao_mien_giam_ngoai_tru/nhom-dich-vu/all').then(r => r.json()),
-        ]);
+//async function loadJsonData() {
+//    try {
+//        const [dvRes, nhomDvRes] = await Promise.all([
+//            fetch('/bao_cao_mien_giam_ngoai_tru/dich-vu-ky-thuat/all').then(r => r.json()),
+//            fetch('/bao_cao_mien_giam_ngoai_tru/nhom-dich-vu/all').then(r => r.json()),
+//        ]);
 
-        listDv = dvRes;
-        listNhomDv = nhomDvRes;
+//        listDv = dvRes;
+//        listNhomDv = nhomDvRes;
 
-        console.log('nhóm dv', nhomDvRes);
-        console.log('nhóm ddv', dvRes);
+//        console.log('nhóm dv', nhomDvRes);
+//        console.log('nhóm ddv', dvRes);
 
-        renderHeader();
+//        renderHeader();
 
 
 
-    } catch (err) {
-        console.error("❌ Lỗi tải JSON:", err);
-    }
-}
+//    } catch (err) {
+//        console.error("❌ Lỗi tải JSON:", err);
+//    }
+//}
 
 function renderHeader() {
     const thead = document.querySelector('table thead');
     thead.innerHTML = '';
 
+    // 🟢 Tổng số cột: cột cố định đầu + 9 cột chi tiết + cột tổng cộng cuối
+    const chiTietColumns = [
+        { title: 'Thuốc' },
+        { title: 'Khám bệnh' },
+        { title: 'Xét nghiệm' },
+        { title: 'Siêu âm' },
+        { title: 'DVKT Cao (Scanner, MRI,..)' },
+        { title: 'GPB' },
+        { title: 'CĐHA' },
+        { title: 'Nội soi' },
+        { title: 'Khác' },
+    ];
 
-    const totalCols = fixedColumns.length + listNhomDv.length + fixedEndColumns.length + 2;
+    const totalCols = fixedColumns.length + chiTietColumns.length + fixedEndColumns.length;
 
-
-
-
+    // ===== Hàng 1 =====
     let row1 = `<tr>`;
-
     row1 += fixedColumns.map((col, idx) => {
         let z = 30;
-        if (idx === 2) {
-            z = 101;
-        } else if (idx <= 4) {
-            z = 100;
-        }
-        return `<th rowspan="2" style="z-index:${z}; position:sticky; top:0; background-color:#f8f8f8; border:1px solid #ddd;">${col.title}</th>`;
+        if (idx === 2) z = 101;
+        else if (idx <= 4) z = 100;
+
+        return `<th rowspan="2" style="z-index:${z}; position:sticky; top:0; 
+            background-color:#f8f8f8; border:1px solid #ddd;">
+            ${col.title}
+        </th>`;
     }).join('');
 
+    // Nhóm cột Chi tiết
+    row1 += `<th colspan="${chiTietColumns.length}" 
+        style="text-align:center; position:sticky; top:0; z-index:30; background-color:#fff; 
+        border:1px solid #ddd; box-shadow:0 2px 3px -1px rgba(0,0,0,0.1);">
+        Chi tiết
+    </th>`;
 
-
-    row1 += `<th colspan="${listNhomDv.length + 1}" style="text-align:center; position:sticky; top:0; z-index:30; background-color:#fff; border:1px solid #ddd; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);">Chi tiết</th>`;
+    // Cột Tổng cộng (cuối bảng)
     row1 += fixedEndColumns.map(col =>
-        `<th rowspan="2" style="position:sticky; top:0; z-index:30; background-color:#f8f8f8; border:1px solid #ddd; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);">${col.title}</th>`
+        `<th rowspan="2" style="position:sticky; top:0; z-index:30; 
+        background-color:#f8f8f8; border:1px solid #ddd; 
+        box-shadow:0 2px 3px -1px rgba(0,0,0,0.1);">
+        ${col.title}</th>`
     ).join('');
 
     row1 += `</tr>`;
 
+    // ===== Hàng 2 =====
     let row2 = `<tr>`;
-    row2 += `<th style="position:sticky; z-index:20; background-color:#f8f8f8; border:1px solid #ddd; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);">Thuốc</th>`;
-    row2 += listNhomDv.map(nhom =>
-        `<th style="width:150px; position:sticky; z-index:20; background-color:#f8f8f8; border:1px solid #ddd; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);">${nhom.ten}</th>`
+    row2 += chiTietColumns.map(c =>
+        `<th style="width:150px; position:sticky; z-index:20; background-color:#f8f8f8; 
+        border:1px solid #ddd; box-shadow:0 2px 3px -1px rgba(0,0,0,0.1);">
+        ${c.title}</th>`
     ).join('');
-    //row2 += `<th style="position:sticky; z-index:20; background-color:#f8f8f8; border:1px solid #ddd; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);">Tổng cộng</th>`;
     row2 += `</tr>`;
 
-    //let row3 = `<tr>`;
+    // Gán header vào bảng
+    thead.innerHTML = row1 + row2;
 
-
-    //let colIndex = 0;
-
-
-    //for (let i = 0; i < fixedColumns.length; i++) {
-    //    row3 += `<th style="position:sticky; z-index:${i <= 3 ? 100 : 10}; background-color:#f8f8f8; border:1px solid #ddd; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);">${colIndex === 0 ? 'A' : colIndex}</th>`;
-    //    colIndex++;
-    //}
-
-
-    //row3 += `<th style="position:sticky; z-index:10; background-color:#f8f8f8; border:1px solid #ddd; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);">${colIndex}</th>`;
-    //colIndex++;
-
-    //for (let i = 0; i < listNhomDv.length; i++) {
-    //    row3 += `<th style="position:sticky; z-index:10; background-color:#f8f8f8; border:1px solid #ddd; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);">${colIndex}</th>`;
-    //    colIndex++;
-    //}
-
-    //row3 += `<th style="position:sticky; z-index:10; background-color:#f8f8f8; border:1px solid #ddd; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);">${colIndex}</th>`;
-    //colIndex++;
-
-    //for (let i = 0; i < fixedEndColumns.length; i++) {
-    //    row3 += `<th style="position:sticky; z-index:10; background-color:#f8f8f8; border:1px solid #ddd; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1);">${colIndex}</th>`;
-    //    colIndex++;
-    //}
-
-    //row3 += `</tr>`;
-
-    thead.innerHTML = row1 + row2 ;
-
-
+    // ===== Điều chỉnh sticky height =====
     setTimeout(() => {
         const row1Height = thead.querySelector('tr:nth-child(1)').offsetHeight;
         const row2Height = thead.querySelector('tr:nth-child(2)').offsetHeight;
@@ -254,35 +244,12 @@ function renderHeader() {
         thead.style.setProperty('--row1-height', row1Height + 'px');
         thead.style.setProperty('--row2-height', row2Height + 'px');
 
-
         thead.querySelectorAll('tr:nth-child(2) th').forEach(th => {
             th.style.top = `${row1Height}px`;
         });
-
-
-        thead.querySelectorAll('tr:nth-child(3) th').forEach((th, idx) => {
-            const isSpecial =
-                idx === 0 ||
-                (idx >= 1 && idx <= 15) ||
-                (idx >= 29 && idx <= 31);
-
-            th.style.top = isSpecial
-                ? `${row1Height + row2Height - 1}px`
-                : `${row1Height + row2Height}px`;
-
-
-            if (idx === 2) {
-                th.style.zIndex = 101;
-            } else {
-                th.style.zIndex = idx <= 3 ? 100 : 10;
-            }
-        });
     }, 0);
-
-
-
-
 }
+
 
 function showLoading() {
     document.getElementById('loadingSpinner').style.display = 'block';
@@ -346,11 +313,10 @@ function handleFilter() {
                         showLoading();
                     },
                     success: function (response) {
-
-                        console.log('data: ', response);
                         if (response.success) {
                             fullData = response.data || [];
-                            
+
+                            console.log('fulldata: ', fullData);
                             currentPage = 1;
                             pageSize = parseInt($('#pageSizeSelect').val()) || 10;
 
@@ -366,7 +332,7 @@ function handleFilter() {
                         }
                     },
                     error: function (xhr) {
-
+                     
                         toastr.error("❌ Lỗi kết nối: " + xhr.responseText);
                     }, complete: function () {
                         hideLoading();
@@ -409,144 +375,139 @@ function calculateTotals(data) {
 }
 
 /*sửa */
-function renderTable() {
-    const tbody = $('#tableBody');
-    const tfoot = document.querySelector(".table-wrapper-scroll tfoot");
-    tbody.html('');
-    tfoot.innerHTML = '';
-    const totalCols = fixedColumns.length + listNhomDv.length + fixedEndColumns.length + 2;
-    showLoading();
+    function renderTable() {
+        const tbody = $('#tableBody');
+        const tfoot = document.querySelector(".table-wrapper-scroll tfoot");
+        tbody.html('');
+        tfoot.innerHTML = '';
+        const totalCols = fixedColumns.length + 9 + fixedEndColumns.length;
+        showLoading();
 
-    setTimeout(() => {
-        try {
-            if (!fullData || fullData.length === 0) {
+        setTimeout(() => {
+            try {
+                if (!fullData || fullData.length === 0) {
+                    tbody.html(`
+                        <tr>
+                            <td colspan="${totalCols}" style="text-align:center; vertical-align:middle; border: 1px solid #ccc; padding: 6px 8px; background-color: #fff;">
+                                Không có dữ liệu phù hợp
+                            </td>
+                        </tr>
+                    `);
+                    $('#paginationContainer').text(`Trang 0/0 – Tổng 0 bản ghi`);
+                    return;
+                }
+
+                const totalRecords = fullData.length;
+                const totalPages = Math.max(1, Math.ceil(totalRecords / pageSize));
+                if (currentPage > totalPages) currentPage = totalPages;
+
+                const startIndex = (currentPage - 1) * pageSize;
+                const pageData = fullData.slice(startIndex, startIndex + pageSize);
+
+                $('#paginationContainer').text(`Trang ${currentPage}/${totalPages} – Tổng ${totalRecords} bản ghi`);
+
+                let html = '';
+                pageData.forEach((item, index) => {
+                    let row = `<tr>`;
+                    row += `<td class="text-center">${startIndex + index + 1}</td>`;
+                    row += `<td class="text-center">${item.maBenhNhan || ''}</td>`;
+                    row += `<td class="text-start">${item.soBenhAn || ''}</td>`;
+                    row += `<td class="text-start">${item.soLuuTru || ''}</td>`;
+                    row += `<td class="text-start">${item.hoTen || ''}</td>`;
+                    row += `<td class="text-center">${item.namSinh || ''}</td>`;
+                    row += `<td class="text-start">${item.khoaDieuTri || ''}</td>`;
+                    row += `<td class="text-start">${item.soChungTu || ''}</td>`;
+                    row += `<td class="text-center">${item.ngayDuyet ? formatDateDisplay(item.ngayDuyet) : ''}</td>`;
+                    row += `<td class="text-start">${item.nguoiDeNghiDuyetCap1 || ''}</td>`;
+                    row += `<td class="text-start">${item.nguoiDuyetCap2 || ''}</td>`;
+                    row += `<td class="text-end">${formatSoTien(item.tiLeMienGiam)}</td>`;
+                    row += `<td class="text-end">${formatSoTien(item.soTienMienGiam)}</td>`;
+
+                    // 🟢 Cột chi tiết cố định
+                    row += `<td class="text-end">${formatSoTien(item.thuoc)}</td>`;
+                    row += `<td class="text-end">${formatSoTien(item.khamBenh)}</td>`;
+                    row += `<td class="text-end">${formatSoTien(item.xetNghiem)}</td>`;
+                    row += `<td class="text-end">${formatSoTien(item.sieuAm)}</td>`;
+                    row += `<td class="text-end">${formatSoTien(item.dvktCao)}</td>`;
+                    row += `<td class="text-end">${formatSoTien(item.gpb)}</td>`;
+                    row += `<td class="text-end">${formatSoTien(item.cdha)}</td>`;
+                    row += `<td class="text-end">${formatSoTien(item.noiSoi)}</td>`;
+                    row += `<td class="text-end">${formatSoTien(item.khac)}</td>`;
+
+                    // Tổng cộng
+                    row += `<td class="text-end fw-bold">${formatSoTien(item.tongCong ?? 0)}</td>`;
+                    row += `</tr>`;
+                    html += row;
+                });
+
+                tbody.html(html);
+
+                // 🧮 Tính tổng
+                const totals = {
+                    mienGiam: 0,
+                    thuoc: 0,
+                    khamBenh: 0,
+                    xetNghiem: 0,
+                    sieuAm: 0,
+                    dvktCao: 0,
+                    gpb: 0,
+                    cdha: 0,
+                    noiSoi: 0,
+                    khac: 0,
+                    tongCong: 0
+                };
+
+                fullData.forEach(item => {
+                    totals.mienGiam += Number(item.soTienMienGiam) || 0;
+                    totals.thuoc += Number(item.thuoc) || 0;
+                    totals.khamBenh += Number(item.khamBenh) || 0;
+                    totals.xetNghiem += Number(item.xetNghiem) || 0;
+                    totals.sieuAm += Number(item.sieuAm) || 0;
+                    totals.dvktCao += Number(item.dvktCao) || 0;
+                    totals.gpb += Number(item.gpb) || 0;
+                    totals.cdha += Number(item.cdha) || 0;
+                    totals.noiSoi += Number(item.noiSoi) || 0;
+                    totals.khac += Number(item.khac) || 0;
+                    totals.tongCong += Number(item.tongCong) || 0;
+                });
+
+        
+
+                // 🧾 Dòng tổng
+                let totalRow = `<tr style="font-weight:bold; background:#f2f2f2;" class="total-row" >`;
+                totalRow += `<td colspan="12" style="text-align:center;">Tổng cộng</td>`;
+                totalRow += `<td class="text-end">${formatSoTien(totals.mienGiam)}</td>`;
+                totalRow += `<td class="text-end">${formatSoTien(totals.thuoc)}</td>`;
+                totalRow += `<td class="text-end">${formatSoTien(totals.khamBenh)}</td>`;
+                totalRow += `<td class="text-end">${formatSoTien(totals.xetNghiem)}</td>`;
+                totalRow += `<td class="text-end">${formatSoTien(totals.sieuAm)}</td>`;
+                totalRow += `<td class="text-end">${formatSoTien(totals.dvktCao)}</td>`;
+                totalRow += `<td class="text-end">${formatSoTien(totals.gpb)}</td>`;
+                totalRow += `<td class="text-end">${formatSoTien(totals.cdha)}</td>`;
+                totalRow += `<td class="text-end">${formatSoTien(totals.noiSoi)}</td>`;
+                totalRow += `<td class="text-end">${formatSoTien(totals.khac)}</td>`;
+                totalRow += `<td class="text-end">${formatSoTien(totals.tongCong)}</td>`;
+                totalRow += `</tr>`;
+
+                tfoot.innerHTML = totalRow;
+
+         
+
+
+            } catch (error) {
+                console.error('Lỗi khi render table:', error);
                 tbody.html(`
                     <tr>
-                        <td colspan="${totalCols}" style="text-align:center; vertical-align:middle; border: 1px solid #ccc; padding: 6px 8px; background-color: #fff;">
-                            Không có dữ liệu phù hợp
+                        <td colspan="${totalCols}" style="text-align:center; border:1px solid #ccc; padding:6px; background:#fff; color:red;">
+                            Đã xảy ra lỗi khi tải dữ liệu
                         </td>
                     </tr>
                 `);
-                $('#paginationContainer').text(`Trang 0/0 – Tổng 0 bản ghi`);
-                return;
+            } finally {
+                hideLoading();
             }
-
-            const grouped = {};
-            fullData.forEach(item => {
-                const key = `${item.soBienLai}_${item.soChungTu}`;
-                if (!grouped[key]) {
-                    grouped[key] = {
-                        ...item,
-                        dichvu: {}
-                    };
-                }
-                const nhomId = item.idNhomDVKT;
-                const val = Number(item.soTienChiTiet) || 0;
-                if (nhomId) {
-                    grouped[key].dichvu[nhomId] = (grouped[key].dichvu[nhomId] || 0) + val;
-                }
-            });
-
-            const allGroups = Object.values(grouped);
-
-            const totalRecords = allGroups.length;
-            const totalPages = Math.max(1, Math.ceil(totalRecords / pageSize));
-            if (currentPage > totalPages) currentPage = totalPages;
-
-            const startIndex = (currentPage - 1) * pageSize;
-            const pageData = allGroups.slice(startIndex, startIndex + pageSize);
-
-            $('#paginationContainer').text(`Trang ${currentPage}/${totalPages} – Tổng ${totalRecords} bản ghi`);
-
-            let html = '';
-            pageData.forEach((item, index) => {
-                let row = `<tr>`;
-                row += `<td class="text-center">${startIndex + index + 1}</td>`;
-                row += `<td class="text-center">${item.maBenhNhan || ''}</td>`;
-                row += `<td class="text-start">${item.soBenhAn || ''}</td>`;
-                row += `<td class="text-start">${item.soLuuTru || ''}</td>`;
-                row += `<td class="text-start">${item.hoTen || ''}</td>`;
-                row += `<td class="text-center">${item.namSinh || ''}</td>`;
-                row += `<td class="text-start">${item.khoaDieuTri || ''}</td>`;
-                row += `<td class="text-start">${item.soChungTu || ''}</td>`;
-                row += `<td class="text-center">${item.ngayDuyet ? formatDateDisplay(item.ngayDuyet) : ''}</td>`;
-                row += `<td class="text-start">${item.nguoiDeNghiDuyetCap1 || ''}</td>`;
-                row += `<td class="text-start">${item.nguoiDuyetCap2 || ''}</td>`;
-                row += `<td class="text-end">${formatSoTien(item.tiLeMienGiam)}</td>`;
-                row += `<td class="text-end">${formatSoTien(item.soTienMienGiam)}</td>`;
-                row += `<td class="text-end">${formatSoTien(item.thuoc)}</td>`;
-
-                listNhomDv.forEach(nhom => {
-                    const val = item.dichvu[nhom.id] || 0;
-                    row += `<td class="text-end">${formatSoTien(val)}</td>`;
-                });
-
-                //row += `<td class="text-end fw-bold">${formatSoTien(item.soT)}</td>`;
-
-                // Hiển thị giá trị float
-                row += `<td class="text-end">${formatSoTien(item.tongCong ?? 0)}</td>`;
-                row += `</tr>`;
-
-                html += row;
-            });
-
-            tbody.html(html);
-
-            // SỬA PHẦN NÀY: Thêm tính tổng cho Huy và Hoan
-            const totals = {
-                totalMienGiam: 0,
-                totalSoTien: 0,
-                totalThuoc: 0,
-                totalChiTietNhom: {},
-                totalTong: 0,
-            };
-
-            allGroups.forEach(item => {
-                totals.totalMienGiam += Number(item.mienGiam) || 0;
-                totals.totalSoTien += Number(item.soTien) || 0;
-                totals.totalThuoc += Number(item.thuoc) || 0;
-               
-                listNhomDv.forEach(nhom => {
-                    totals.totalChiTietNhom[nhom.id] = (totals.totalChiTietNhom[nhom.id] || 0) + (item.dichvu[nhom.id] || 0);
-                });
-                totals.totalTong += Number(item.tongCong) || 0;
-            });
-
-            let totalRow = `<tr style="font-weight:bold; background:#f2f2f2;">`;
-            totalRow += `<td colspan="6" style="text-align:center;">Tổng cộng</td>`;
-            totalRow += `<td class="text-end"></td>`;
-            totalRow += `<td class="text-end"></td>`;
-            totalRow += `<td class="text-end"></td>`;
-            totalRow += `<td class="text-end"></td>`;
-            totalRow += `<td class="text-end"></td>`;
-            totalRow += `<td class="text-end"></td>`;
-            totalRow += `<td class="text-end">${formatSoTien(totals.totalMienGiam)}</td>`;
-            totalRow += `<td class="text-end">${formatSoTien(totals.totalThuoc)}</td>`;
-
-            listNhomDv.forEach(nhom => {
-                totalRow += `<td class="text-end">${formatSoTien(totals.totalChiTietNhom[nhom.id] || 0)}</td>`;
-            });
-
-            //totalRow += `<td class="text-end">-</td>`;
-            totalRow += `<td class="text-end">${formatSoTien(totals.totalTong)}</td>`;
-            totalRow += `</tr>`;
-
-            tfoot.innerHTML = totalRow;
-
-        } catch (error) {
-            console.error('Lỗi khi render table:', error);
-            tbody.html(`
-                <tr>
-                    <td colspan="50" style="text-align:center; vertical-align:middle; border: 1px solid #ccc; padding: 6px 8px; background-color: #fff; color: red;">
-                        Đã xảy ra lỗi khi tải dữ liệu
-                    </td>
-                </tr>
-            `);
-        } finally {
-            hideLoading();
-        }
-    }, 100);
-}
+        }, 100);
+    }
 
 
 function formatDateDisplay(dateString) {
@@ -762,7 +723,7 @@ function handleExportExcel() {
 
 document.addEventListener('DOMContentLoaded', async () => {
     initDatePicker();
-    await loadJsonData();
+    renderHeader();
     renderTable();
 
     handleFilter();
