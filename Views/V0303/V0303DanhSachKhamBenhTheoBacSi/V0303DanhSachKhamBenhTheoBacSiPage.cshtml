@@ -1,0 +1,303 @@
+﻿@using Nam_ThongKeSoLuongBNHenTaiKham.Models.M0303
+@model List<M0303BaoCaoBacSiDocKQSTO>
+
+<head>
+    <link href="~/dist/css/CSS0303/CSS0303DanhSachKhamBenhTheoBacSi.css" rel="stylesheet" />
+    <link href="~/dist/lib/bootstrap-datepicker-1.10.0/dist/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+    <link href="~/dist/lib/toastr/toastr.min.css" rel="stylesheet" />
+    <link href="~/dist/css/CSS0303/tom-select.css" rel="stylesheet" />
+</head>
+
+
+<style>
+    .ts-control {
+        display: flex !important;
+        align-items: center !important;
+        flex-wrap: nowrap !important;
+        height: auto !important;
+        min-height: 38px !important;
+    }
+
+        .ts-control input {
+            flex: 1 !important;
+            min-width: 0 !important;
+            height: auto !important;
+            line-height: normal !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            caret-color: auto !important;
+        }
+
+    .ts-dropdown {
+        z-index: 1055 !important;
+    }
+
+    .ts-control input:not(:focus) {
+        caret-color: transparent !important;
+    }
+
+
+   
+
+
+
+    .table-wrapper-scroll th:nth-child(1),
+    .table-wrapper-scroll td:nth-child(1) {
+        width: 60px;
+        min-width: 60px;
+        max-width: 60px;
+        padding-left: 6px !important;
+        /* position: sticky;
+        left: 0;
+        z-index: 101; */
+        background-color: white;
+    }
+
+    /* .table-wrapper-scroll th:nth-child(2),
+    .table-wrapper-scroll td:nth-child(2) {
+        width: 75px;
+        min-width: 75px;
+        max-width: 1800px;
+        position: sticky;
+        left: 60px;
+        background-color: white;
+    } */
+
+   
+
+    /* .table-wrapper-scroll th:nth-child(2) {
+        left: 60px;
+    }  */
+
+     .table-wrapper-scroll th:nth-child(4),
+    .table-wrapper-scroll td:nth-child(4) {
+        width: 75px;
+        min-width: 75px;
+        max-width: 1800px;
+        position: sticky;
+        left: 0;
+        background-color: white;
+    }
+
+    .table-wrapper-scroll th:nth-child(-n+4) {
+        position: sticky;
+        top: 0;
+        z-index: 223; /* Cao hơn z-index trong file CSS */
+        background-color: #f2f2f2;
+    }
+
+
+
+    .table-wrapper-scroll th:nth-child(4) {
+        left: 0;
+    }
+
+    .table-wrapper-scroll th:nth-child(-n+4),
+    .table-wrapper-scroll td:nth-child(-n+4) {
+        border-right: 1px solid #ccc !important;
+    }
+
+    /* .table-wrapper-scroll th:nth-child(2) {
+            left: 60px;
+        }  */
+
+    .table-wrapper-scroll th:nth-child(-n+4),
+    .table-wrapper-scroll td:nth-child(-n+4) {
+        border-right: 1px solid #ccc !important;
+    }
+
+
+    /* Style cho TomSelect options */
+    .ts-dropdown .option:hover {
+        background-color: #0d6efd !important;
+        color: #fff !important;
+    }
+
+    .ts-dropdown .option.selected {
+        background-color: #cfe2ff !important;
+        color: #084298 !important;
+    }
+
+    .ts-dropdown .option.active {
+        background-color: #0d6efd !important;
+        color: #fff !important;
+    }
+
+    .ts-dropdown .highlight {
+        background: yellow !important;
+        color: black !important;
+        border-radius: 2px;
+    }
+
+    .ts-dropdown .option.active .text-muted,
+    .ts-dropdown .option:hover .text-muted {
+        color: #fff !important;
+    }
+
+    .table-wrapper-scroll thead th {
+        background-color: #f2f2f2 !important;
+        color: #000 !important;
+        font-weight: 600;
+        border-bottom: 1px solid #dee2e6;
+    }
+</style>
+
+
+<div class="card p-1">
+    <div class="container_goiKham">
+        <div class="container_goiKham left">
+            <div class="row" style="padding:0;">
+                <div style="width: 100%; padding:0;">
+                    <label class="form-label">Giai đoạn</label>
+                    <select id="selectGiaiDoan" class="form-select">
+                        <option value="Nam">Năm</option>
+                        <option value="Quy">Quý</option>
+                        <option value="Thang">Tháng</option>
+                        <option value="Ngay" selected>Ngày</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="selectContainer"
+                 class="d-flex justify-content-between align-items-center ">
+            </div>
+
+            <div class="row" style="padding:0;">
+                <div style="width: 100%;padding:0;">
+                    <label class="form-label">Từ ngày</label>
+                    <div class="input-group">
+                        <input type="text"
+                               class="form-control date-input"
+                               id="tuNgayDesktop"
+                               name="TuNgay"
+                               value="@DateTime.Now.ToString("dd-MM-yyyy")"
+                               placeholder="dd-mm-yyyy"
+                               autocomplete="off" />
+                        <span class="input-group-text cursor-pointer datepicker-trigger">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6c757d">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </span>
+                    </div>
+                    <span class="text-danger"></span>
+                </div>
+
+                <div style="width: 100%; margin-bottom:8px;padding:0;">
+                    <label class="form-label">Đến ngày</label>
+                    <div class="input-group">
+                        <input type="text"
+                               class="form-control date-input"
+                               id="denNgayDesktop"
+                               name="DenNgay"
+                               value="@DateTime.Now.ToString("dd-MM-yyyy")"
+                               placeholder="dd-mm-yyyy"
+                               autocomplete="off" />
+                        <span class="input-group-text cursor-pointer datepicker-trigger">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6c757d">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </span>
+                    </div>
+                    <span class="text-danger"></span>
+                </div>
+
+                <label style="padding:0;">
+                    <button class="btnFilterKhamBenhTheoBacSi btn btn-outline-primary mb-3" style="margin: 2px !important;" @(ViewBag.quyenvaitro.Xem ? "" : "disabled")>
+                        <i class="bi bi-funnel"></i> Lọc danh sách
+                    </button>
+                </label>
+            </div>
+
+            <div class="row export-buttons">
+                <button id="btnExportPDFGoiKham" class="btnExportPDFDesktop btn btn-outline-danger mb-3" @(ViewBag.quyenvaitro.Xuat ? "" : "disabled")>
+                    Xuất PDF
+                </button>
+                <button id="btnExportExcelGoiKham" class="btnExportExcel btn btn-outline-success mb-3" @(ViewBag.quyenvaitro.Xuat ? "" : "disabled")>
+                    Xuất Excel
+                </button>
+            </div>
+        </div>
+
+        <div class="container_goiKham right">
+            <div id="loadingSpinner" class="text-center" style="display: none; margin: 20px 0;">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p>Đang tải dữ liệu...</p>
+            </div>
+
+            <div class="table-wrapper-scroll">
+                <table class="table table-vcenter card-table" cellpadding="8">
+                    <thead class="table-secondary">
+                        <tr>
+                            <th class="text-center" style="width:5%;">STT</th>
+                            <th class="text-center" style="width:10%;">Ngày khám</th>
+                            <th class="text-center" style="width:10%;">Mã y tế</th>
+                            <th class="text-center" style="width:20%;">Họ tên bệnh nhân</th>
+                            <th class="text-center" style="width:10%;">Ngày sinh</th>
+                            <th class="text-center" style="width:10%;">BHYT</th>
+                            <th class="text-center" style="width:20%;">Tên dịch vụ</th>
+                            <th class="text-center" style="width:20%;">Nơi thực hiện</th>
+                            <th class="text-center" style="width:5%;">Số lượng</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                    </tbody>
+                    <tfoot></tfoot>
+                </table>
+            </div>
+
+            <div class="phan_trang">
+                <div class="d-flex">
+                    <label name="pageSizeSelect" class="form-label" style="font-size:1rem !important;">Số bản ghi mỗi trang:</label>
+                    <select id="pageSizeSelect" style="font-size:1rem !important;" class="form-select">
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+                <div style="display:flex; align-items:center; ">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center" id="pagination">
+                        </ul>
+                    </nav>
+                    <div class="text-center" style="margin-left: 2px">
+                        <span id="paginationContainer"></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="@Url.Content("~/dist/js/BienChung.js")" defer></script>
+    <script src="~/dist/lib/toastr/toastr.min.js" asp-append-version="true" defer></script>
+    <script src="~/dist/lib/tom-select/dist/js/tom-select.complete.min.js"></script>
+    <script src="~/dist/lib/bootstrap-datepicker-1.10.0/dist/js/bootstrap-datepicker.min.js" asp-append-version="true" defer></script>
+    <script src="~/dist/lib/bootstrap-datepicker-1.10.0/dist/locales/bootstrap-datepicker.vi.min.js" asp-append-version="true" defer></script>
+    <script src="~/dist/js/J0303/J0303DanhSachKhamBenhTheoBacSi.js" asp-append-version="true" defer></script>
+    <script src="~/dist/js/J0303/J0303GiaiDoanNgayThangNam.js" asp-append-version="true" defer></script>
+
+}
+
+
+
+<script>
+    document.querySelector(".table-wrapper-scroll tbody").addEventListener("click", function (e) {
+        const row = e.target.closest("tr");
+        if (!row) return;
+
+
+        this.querySelectorAll("tr").forEach(r => r.classList.remove("selected"));
+        row.classList.add("selected");
+    });
+</script>
+
+
+
+
+
+
