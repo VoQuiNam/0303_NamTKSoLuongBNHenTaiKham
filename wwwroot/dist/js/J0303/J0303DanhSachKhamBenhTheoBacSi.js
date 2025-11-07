@@ -487,6 +487,19 @@ function renderPagination() {
     });
 }
 
+
+let tenNVDN = "";
+
+$.getJSON("dist/data/json/Dm_NhanVien.json", data => {
+    const nv = data.find(n => n.id === _idNVDN || n.ID === _idNVDN || n.Id === _idNVDN);
+    if (nv) {
+        tenNVDN = nv.ten || nv.Ten || nv.TenNhanVien || "";
+        console.log("Tên nhân viên:", tenNVDN);
+    } else {
+        console.warn("Không tìm thấy nhân viên có ID =", idNVDN);
+    }
+});
+
 function handleExportPDF() {
     $(".btnExportPDFMobile").off("click").on("click", function () {
         exportPDFHandler(this, "Mobile");
@@ -539,11 +552,13 @@ function exportPDFHandler(btn, viewType) {
     const idChiNhanh = window._idcn;
     const formattedTuNgay = formatDateForServer(tuNgay);
     const formattedDenNgay = formatDateForServer(denNgay);
+    const idnv = tenNVDN || 0;
 
     let url = "/danh_sach_kham_benh_theo_bac_si/export/pdf?";
     if (formattedTuNgay) url += `tuNgay=${formattedTuNgay}&`;
     if (formattedDenNgay) url += `denNgay=${formattedDenNgay}&`;
-    if (idChiNhanh) url += `idChiNhanh=${idChiNhanh}`;
+    if (idChiNhanh) url += `idChiNhanh=${idChiNhanh}&`;
+    if (idnv) url += `idnv=${encodeURIComponent(idnv)}`;
 
     fetch(url, {
         method: "GET",
@@ -558,19 +573,30 @@ function exportPDFHandler(btn, viewType) {
             return response.blob();
         })
         .then(blob => {
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = "DanhSachKhamBenhTheoBacSi.pdf";
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            window.URL.revokeObjectURL(url);
+            if (blob.size === 0) {
+                throw new Error("File PDF trống");
+            }
+
+            const blobUrl = window.URL.createObjectURL(blob);
+
+            // 👉 Tạo iframe ẩn và in trực tiếp (giống hàm xuatFilePDF_SinhHocPhanTu)
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = blobUrl;
+            document.body.appendChild(iframe);
+
+            iframe.onload = function () {
+                const printWindow = iframe.contentWindow;
+                printWindow.focus();
+                printWindow.print();
+
+
+
+            };
 
             toastr.success("Xuất PDF thành công!");
-
-            if (blob.size < 1000) {
-                toastr.warning("Không có dữ liệu trong khoảng thời gian đã chọn.");
+            if (blob.size < 5000) {
+                toastr.warning("File PDF có kích thước nhỏ, có thể không có dữ liệu.");
             }
         })
 
@@ -596,7 +622,7 @@ async function handleExportExcel() {
         const tuNgay = formatDateForServer(tuNgayRaw);
         const denNgay = formatDateForServer(denNgayRaw);
         const idChiNhanh = window._idcn;
-
+        const idnv = tenNVDN || 0;
 
         if (!tuNgayRaw || !denNgayRaw) {
             toastr.error("Vui lòng chọn đầy đủ Từ ngày và Đến ngày trước khi xuất Excel.");
@@ -624,7 +650,7 @@ async function handleExportExcel() {
 
         try {
 
-            const response = await fetch(`/danh_sach_kham_benh_theo_bac_si/check-and-export?tuNgay=${tuNgay}&denNgay=${denNgay}&idcn=${idChiNhanh}`);
+            const response = await fetch(`/danh_sach_kham_benh_theo_bac_si/check-and-export?tuNgay=${tuNgay}&denNgay=${denNgay}&idcn=${idChiNhanh}&idnv=${idnv}`);
 
             if (!response.ok) {
                 const errorText = await response.text();

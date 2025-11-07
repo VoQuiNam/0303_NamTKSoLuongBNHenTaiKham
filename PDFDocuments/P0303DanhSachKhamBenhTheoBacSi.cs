@@ -13,9 +13,9 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
         private readonly DateTime? _denNgay;
         private readonly string _logoPath;
         private readonly M0303ThongTinDoanhNghiep _thongTinDoanhNghiep;
+        private readonly string _tenNhanVien; // THÊM FIELD NÀY
 
-
-        public P0303DanhSachKhamBenhTheoBacSi(List<M0303DanhSachKhamBenhTheoBacSiSTO> data, DateTime? tuNgay, DateTime? denNgay, string logoPath, M0303ThongTinDoanhNghiep thongTinDoanhNghiep)
+        public P0303DanhSachKhamBenhTheoBacSi(List<M0303DanhSachKhamBenhTheoBacSiSTO> data, DateTime? tuNgay, DateTime? denNgay, string logoPath, M0303ThongTinDoanhNghiep thongTinDoanhNghiep, string tenNhanVien = null)
         {
             _data = data ?? new List<M0303DanhSachKhamBenhTheoBacSiSTO>();
             _tuNgay = tuNgay;
@@ -27,6 +27,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                 DiaChi = "",
                 DienThoai = ""
             };
+            _tenNhanVien = tenNhanVien; // Gán trực tiếp
         }
 
 
@@ -116,7 +117,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                             void AddHeaderCell(string text)
                             {
                                 header.Cell()
-                                    .Border(1).BorderColor(Colors.Grey.Medium)
+                                    .Border(1).BorderColor(Colors.Black)
                                     .Background(Colors.Grey.Lighten4)
                                     .PaddingVertical(3).PaddingHorizontal(2)
                                     .AlignCenter().AlignMiddle()
@@ -148,24 +149,24 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
 
                             // 🆕 THÊM DÒNG HEADER CHO BÁC SĨ VỚI THÔNG TIN TỔNG
                             table.Cell().ColumnSpan(5)
-                                .Border(1).BorderColor(Colors.Grey.Medium)
+                                .Border(1).BorderColor(Colors.Black)
                                 .PaddingVertical(3).PaddingHorizontal(2)
                                 .AlignMiddle().Text($"- {bacSi}").Bold().FontSize(8);
 
                             table.Cell().ColumnSpan(1)
-                                .Border(1).BorderColor(Colors.Grey.Medium)
+                                .Border(1).BorderColor(Colors.Black)
                                 .PaddingVertical(3).PaddingHorizontal(2)
                                 .AlignMiddle().AlignCenter()
                                 .Text(subTotalBHYT.ToString()).Bold().FontSize(8);
 
                             table.Cell().ColumnSpan(2)
-                                .Border(1).BorderColor(Colors.Grey.Medium)
+                                .Border(1).BorderColor(Colors.Black)
                                 .PaddingVertical(3).PaddingHorizontal(2)
                                 .AlignMiddle().AlignCenter()
                                 .Text("").Bold().FontSize(8);
 
                             table.Cell().ColumnSpan(1)
-                                .Border(1).BorderColor(Colors.Grey.Medium)
+                                .Border(1).BorderColor(Colors.Black)
                                 .PaddingVertical(3).PaddingHorizontal(2)
                                 .AlignMiddle().AlignCenter()
                                 .Text(subTotalSoLuong.ToString()).Bold().FontSize(8);
@@ -175,7 +176,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                             {
                                 void AddDataCell(string text, bool center = false, bool left = false)
                                 {
-                                    var cell = table.Cell().Border(1).BorderColor(Colors.Grey.Lighten1)
+                                    var cell = table.Cell().Border(1).BorderColor(Colors.Black)
                                         .PaddingVertical(2).PaddingHorizontal(2)
                                         .AlignMiddle().Text(text ?? "").FontSize(7).WrapAnywhere();
 
@@ -197,25 +198,25 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
 
                         // 🆕 THÊM DÒNG TỔNG CỘNG CUỐI BẢNG
                         table.Cell().ColumnSpan(5)
-                            .Border(1).BorderColor(Colors.Grey.Medium)
+                            .Border(1).BorderColor(Colors.Black)
                             .PaddingVertical(3).PaddingHorizontal(2)
                             .AlignMiddle().AlignCenter()
                             .Text("").Bold().FontSize(8);
 
                         table.Cell().ColumnSpan(1)
-                            .Border(1).BorderColor(Colors.Grey.Medium)
+                            .Border(1).BorderColor(Colors.Black)
                             .PaddingVertical(3).PaddingHorizontal(2)
                             .AlignMiddle().AlignCenter()
                             .Text(totalBHYT.ToString()).Bold().FontSize(8);
 
                         table.Cell().ColumnSpan(2)
-                            .Border(1).BorderColor(Colors.Grey.Medium)
+                            .Border(1).BorderColor(Colors.Black)
                             .PaddingVertical(3).PaddingHorizontal(2)
                             .AlignMiddle().AlignCenter()
                             .Text("Tổng cộng:").Bold().FontSize(8);
 
                         table.Cell().ColumnSpan(1)
-                            .Border(1).BorderColor(Colors.Grey.Medium)
+                            .Border(1).BorderColor(Colors.Black)
                             .PaddingVertical(3).PaddingHorizontal(2)
                             .AlignMiddle().AlignCenter()
                             .Text(totalSoLuong.ToString()).Bold().FontSize(8);
@@ -225,7 +226,15 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.PDFDocuments
                     {
                         nguoiLapCol.Item().AlignCenter().Text($"Ngày {DateTime.Now:dd} tháng {DateTime.Now:MM} năm {DateTime.Now:yyyy}").Italic().FontSize(10);
                         nguoiLapCol.Item().PaddingTop(5).AlignCenter().Text("NGƯỜI LẬP BẢNG").Bold().FontSize(10);
-                        nguoiLapCol.Item().PaddingTop(10).AlignCenter().Text("(Ký, họ tên)").Italic().FontSize(9);
+                        // THÊM HIỂN THỊ TÊN NHÂN VIÊN Ở ĐÂY
+                        if (!string.IsNullOrEmpty(_tenNhanVien))
+                        {
+                            nguoiLapCol.Item().PaddingTop(40).AlignCenter().Text(_tenNhanVien).Bold().FontSize(10);
+                        }
+                        else
+                        {
+                            nguoiLapCol.Item().PaddingTop(40).AlignCenter().Text("(Ký, họ tên)").Italic().FontSize(9);
+                        }
                     });
                 });
 

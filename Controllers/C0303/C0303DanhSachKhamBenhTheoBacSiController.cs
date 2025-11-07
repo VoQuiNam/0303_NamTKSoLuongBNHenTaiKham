@@ -83,12 +83,12 @@ int idChiNhanh)
       
 
         [HttpGet("export/pdf")]
-        public async Task<IActionResult> ExportToPDF([FromQuery] DateTime? tuNgay, [FromQuery] DateTime? denNgay, [FromQuery] int? idChiNhanh)
+        public async Task<IActionResult> ExportToPDF([FromQuery] DateTime? tuNgay, [FromQuery] DateTime? denNgay, [FromQuery] int? idChiNhanh, [FromQuery] string? idnv = null)
         {
             try
             {
 
-                var data = await GetBNHenKhamAsync(tuNgay, denNgay, idChiNhanh);
+                var data = await GetBNHenKhamAsync(tuNgay, denNgay, idChiNhanh, idnv);
 
 
                 if (!data.Any())
@@ -111,7 +111,7 @@ int idChiNhanh)
                     .FirstOrDefaultAsync();
 
 
-                var document = new P0303DanhSachKhamBenhTheoBacSi(data, tuNgay, denNgay, logoPath, thongTinDoanhNghiep);
+                var document = new P0303DanhSachKhamBenhTheoBacSi(data, tuNgay, denNgay, logoPath, thongTinDoanhNghiep, idnv);
                 var stream = new MemoryStream();
                 document.GeneratePdf(stream);
                 stream.Position = 0;
@@ -133,7 +133,9 @@ int idChiNhanh)
         public async Task<IActionResult> CheckAndExport(
     [FromQuery] DateTime? tuNgay,
     [FromQuery] DateTime? denNgay,
-    [FromQuery] int? idcn)
+    [FromQuery] int? idcn,
+    [FromQuery] string? idnv = null
+    )
         {
             try
             {
@@ -360,6 +362,10 @@ int idChiNhanh)
                 ws.Cell(row, 7).Style.Font.FontName = "Times New Roman";
                 ws.Cell(row, 7).Style.Font.FontSize = 10;
                 ws.Cell(row, 7).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                ws.Range(row + 5, 7, row + 5, 9).Merge().Value = idnv;
+                ws.Cell(row + 5, 7).Style.Font.FontName = "Times New Roman";
+                ws.Cell(row + 5, 7).Style.Font.FontSize = 10;
+                ws.Cell(row + 5, 7).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
 
                 // ====== ĐIỀU CHỈNH ĐỘ RỘNG CỘT ======
                 ws.Column(1).Width = 15;   // STT
@@ -388,7 +394,7 @@ int idChiNhanh)
         }
 
         [NonAction]
-        public async Task<List<M0303DanhSachKhamBenhTheoBacSiSTO>> GetBNHenKhamAsync(DateTime? tuNgay, DateTime? denNgay, int? idChiNhanh)
+        public async Task<List<M0303DanhSachKhamBenhTheoBacSiSTO>> GetBNHenKhamAsync(DateTime? tuNgay, DateTime? denNgay, int? idChiNhanh, string? idnv = null)
         {
             string tuNgayStr = tuNgay?.ToString("dd/MM/yyyy") ?? DateTime.Now.ToString("dd/MM/yyyy");
             string denNgayStr = denNgay?.ToString("dd/MM/yyyy") ?? DateTime.Now.ToString("dd/MM/yyyy");
