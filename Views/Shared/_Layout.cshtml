@@ -84,6 +84,20 @@ var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
                                asp-controller="C0303BaoCaoMienGiamNgoaiTru" asp-action="V0303BaoCaoMienGiamNgoaiTruPage">Báo cáo miễn giảm ngoại trú</a>
                         </li>
 
+                        <li class="nav-item">
+                            <a class="nav-link @(currentController == "D0303Nam_TKSoLuongBNHenTaiKham" ? "active" : "")"
+                               asp-controller="C0303DanhSachKhamBenhTheoBacSi" asp-action="V0303DanhSachKhamBenhTheoBacSiPage">Danh sách khám bệnh theo bác sĩ</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link @(currentController == "D0303Nam_TKSoLuongBNHenTaiKham" ? "active" : "")"
+                               asp-controller="C0303BaoCaoThongKeBenhTatTheoBNKhamBenh" asp-action="V0303BaoCaoThongKeBenhTatTheoBNKhamBenhPage">Báo cáo thống kê bệnh tật theo bệnh nhân khám bệnh</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link @(currentController == "D0303Nam_TKSoLuongBNHenTaiKham" ? "active" : "")"
+                               asp-controller="C0303DanhSachKhamBenhTheoHuongGiaiQuyet" asp-action="V0303DanhSachKhamBenhTheoHuongGiaiQuyetPage">Danh sách khám bệnh theo hướng giải quyết</a>
+                        </li>
                     </ul>
                 </div>
             </div>

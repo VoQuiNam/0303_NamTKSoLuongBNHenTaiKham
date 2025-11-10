@@ -39,8 +39,9 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Models.M0303
 
         public DbSet<M0303_BaoCaoMienGiamNgoaiTruSTO> M0303_BaoCaoMienGiamNgoaiTruSTOs { get; set; }
         public DbSet<M0303DanhSachKhamBenhTheoBacSiSTO> M0303DanhSachKhamBenhTheoBacSiSTOs { get; set; }
-
-
+        public DbSet<M0303BaoCaoThongKeBenhTatTheoBNKhamBenhSTO> M0303BaoCaoThongKeBenhTatTheoBNKhamBenhSTOs { get; set; }
+        public DbSet<M0303DanhSachKhamBenhTheoHuongGiaiQuyetSTO> M0303DanhSachKhamBenhTheoHuongGiaiQuyetSTOs { get; set; }
+        public DbSet<M0303DM_GiaiQuyet> M0303DM_GiaiQuyets { get; set; }
 
         // SỬA LẠI TÊN DBSET CHO ĐÚNG
         public DbSet<M0303PhieuNhapKhoSTO> M0303PhieuNhapKhoSTOs { get; set; }
@@ -73,8 +74,9 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Models.M0303
             modelBuilder.Entity<M0303NhanVien>().HasNoKey();
             modelBuilder.Entity<M0303_BaoCaoMienGiamNgoaiTruSTO>().HasNoKey();
             modelBuilder.Entity<M0303DanhSachKhamBenhTheoBacSiSTO>().HasNoKey();
-
-
+            modelBuilder.Entity<M0303BaoCaoThongKeBenhTatTheoBNKhamBenhSTO>().HasNoKey();
+            modelBuilder.Entity<M0303DM_GiaiQuyet>().HasNoKey();
+            modelBuilder.Entity<M0303DanhSachKhamBenhTheoHuongGiaiQuyetSTO>().HasNoKey();
         }
 
         public bool TestConnection()
