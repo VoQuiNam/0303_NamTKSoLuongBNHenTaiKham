@@ -32,7 +32,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
         public IActionResult DownloadTemplate()
         {
             string filePath = Path.Combine(_env.WebRootPath,
-                "dist", "excel", "Copy of Phieu xuat kho ban hang sai gon medic dot 1.xlsx");
+                "dist", "excel", "FileDanhMucThuoc_BH duyệt.xlsx");
 
             if (!System.IO.File.Exists(filePath))
                 return NotFound();
@@ -40,7 +40,7 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Controllers.C0303
             byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
             return File(fileBytes,
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                "Copy of Phieu xuat kho ban hang sai gon medic dot 1.xlsx");
+                "FileDanhMucThuoc_BH duyệt.xlsx");
         }
 
         [HttpPost("importExcel")]

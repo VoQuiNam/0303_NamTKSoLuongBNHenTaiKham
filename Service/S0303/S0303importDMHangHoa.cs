@@ -31,7 +31,11 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
 
             var expectedHeaders = new List<string>
     {
-        "STT", "MA_THUOC", "TEN_THUOC", "DON_VI_TINH", "DON_GIA", "BHYT"
+        "MA_THUOC", "TEN_HOAT_CHAT", "TEN_THUOC", "DON_VI_TINH",
+        "HAM_LUONG", "DUONG_DUNG", "MA_DUONG_DUNG",
+        "DANG_BAO_CHE", "SO_DANG_KY", "DON_GIA_BH",
+        "QUY_CACH", "NHA_SX", "NUOC_SX",
+        "NHA_THAU", "TT_THAU", "PP_CHEBIEN", "BHYT"
     };
 
             using (var stream = new MemoryStream())
@@ -82,9 +86,21 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
 
                     var dt = new DataTable();
                     dt.Columns.Add("MA_THUOC", typeof(string));
+                    dt.Columns.Add("TEN_HOAT_CHAT", typeof(string));
                     dt.Columns.Add("TEN_THUOC", typeof(string));
                     dt.Columns.Add("DON_VI_TINH", typeof(string));
-                    dt.Columns.Add("DON_GIA", typeof(double));
+                    dt.Columns.Add("HAM_LUONG", typeof(string));
+                    dt.Columns.Add("DUONG_DUNG", typeof(string));
+                    dt.Columns.Add("MA_DUONG_DUNG", typeof(string));
+                    dt.Columns.Add("DANG_BAO_CHE", typeof(string));
+                    dt.Columns.Add("SO_DANG_KY", typeof(string));
+                    dt.Columns.Add("DON_GIA_BH", typeof(double));
+                    dt.Columns.Add("QUY_CACH", typeof(string));
+                    dt.Columns.Add("NHA_SX", typeof(string));
+                    dt.Columns.Add("NUOC_SX", typeof(string));
+                    dt.Columns.Add("NHA_THAU", typeof(string));
+                    dt.Columns.Add("TT_THAU", typeof(string));
+                    dt.Columns.Add("PP_CHEBIEN", typeof(string));
                     dt.Columns.Add("BHYT", typeof(bool));
 
                     int rowIndex = 1;
@@ -93,37 +109,42 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                     {
                         rowIndex++;
 
-                        string CleanData(string input)
-                        {
-                            if (string.IsNullOrEmpty(input))
-                                return input;
-                            return Regex.Replace(input.Trim(), @"\s+", " ");
-                        }
+                        var dr = dt.NewRow();
 
-                        string maThuoc = CleanData(row.Cell(2).GetString());
-                        string tenThuoc = CleanData(row.Cell(3).GetString());
-                        string donViTinh = CleanData(row.Cell(4).GetString());
+                        dr["MA_THUOC"] = Clean(row.Cell(1).GetString());
+                        dr["TEN_HOAT_CHAT"] = Clean(row.Cell(2).GetString());
+                        dr["TEN_THUOC"] = Clean(row.Cell(3).GetString());
+                        dr["DON_VI_TINH"] = Clean(row.Cell(4).GetString());
+                        dr["HAM_LUONG"] = Clean(row.Cell(5).GetString());
+                        dr["DUONG_DUNG"] = Clean(row.Cell(6).GetString());
+                        dr["MA_DUONG_DUNG"] = Clean(row.Cell(7).GetString());
+                        dr["DANG_BAO_CHE"] = Clean(row.Cell(8).GetString());
+                        dr["SO_DANG_KY"] = Clean(row.Cell(9).GetString());
 
+                        // DON_GIA_BH
                         double donGia = 0;
-                        if (row.Cell(5).TryGetValue<double>(out var dg) && dg >= 0)
-                            donGia = dg;
+                        row.Cell(10).TryGetValue<double>(out donGia);
+                        dr["DON_GIA_BH"] = donGia;
 
-                        var bhytVal = CleanData(row.Cell(6).GetString());
-                        bool isBHYT = bhytVal == "1" ||
-                                      bhytVal.Equals("true", StringComparison.OrdinalIgnoreCase) ||
-                                      bhytVal.Equals("có", StringComparison.OrdinalIgnoreCase) ||
-                                      bhytVal.Equals("yes", StringComparison.OrdinalIgnoreCase);
+                        dr["QUY_CACH"] = Clean(row.Cell(11).GetString());
+                        dr["NHA_SX"] = Clean(row.Cell(12).GetString());
+                        dr["NUOC_SX"] = Clean(row.Cell(13).GetString());
+                        dr["NHA_THAU"] = Clean(row.Cell(14).GetString());
+                        dr["TT_THAU"] = Clean(row.Cell(15).GetString());
+                        dr["PP_CHEBIEN"] = Clean(row.Cell(16).GetString());
 
+                        // BHYT
+                        var bhytStr = Clean(row.Cell(17).GetString());
+                        dr["BHYT"] = bhytStr == "1" ||
+                                     bhytStr?.ToLower() == "true" ||
+                                     bhytStr?.ToLower() == "có" ||
+                                     bhytStr?.ToLower() == "yes";
+
+                        // Validate
                         var rowErrors = new List<string>();
-                        if (string.IsNullOrEmpty(maThuoc))
-                            rowErrors.Add("Mã thuốc không được để trống");
-                        if (string.IsNullOrEmpty(tenThuoc))
-                            rowErrors.Add("Tên thuốc không được để trống");
-                        if (string.IsNullOrEmpty(donViTinh))
-                            rowErrors.Add("Đơn vị tính không được để trống");
-
-                        if (isBHYT && donGia <= 0)
-                            rowErrors.Add("Thuốc BHYT phải nhập đơn giá hợp lệ (>0)");
+                        if (string.IsNullOrWhiteSpace(dr["MA_THUOC"].ToString())) rowErrors.Add("MA_THUOC trống");
+                        if (string.IsNullOrWhiteSpace(dr["TEN_THUOC"].ToString())) rowErrors.Add("TEN_THUOC trống");
+                        if (string.IsNullOrWhiteSpace(dr["DON_VI_TINH"].ToString())) rowErrors.Add("DON_VI_TINH trống");
 
                         if (rowErrors.Any())
                         {
@@ -131,19 +152,13 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
                             continue;
                         }
 
-                        var dr = dt.NewRow();
-                        dr["MA_THUOC"] = maThuoc;
-                        dr["TEN_THUOC"] = tenThuoc;
-                        dr["DON_VI_TINH"] = donViTinh;
-                        dr["DON_GIA"] = donGia;
-                        dr["BHYT"] = isBHYT;
                         dt.Rows.Add(dr);
                     }
 
-                   
                     if (errors.Any())
                         return errors;
 
+                    // ======= 4. IMPORT VÀO DB =======
                     using (var conn = new SqlConnection(connectionString))
                     {
                         await conn.OpenAsync();
@@ -164,6 +179,12 @@ namespace Nam_ThongKeSoLuongBNHenTaiKham.Service.S0303
             return errors;
         }
 
+        private string Clean(string? value)
+        {
+            return string.IsNullOrWhiteSpace(value)
+                ? string.Empty
+                : value.Trim();
+        }
 
 
 
